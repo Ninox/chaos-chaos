@@ -10,7 +10,7 @@
 static bool HAS_CONFIG;
 
 void qbase_plugin_init(wchar_t* path)   {
-    FILE* f = _wfopen(path, L"r");
+    FILE* f = _wfopen(path, L"r+");
     HAS_CONFIG = f != NULL;
     if(HAS_CONFIG)  {
         // TODO: use the basescript function to load the DSL of config
