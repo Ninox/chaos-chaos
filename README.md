@@ -1,23 +1,23 @@
 # About chaos-chaos #
 
-chaos-chaos ��һ������Quab�����������Ŀ�Դ��Ļ�����Ϸ
+chaos-chaos 是一个基于Quab引擎所制作的开源弹幕射击游戏
 
 # What is Quab #
 
-Quab��Ϊchaos-chaos����Ƶ�һ�Ļ��Ϸ���档���������µ��ص�:
-+	���������õ���չ�Ժ������ԣ������ǰɣ���ͨ��ʹ��Lua�ű����ܹ�����Ϊ��Ϸ������չӦ��
-+	֧�ֶ��ƽ̨��Ŀǰ�׶μ���windows��Linux���պ�������ƽ̨֧�֣�
-+	�������õı༭���ߣ������޸ĺ���չ��Ϸ
+Quab是为chaos-chaos而设计的一款弹幕游戏引擎。他具有如下的特点:
++	它具有良好的拓展性和易用性（还算是吧）～通过使用Lua脚本就能够轻松为游戏添加拓展应用
++	支持多个平台，目前阶段兼容windows和Linux，日后往更多平台支持！
++	具有良好的编辑工具，方便修改和拓展游戏
 
 # License #
 
-Э��ʲô�Ķ��Ǹ��ƣ�Ӳ��Ҫ˵�Ļ�������apache License��
+协议什么的都是浮云，硬是要说的话就来个apache License吧
 
 # How To Build #
 
-������Ŀ�Ƽ���CMake���й��������ڿ����У������õĿ�������ʱ�����г����Ժ��ϡ���
+整个项目推荐用CMake进行构建，尚在开发中，所引用的开发库暂时不能列出，以后补上……
 
 # Contact #
 
-yogichung.dcode#gmail.com
-#�滻��@ʲô�ģ��ҾͲ�˵������
+yogichung.dcode＃gmail.com
+＃替换成@什么的，我就不说啦……
