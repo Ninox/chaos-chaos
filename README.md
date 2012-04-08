@@ -19,6 +19,6 @@ Quab是为chaos-chaos而设计的一款弹幕游戏引擎。他具有如下的�
 整个项目推荐用CMake进行构建，尚在开发中，所引用的开发库暂时不能列出，以后补上……
 
 # Contact #
-
-> yogichung.dcode＃gmail.com
-> ＃替换成@什么的，我就不说啦……
+    yogichung.dcode＃gmail.com
+    
+    ＃替换成@什么的，我就不说啦……
