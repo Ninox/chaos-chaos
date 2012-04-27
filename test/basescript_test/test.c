@@ -8,8 +8,8 @@ int main()
 	{
 		// todo sth
 		qbase_ret ret;
-		qbase_lua_exec("print(\"Hello world\\n\")", "test_print", 0, 0, &ret, sta);
-		qbase_lua_exec("return 123", "return_test", 0, 1, &ret, sta);
+		qbase_lua_exec("print(\"Hello world\\n\")", "test_print", 0, &ret, sta);
+		qbase_lua_exec("return 123", "return_test", 1, &ret, sta);
 		
 		qbase_lua_load("test.lua", "file_test", sta);
 		// qbase_lua_call
