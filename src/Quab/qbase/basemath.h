@@ -7,7 +7,7 @@ typedef struct	qbase_vector	{
 	Real posY;
 } qbase_vector;
 
-typedef struct qbase_matrix	{
+typedef struct qbase_matrix2	{
 	Real **m;
 } qbase_matrix2;
 
@@ -26,6 +26,7 @@ inline Real qbase_vector_length(const qbase_vector* vec);
 inline void qbase_vector_mul(qbase_vector* v, Real k);
 
 /*	matrix	*/
+inline void qbase_matrix_init(qbase_matrix2* m, Real m00, Real m01, Real m10, Real m11);
 inline void qbase_matrix_trans(qbase_matrix2* mtx);
 inline qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx);
 inline void qbase_matrix_reverse(qbase_matrix2* mtx);
