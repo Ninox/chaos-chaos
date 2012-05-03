@@ -3,6 +3,8 @@
 
 #define PI 3.1415f
 #define ES 0.005f
+#define MSTD_ROW 0
+#define MSTD_COL 1
 #define SWAP_AB(A,B)	\
 	(A) ^= (B);	\
 	(B) ^= (A);	\
@@ -78,16 +80,17 @@ inline void qbase_vector_mul(qbase_vector* v, Real k)	{
 
 /*		matrix functions	*/
 
-inline Real** qbase_matrix_init(Real** m, Real m00, Real m01, Real m10, Real m11)	{
-	/*	if m is not null, release it	*/
-	if(m!=NULL)	{
-		free(m);
+inline void qbase_matrix_init(qbase_matrix2 *mtrx, int standard, Real m00, Real m01, Real m10, Real m11)	{
+	/*	if mtrx data is not null, release it	*/
+	if(mtrx->m!=NULL)	{
+		free(mtrx->m);
 	}
-	m = matrix_new();
-	m[0][0] = m00;
-	m[0][1] = m01;
-	m[1][0] = m10;
-	m[1][1] = m11;
+	mtrx->standard = standard==0?MSTD_ROW:MSTD_COL;		// default is row vector
+	mtrx->m = matrix_new();
+	mtrx->m[0][0] = m00;
+	mtrx->m[0][1] = m01;
+	mtrx->m[1][0] = m10;
+	mtrx->m[1][1] = m11;
 	
 	return m;
 }
