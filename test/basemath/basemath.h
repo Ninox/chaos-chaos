@@ -2,13 +2,14 @@
 #define QBASE_MATH_H
 
 typedef float Real;
+typedef Real** matrix_ptr;
 typedef struct	qbase_vector	{
 	Real posX;
 	Real posY;
 } qbase_vector;
 
 typedef struct qbase_matrix2	{
-	Real **m;
+	matrix_ptr m;
 } qbase_matrix2;
 
 /*	basic	*/
@@ -26,7 +27,7 @@ inline Real qbase_vector_length(const qbase_vector* vec);
 inline void qbase_vector_mul(qbase_vector* v, Real k);
 
 /*	matrix	*/
-inline void qbase_matrix_init(qbase_matrix2* m, Real m00, Real m01, Real m10, Real m11);
+inline void qbase_matrix_init(matrix_ptr *m, Real m00 = 0.0f, Real m01 = 0.0f, Real m10 = 0.0f, Real m11 = 0.0f);
 inline void qbase_matrix_trans(qbase_matrix2* mtx);
 inline qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx);
 inline void qbase_matrix_reverse(qbase_matrix2* mtx);

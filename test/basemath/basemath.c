@@ -3,19 +3,24 @@
 
 #define PI 3.1415f
 #define ES 0.005f
+#define SWAP_AB(A,B)	\
+	(A) ^= (B);	\
+	(B) ^= (A);	\
+	(A) ^= (B)
+	
 
 /*******************   static func	*********************/
-static qbase_matrix2 *
+static Real**
 matrix_new()	{
-	qbase_matrix2 * mtrx = malloc(sizeof(qbase_matrix2));
-	mtrx->m = malloc(2*sizeof(Real*)+4*sizeof(float));
-	*(mtrx->m) = (Real*)(mtrx->m+2);
-	*(mtrx->m+1) = (Real*)(mtrx->m+4);
-	*(Real*)(mtrx->m+2) = 0.0f;
-	*(Real*)(mtrx->m+3) = 0.0f;
-	*(Real*)(mtrx->m+4) = 0.0f;
-	*(Real*)(mtrx->m+5) = 0.0f;
-	return mtrx;
+	Real **m = NULL;
+	m = malloc(2*sizeof(Real*)+4*sizeof(Real));
+	*(m) = (Real*)(m+2);
+	*(m+1) = (Real*)(m+4);
+	*(Real*)(m+2) = 0.0f;
+	*(Real*)(m+3) = 0.0f;
+	*(Real*)(m+4) = 0.0f;
+	*(Real*)(m+5) = 0.0f;
+	return m;
 }
 
 
@@ -53,7 +58,7 @@ inline Real qbase_vector_sin(const qbase_vector* vec1, const qbase_vector* vec2)
 inline int qbase_vector_isparallel(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	if(vec1==NULL || vec2==NULL)
 		return -1;
-	return v1.posX/v2.posX == v1.posY/v2.posY;
+	return (v1.posX/v2.posX == v1.posY/v2.posY)?1:0;
 }
 inline int qbase_vector_isvertical(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	if(vec1==NULL || vec2==NULL)
@@ -73,20 +78,21 @@ inline void qbase_vector_mul(qbase_vector* v, Real k)	{
 
 /*		matrix functions	*/
 
-inline void qbase_matrix_init(qbase_matrix2* m, Real m00, Real m01, Real m10, Real m11)	{
+inline Real** qbase_matrix_init(Real** m, Real m00, Real m01, Real m10, Real m11)	{
 	/*	if m is not null, release it	*/
 	if(m!=NULL)	{
-		free(m->m);
 		free(m);
 	}
 	m = matrix_new();
-	m->m[0][0] = m00;
-	m->m[0][1] = m01;
-	m->m[1][0] = m10;
-	m->m[1][1] = m11;
+	m[0][0] = m00;
+	m[0][1] = m01;
+	m[1][0] = m10;
+	m[1][1] = m11;
+	
+	return m;
 }
 inline void qbase_matrix_trans(qbase_matrix2* mtx)	{
-	
+	SWAP_AB(mtx->m[0][1], mtx->m[1][0]);
 }
 inline qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx)	{
 	
@@ -95,10 +101,13 @@ inline void qbase_matrix_reverse(qbase_matrix2* mtx)	{
 	
 }
 inline Real qbase_matrix_det(const qbase_matrix2* mtx)	{
-	
+	return mtx->m[0][0]*mtx->[1][1]-mtx->[0][1]*mtx->m[1][0];
 }
 inline void qbase_matrix_extend(qbase_matrix2* mtx, Real k)	{
-	
+	mtx->m[0][0] *= k;
+	mtx->m[0][1] *= k;
+	mtx->m[1][0] *= k;
+	mtx->m[1][1] *= k;
 }
 inline qbase_matrix2 qbase_matrix_mul(const qbase_matrix2* mtx1, const qbase_matrix2* mtx2)	{
 	
