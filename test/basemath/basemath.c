@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include "basemath.h"
 
-#define PI 3.1415f
+#define PI 3.1415926f
 #define ES 0.005f
 #define ROW_BASE 0
 #define COL_BASE 1
@@ -37,8 +37,7 @@ inline Real qbase_math_todegree(Real rad)	{
 
 inline int qbase_math_equal(Real n, Real m)	{
 	Real diff = n-m;
-	printf("%f      %f\n", n,m);
-	return (diff<0)?(0-diff<=ES):(diff<=ES);
+	return (diff<0)?(diff>=(-ES)):(diff<=ES);
 }
 
 /*	vector functions	*/
@@ -59,19 +58,17 @@ inline Real qbase_vector_sin(const qbase_vector* vec1, const qbase_vector* vec2)
 	if(vec1==NULL || vec2==NULL)
 		return -2;
 	Real cval = qbase_vector_cos(vec1,vec2);
-	return 1-cval*cval;
+	return sqrt(1-cval*cval);
 }
 inline int qbase_vector_isparallel(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	if(vec1==NULL || vec2==NULL)
 		return -1;
-	return qbase_math_equal(vec1->posX/vec2->posX,vec1->posY/vec2->posY)>0?1:0;
+	return qbase_math_equal(vec1->posX*vec2->posY, vec1->posY*vec2->posX)>0?1:0;
 }
 inline int qbase_vector_isvertical(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	if(vec1==NULL || vec2==NULL)
 		return -1;
-    printf("%f  %f\n",vec1->posX,vec1->posY);
-    printf("%f  %f\n",vec2->posX,vec2->posY);
-	return qbase_vector_dot(vec1,vec2)==0?1:0;
+	return qbase_math_equal(qbase_vector_dot(vec1,vec2), 0)>0?1:0;
 }
 inline Real qbase_vector_length(const qbase_vector* vec)	{
 	if(vec==NULL)
@@ -94,7 +91,7 @@ inline void qbase_matrix_init(qbase_matrix2 *mtrx, int standard, Real m00, Real 
 	if(mtrx->m!=NULL)	{
 		free(mtrx->m);
 	}
-	mtrx->standard = standard==0?ROW_BASE:COL_BASE;		// default is row vector
+	mtrx->standard = standard==0?ROW_BASE:COL_BASE;		//  [tablename] is row vector
 	mtrx->m = matrix_new();
 	mtrx->m[0][0] = m00;
 	mtrx->m[0][1] = m01;
