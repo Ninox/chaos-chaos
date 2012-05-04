@@ -37,7 +37,7 @@ inline Real qbase_math_todegree(Real rad)	{
 
 inline int qbase_math_equal(Real n, Real m)	{
 	Real diff = n-m;
-	printf("%f      %f\n", diff,ES*ES);
+	printf("%f      %f\n", n,m);
 	return (diff<0)?(0-diff<=ES):(diff<=ES);
 }
 
@@ -64,11 +64,13 @@ inline Real qbase_vector_sin(const qbase_vector* vec1, const qbase_vector* vec2)
 inline int qbase_vector_isparallel(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	if(vec1==NULL || vec2==NULL)
 		return -1;
-	return (vec1->posX/vec2->posX == vec1->posY/vec2->posY)?1:0;
+	return qbase_math_equal(vec1->posX/vec2->posX,vec1->posY/vec2->posY)>0?1:0;
 }
 inline int qbase_vector_isvertical(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	if(vec1==NULL || vec2==NULL)
 		return -1;
+    printf("%f  %f\n",vec1->posX,vec1->posY);
+    printf("%f  %f\n",vec2->posX,vec2->posY);
 	return qbase_vector_dot(vec1,vec2)==0?1:0;
 }
 inline Real qbase_vector_length(const qbase_vector* vec)	{
