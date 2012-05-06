@@ -1,6 +1,9 @@
 #ifndef QBASE_MATH_H
 #define QBASE_MATH_H
 
+#define V_ROW 0
+#define	V_COL 1
+
 typedef float Real;
 typedef Real** matrix_ptr;
 typedef struct	qbase_vector	{
@@ -26,11 +29,12 @@ inline Real qbase_vector_sin(const qbase_vector* vec1, const qbase_vector* vec2)
 inline int qbase_vector_isparallel(const qbase_vector* vec1, const qbase_vector* vec2);
 inline int qbase_vector_isvertical(const qbase_vector* vec1, const qbase_vector* vec2);
 inline Real qbase_vector_length(const qbase_vector* vec);
-inline void qbase_vector_mul(qbase_vector* v, Real k);
+inline int qbase_vector_mul(qbase_vector* v, Real k);
 
 /*	matrix	*/
-inline void qbase_matrix_zero(qbase_matrix2 *m, int standard);
-inline void qbase_matrix_init(qbase_matrix2 *m, int standard, Real m00, Real m01, Real m10, Real m11);
+inline void qbase_matrix_free(qbase_matrix2* m);
+inline int qbase_matrix_zero(qbase_matrix2* m, int standard);
+inline int qbase_matrix_init(qbase_matrix2* m, int standard, Real m00, Real m01, Real m10, Real m11);
 inline void qbase_matrix_trans(qbase_matrix2* mtx);
 inline qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx);
 inline void qbase_matrix_inverse(qbase_matrix2* mtx);

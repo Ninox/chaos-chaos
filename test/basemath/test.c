@@ -18,7 +18,7 @@ test_basic()	{
 	assert(qbase_math_todegree(2) - 390 <= 0.0005);
 	assert(qbase_math_todegree(0) - 0 <= 0.0005);
 	assert(qbase_math_todegree(2/3) - 120 <= 0.0005);
-   	printf("degree test Done:\n");
+   	printf("degree test is ok:\n");
     assert(qbase_math_equal(0.000001,0)==1);
 	assert(qbase_math_equal(0, 1) == 0);
 	assert(qbase_math_equal(0.9901, 1) == 0);
@@ -26,7 +26,7 @@ test_basic()	{
 	assert(qbase_math_equal(9.8, 10) == 0);
 	assert(qbase_math_equal(13587.9534, 13588) == 0);
 	assert(qbase_math_equal(13587.9534, 13589) == 0);
-	printf("equal test Done:\n");
+	printf("equal test is ok:\n");
 }
 
 static void
@@ -64,12 +64,11 @@ test_vrelation()	{
 	assert(qbase_vector_isparallel(&v1,&v2)!=1);
 	assert(qbase_vector_isvertical(&v1,&v2)!=1);
 
-	printf("vector relation done\n");
+	printf("vector relation is ok\n");
 }
 
 static void
 test_vcalc()	{
-    printf("vector sin,cos test, start:");
     qbase_vector v1, v2;
     v1.standard = 0; v2.standard = 0;
     v1.posX = 10.39; v1.posY = 6;
@@ -101,36 +100,188 @@ test_vcalc()	{
     v2.posX = 10; v2.posY = 0;
     assert(qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(120*PI/180))> 0);
     assert(qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(120*PI/180))> 0);
+    printf("vector sin,cos test is ok:\n");
 
     // plus, dot, length, mul
-    printf("vector length, start:");
-    assert(qbase_vector_length(&v1)>0);
+    v1.posX = 1; v1.posY = 1;
+    assert(qbase_math_equal(qbase_vector_length(&v1),1.414)>0);
+    v1.posX = 1; v1.posY = -1;
+    assert(qbase_math_equal(qbase_vector_length(&v1),1.414)>0);
+    v1.posX = -1; v1.posY = -1;
+    assert(qbase_math_equal(qbase_vector_length(&v1),1.414)>0);
+    v1.posX = 4; v1.posY = 3;
+    assert(qbase_math_equal(qbase_vector_length(&v1),5)>0);
+    v1.posX = 8; v1.posY = 6;
+    assert(qbase_math_equal(qbase_vector_length(&v1),10)>0);
+    printf("vector length is ok:\n");
 
-    printf("vector plus, start:");
-    printf("vector mul, start:");
+    qbase_vector v;
+    v1.posX=10; v1.posY=20;
+    v2.posX=5; v2.posY=5;
+    v = qbase_vector_plus(&v1, &v2);
+    assert(v.posX== v1.posX+v2.posX && v.posY == v1.posY+v2.posY);
+
+    v1.posX=10; v1.posY=-20;
+    v2.posX=5; v2.posY=5;
+    v = qbase_vector_plus(&v1, &v2);
+    assert(v.posX== v1.posX+v2.posX && v.posY == v1.posY+v2.posY);
+
+    v1.posX=0.31; v1.posY=20;
+    v2.posX=5.39; v2.posY=5.092;
+    v = qbase_vector_plus(&v1, &v2);
+    assert(
+           qbase_math_equal(v.posX, v1.posX+v2.posX)>0 &&
+           qbase_math_equal(v.posY, v1.posY+v2.posY)>0
+    );
+
+    v1.posX=-10.3; v1.posY=2.0;
+    v2.posX=5; v2.posY=5;
+    v = qbase_vector_plus(&v1, &v2);
+    assert(v.posX== v1.posX+v2.posX && v.posY == v1.posY+v2.posY);
+    printf("vector plus is ok:\n");
+
+	v1.posX = 10; v1.posY = 5;
+	v2.posX = 0.3; v2.posY = 12.1;
+	assert(qbase_math_equal(qbase_vector_dot(&v1, &v2), 63.5)>0);
+	v1.posX = -5; v1.posY = 1;
+	v2.posX = 0; v2.posY = 7;
+	assert(qbase_math_equal(qbase_vector_dot(&v1, &v2), 7.0)>0);
+	v1.posX = -1; v1.posY = 2;
+	v2.posX = -0.3; v2.posY = -4;
+	assert(qbase_math_equal(qbase_vector_dot(&v1, &v2), -7.7)>0);
+
+	v1.posX = 10; v1.posY = 5;
+	v = v1;
+	qbase_vector_mul(&v, 0.5);
+	assert(qbase_math_equal(v.posX, 0.5*v1.posX)>0 && qbase_math_equal(v.posY, 0.5*v1.posY)>0);
+	v1.posX = 0; v1.posY = 0;
+	v = v1;
+	qbase_vector_mul(&v, 3);
+	assert(qbase_math_equal(v.posX, 3*v1.posX)>0 && qbase_math_equal(v.posY, 3*v1.posY)>0);
+	v1.posX = 120; v1.posY = 5.17;
+	v = v1;
+	qbase_vector_mul(&v, 1.75);
+	assert(qbase_math_equal(v.posX, 1.75*v1.posX)>0 && qbase_math_equal(v.posY, 1.75*v1.posY)>0);
+	v1.posX = 13.902; v1.posY = -5.07;
+	v = v1;
+	qbase_vector_mul(&v, -0.5);
+	assert(qbase_math_equal(v.posX, -0.5*v1.posX)>0 && qbase_math_equal(v.posY, -0.5*v1.posY)>0);
+    printf("vector mul is ok:\n");
 }
 
 static void
 test_mconstruct() {
+    // repeat initalize the matrix for testing the wild pointer
+	qbase_matrix2 m1;
+	m1.m = NULL;
+	int i = 0;
+	for(;i < 1000; i++) {
+        qbase_matrix_zero(&m1, V_ROW);
+	}
+
+	//	check zero and normal construction
+	qbase_matrix_zero(&m1, V_ROW);
+	assert(
+		m1.m[0][0] == 0.0f && m1.m[0][1] == 0.0f &&
+		m1.m[1][0] == 0.0f && m1.m[1][1] == 0.0f
+	);
+	printf("zero construction is ok\n");
+
+	qbase_matrix_init(&m1, V_ROW, 1, 2, 3, 4);
+	assert(
+		m1.m[0][0] == 1.0f && m1.m[0][1] == 2.0f &&
+		m1.m[1][0] == 3.0f && m1.m[1][1] == 4.0f
+	);
+	printf("normal construction is ok\n");
+
+	// trans test, use the same matrix of init test
+	qbase_matrix_trans(&m1);
+	assert(
+		m1.m[0][0] == 1.0f && m1.m[0][1] == 3.0f &&
+		m1.m[1][0] == 2.0f && m1.m[1][1] == 4.0f
+	);
+	printf("trans operation is ok\n");
+
+	// extend of matrix, use the same data of trans
+	qbase_matrix_extend(&m1, 0.5);
+	assert(
+		m1.m[0][0] == 0.5f && m1.m[0][1] == 1.5f &&
+		m1.m[1][0] == 1.0f && m1.m[1][1] == 2.0f
+	);
+	qbase_matrix_extend(&m1, -2);
+	assert(
+		m1.m[0][0] == -1.0f && m1.m[0][1] == -3.0f &&
+		m1.m[1][0] == -2.0f && m1.m[1][1] == -4.0f
+	);
+	qbase_matrix_extend(&m1, 0);
+	assert(
+		m1.m[0][0] == 0.0f && m1.m[0][1] == 0.0f &&
+		m1.m[1][0] == 0.0f && m1.m[1][1] == 0.0f
+	);
+	qbase_matrix_free(&m1);
+	printf("extend method is OK\n");
 }
 
 static void
 test_mcalc()  {
+	// adjoint matrix test
+    qbase_matrix2 mt;
+    mt.m = NULL;
+    qbase_matrix_init(&mt, V_ROW, 1,4,3,5);
+    qbase_matrix2 ma = qbase_matrix_adjoint(&mt);
+//    printf("ma:\n%f,%f,\n%f, %f\n---\nmt:\n%f, %f,\n%f, %f\n",
+//        ma.m[0][0], ma.m[0][1], ma.m[1][0], ma.m[1][1],
+//		mt.m[0][0], mt.m[0][1], mt.m[1][0], mt.m[1][1]
+//    );
+    assert(
+        ma.m[0][0] == mt.m[1][1] && ma.m[0][1] == -mt.m[1][0] &&
+		ma.m[1][0] == -mt.m[0][1] && ma.m[1][1] == mt.m[0][0]
+    );
+	qbase_matrix_init(&mt, V_ROW, 4,-2.5,3.01,-7.312);
+    ma = qbase_matrix_adjoint(&mt);
+    assert(
+        ma.m[0][0] == mt.m[1][1] && ma.m[0][1] == -mt.m[1][0] &&
+		ma.m[1][0] == -mt.m[0][1] && ma.m[1][1] == mt.m[0][0]
+    );
+	printf("adjoint test is OK\n");
+
+	// matrix det value test
+	qbase_matrix_init(&mt, V_ROW, 1, 1, 1, 1);
+	Real det = qbase_matrix_det(&mt);
+	assert(det == 0.0f);
+	qbase_matrix_init(&mt, V_ROW, 5, 2.5, 4, 4);
+	det = qbase_matrix_det(&mt);
+	assert(det == 10.0f);
+	qbase_matrix_init(&mt, V_ROW, 1, 2, -3, 4);
+	det = qbase_matrix_det(&mt);
+	assert(det == 10.0f);
+	qbase_matrix_init(&mt, V_ROW, -1, 1, 19, -31);
+	det = qbase_matrix_det(&mt);
+	assert(det == 12.0f);
+
+	// matrix extend value test
+
+	// matrix mul test
+
+	// matrix vmul test
+
+	// matrix inverse test
 }
 
 int main()
 {
 	// test the qbase_math basic calc
+	STOP_FOR_TEST("\n--------  basic test start  ----------\n");
 	test_basic();
-	STOP_FOR_TEST("\n--------  basic test stop  ----------\n");
 	// test the vector api
+	STOP_FOR_TEST("\n--------  vector test start  ----------\n");
 	test_vrelation();
 	test_vcalc();
-	STOP_FOR_TEST("\n--------  vector test stop  ----------\n");
 	// test the matrix api
+	STOP_FOR_TEST("\n--------  matrix test start  ----------\n");
 	test_mconstruct();
 	test_mcalc();
-	STOP_FOR_TEST("\n--------  matrix test stop  ----------\n");
 
+    STOP_FOR_TEST("\n       ALL TEST HAS BEEN RUN       \n");
 	return 0;
 }

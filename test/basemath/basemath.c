@@ -12,7 +12,6 @@
 	(B) = (A) - (B);	\
 	(A) -= (B)
 
-
 /*******************   static func	*********************/
 static Real**
 matrix_new()	{
@@ -26,7 +25,6 @@ matrix_new()	{
 	*(Real*)(m+5) = 0.0f;
 	return m;
 }
-
 
 /*******************	implement	*********************/
 
@@ -75,38 +73,49 @@ inline Real qbase_vector_length(const qbase_vector* vec)	{
 		return 0;
 	return sqrt(vec->posX*vec->posX+vec->posY*vec->posY);
 }
-inline void qbase_vector_mul(qbase_vector* v, Real k)	{
-	if(v==NULL) return;
+inline int qbase_vector_mul(qbase_vector* v, Real k)	{
+	if(v==NULL) return 0;
 	v->posX*=k;
 	v->posY*=k;
+	return 1;
 }
 
 /*		matrix functions	*/
-inline void qbase_matrix_zero(qbase_matrix2 *m, int standard)	{
-	qbase_matrix_init(m, standard, 0, 0, 0, 0);
+inline void qbase_matrix_free(qbase_matrix2* m) {
+    if(m->m!= NULL) {
+        free(m->m);
+        m->m = NULL;
+    }
 }
 
-inline void qbase_matrix_init(qbase_matrix2 *mtrx, int standard, Real m00, Real m01, Real m10, Real m11)	{
+inline int qbase_matrix_zero(qbase_matrix2* m, int standard)	{
+	return qbase_matrix_init(m, standard, 0, 0, 0, 0);
+}
+
+inline int qbase_matrix_init(qbase_matrix2* mtrx, int standard, Real m00, Real m01, Real m10, Real m11)	{
 	/*	if mtrx data is not null, release it	*/
-	if(mtrx->m!=NULL)	{
-		free(mtrx->m);
-	}
+	qbase_matrix_free(mtrx);
+
 	mtrx->standard = standard==0?ROW_BASE:COL_BASE;		//  [tablename] is row vector
 	mtrx->m = matrix_new();
+	if(mtrx->m == NULL)
+        return 0;
 	mtrx->m[0][0] = m00;
 	mtrx->m[0][1] = m01;
 	mtrx->m[1][0] = m10;
 	mtrx->m[1][1] = m11;
+	return 1;
 }
 inline void qbase_matrix_trans(qbase_matrix2* mtx)	{
 	SWAP_AB(mtx->m[0][1], mtx->m[1][0]);
 }
 inline qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx)	{
 	qbase_matrix2 m;
+	m.m = NULL;
 	//   2x2 matrix 	-->		adjoint matrix
 	//    a		b				 d		-c
 	//	  c		d				-b		 a
-	qbase_matrix_init(&m, ROW_BASE, mtx->m[1][1], -mtx->m[0][1], -mtx->m[1][0], mtx->m[0][0]);
+	qbase_matrix_init(&m, ROW_BASE, mtx->m[1][1], -mtx->m[1][0], -mtx->m[0][1], mtx->m[0][0]);
 	return m;
 }
 inline void qbase_matrix_inverse(qbase_matrix2* mtx)	{
