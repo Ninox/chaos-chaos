@@ -223,6 +223,7 @@ test_mcalc(void)  {
 	// adjoint matrix test
 	Real det;
     qbase_matrix2 mt, ma;
+	qbase_vector v;
     mt.m = NULL;
     qbase_matrix_init(&mt, V_ROW, 1,4,3,5);
     ma = qbase_matrix_adjoint(&mt);
@@ -231,14 +232,14 @@ test_mcalc(void)  {
 //		mt.m[0][0], mt.m[0][1], mt.m[1][0], mt.m[1][1]
 //    );
     assert(
-        Q_EQUAL(ma.m[0][0], mt.m[1][1])>0 && Q_EQUAL(ma.m[0][1], -mt.m[1][0])>0 &&
-		Q_EQUAL(ma.m[1][0], -mt.m[0][1])>0 && Q_EQUAL(ma.m[1][1], mt.m[0][0])>0
+        Q_EQUAL(ma.m[0][0], mt.m[1][1])>0 && Q_EQUAL(ma.m[0][1], -mt.m[0][1])>0 &&
+		Q_EQUAL(ma.m[1][0], -mt.m[1][0])>0 && Q_EQUAL(ma.m[1][1], mt.m[0][0])>0
     );
 	qbase_matrix_init(&mt, V_ROW, 4,-2.5,3.01,-7.312);
     ma = qbase_matrix_adjoint(&mt);
     assert(
-        Q_EQUAL(ma.m[0][0], mt.m[1][1])>0 && Q_EQUAL(ma.m[0][1], -mt.m[1][0])>0 &&
-		Q_EQUAL(ma.m[1][0], -mt.m[0][1])>0 && Q_EQUAL(ma.m[1][1], mt.m[0][0])>0
+        Q_EQUAL(ma.m[0][0], mt.m[1][1])>0 && Q_EQUAL(ma.m[0][1], -mt.m[0][1])>0 &&
+		Q_EQUAL(ma.m[1][0], -mt.m[1][0])>0 && Q_EQUAL(ma.m[1][1], mt.m[0][0])>0
     );
 	printf("adjoint test is OK\n");
 
@@ -255,14 +256,44 @@ test_mcalc(void)  {
 	qbase_matrix_init(&mt, V_ROW, -1, 1, 19, -31);
 	det = qbase_matrix_det(&mt);
 	assert(Q_EQUAL(det, 12.0)>0);
-
-	// matrix extend value test
+	printf("det test is OK\n");
 
 	// matrix mul test
+	qbase_matrix_init(&mt, V_ROW, -3, 0, 5, 0.5);
+	qbase_matrix_init(&ma, V_ROW, -7, 2, 4, 6);
+	ma = qbase_matrix_mul(&mt, &ma);
+	assert(
+		Q_EQUAL(ma.m[0][0], 21)>0 && Q_EQUAL(ma.m[0][1], -6)>0 &&
+		Q_EQUAL(ma.m[1][0], -33)>0 && Q_EQUAL(ma.m[1][1], 13)>0
+	);
+    printf("matrix mul test is OK\n");
 
 	// matrix vmul test
+	v.posX = 0;
+	v.posY = 1;
+	v.standard = V_ROW;
+	qbase_matrix_init(&mt, V_ROW, 2, 1, -1, 2);
+	v = qbase_matrix_vmul(&v, &mt);
+	assert(Q_EQUAL(v.posX, -1)>0 && Q_EQUAL(v.posY, 2)>0);
+	v.posX = 1;
+	v.posY = 0;
+	v = qbase_matrix_vmul(&v, &mt);
+	assert(Q_EQUAL(v.posX, 2)>0 && Q_EQUAL(v.posY, 1)>0);
+    printf("vector mul test is OK\n");
 
 	// matrix inverse test
+	qbase_matrix_inverse(&mt);
+	assert(
+		Q_EQUAL(mt.m[0][0], 0.4)>0 && Q_EQUAL(mt.m[0][1], -0.2)>0 &&
+		Q_EQUAL(mt.m[1][0], 0.2)>0 && Q_EQUAL(mt.m[1][1], 0.4)>0
+	);
+	qbase_matrix_init(&mt, V_ROW, -7, 2, 4, 6);
+	qbase_matrix_inverse(&mt);
+	assert(
+		Q_EQUAL(mt.m[0][0], 0.12f)>0 && Q_EQUAL(mt.m[0][1], -0.04f)>0 &&
+		Q_EQUAL(mt.m[1][0], -0.08f)>0 && Q_EQUAL(mt.m[1][1], -0.14f)>0
+	);
+	printf("inverse test is OK\n");
 }
 
 int main()

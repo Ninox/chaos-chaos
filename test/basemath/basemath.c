@@ -114,10 +114,10 @@ void qbase_matrix_trans(qbase_matrix2* mtx)	{
 qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx)	{
 	qbase_matrix2 m;
 	m.m = NULL;
-	//   2x2 matrix 	-->		adjoint matrix
-	//    a		b				 d		-c
-	//	  c		d				-b		 a
-	qbase_matrix_init(&m, ROW_BASE, mtx->m[1][1], -mtx->m[1][0], -mtx->m[0][1], mtx->m[0][0]);
+	//   2x2 matrix 	-->		adjoint matrix(Aij=Mji)
+	//    a		b				 d		-b
+	//	  c		d				-c		 a
+	qbase_matrix_init(&m, ROW_BASE, mtx->m[1][1], -mtx->m[0][1], -mtx->m[1][0], mtx->m[0][0]);
 	return m;
 }
 void qbase_matrix_inverse(qbase_matrix2* mtx)	{
@@ -129,7 +129,7 @@ void qbase_matrix_inverse(qbase_matrix2* mtx)	{
 	mtx->m[1][0] = m.m[1][0];
 	mtx->m[1][1] = m.m[1][1];
 
-	qbase_matrix_extend(mtx, det);
+	qbase_matrix_extend(mtx, fabs(1.0f/det));
 }
 Real qbase_matrix_det(const qbase_matrix2* mtx)	{
 	return mtx->m[0][0]*mtx->m[1][1]-mtx->m[0][1]*mtx->m[1][0];
