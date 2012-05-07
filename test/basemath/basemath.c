@@ -146,6 +146,7 @@ qbase_matrix2 qbase_matrix_mul(const qbase_matrix2* mtx1, const qbase_matrix2* m
 	// | a1		b1 |	*	| a2	b2 | =	| a1[a2 b2] + b1[c2 d2] |
 	// | c1		d1 |	 	| c2	d2 |	| c1[a2 b2] + d1[c2 d2] |
 	qbase_matrix2 m;
+	m.m = NULL;
 	qbase_matrix_init(&m, ROW_BASE,
 		mtx1->m[0][0]*mtx2->m[0][0]+mtx1->m[0][1]*mtx2->m[1][0], mtx1->m[0][0]*mtx2->m[0][1]+mtx1->m[0][1]*mtx2->m[1][1],
 		mtx1->m[1][0]*mtx2->m[0][0]+mtx1->m[1][1]*mtx2->m[1][0], mtx1->m[1][0]*mtx2->m[0][1]+mtx1->m[1][1]*mtx2->m[1][1]
