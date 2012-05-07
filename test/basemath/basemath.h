@@ -4,7 +4,12 @@
 #define V_ROW 0
 #define	V_COL 1
 
+#ifdef QBASE_OS_64BIT
+typedef double Real;
+#else
 typedef float Real;
+#endif
+
 typedef Real** matrix_ptr;
 typedef struct	qbase_vector	{
 	Real posX;

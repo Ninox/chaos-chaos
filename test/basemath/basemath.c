@@ -18,11 +18,12 @@ matrix_new()	{
 	Real **m = NULL;
 	m = malloc(2*sizeof(Real*)+4*sizeof(Real));
 	*(m) = (Real*)(m+2);
-	*(m+1) = (Real*)(m+4);
-	*(Real*)(m+2) = 0.0f;
-	*(Real*)(m+3) = 0.0f;
-	*(Real*)(m+4) = 0.0f;
-	*(Real*)(m+5) = 0.0f;
+	*(m+1) = (Real*)(m+4);  // Real is 64bit, 8 byte.
+	*(Real*)(m+2) = 0;
+	*(Real*)(m+3) = 0;    // so the offset of the memory is 2(in 32-bit, 1 in 64bit)
+	*(Real*)(m+4) = 0;
+	*(Real*)(m+5) = 0;
+
 	return m;
 }
 
@@ -53,9 +54,10 @@ Real qbase_vector_cos(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	return qbase_vector_dot(vec1,vec2)/(qbase_vector_length(vec1)*qbase_vector_length(vec2));
 }
 Real qbase_vector_sin(const qbase_vector* vec1, const qbase_vector* vec2)	{
+	Real cval;
 	if(vec1==NULL || vec2==NULL)
 		return -2;
-	Real cval = qbase_vector_cos(vec1,vec2);
+	cval = qbase_vector_cos(vec1,vec2);
 	return sqrt(1-cval*cval);
 }
 int qbase_vector_isparallel(const qbase_vector* vec1, const qbase_vector* vec2)	{

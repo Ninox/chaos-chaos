@@ -9,8 +9,10 @@
 	printf((str));	\
 	getchar()
 
+#define Q_EQUAL(x,y) qbase_math_equal((x), (y))
+
 static void
-test_basic()	{
+test_basic(void)	{
 	assert(qbase_math_todegree(1/6) - 30 <= 0.0005);
 	assert(qbase_math_todegree(1/3) - 60 <= 0.0005);
 	assert(qbase_math_todegree(1/2) - 90 <= 0.0005);
@@ -30,7 +32,7 @@ test_basic()	{
 }
 
 static void
-test_vrelation()	{
+test_vrelation(void)	{
 	qbase_vector v1, v2;
 	v1.standard = 0;
 	v2.standard = 1;
@@ -68,8 +70,8 @@ test_vrelation()	{
 }
 
 static void
-test_vcalc()	{
-    qbase_vector v1, v2;
+test_vcalc(void)	{
+    qbase_vector v1, v2, v;
     v1.standard = 0; v2.standard = 0;
     v1.posX = 10.39; v1.posY = 6;
     v2.posX = 10; v2.posY = 0;
@@ -115,7 +117,6 @@ test_vcalc()	{
     assert(qbase_math_equal(qbase_vector_length(&v1),10)>0);
     printf("vector length is ok:\n");
 
-    qbase_vector v;
     v1.posX=10; v1.posY=20;
     v2.posX=5; v2.posY=5;
     v = qbase_vector_plus(&v1, &v2);
@@ -170,94 +171,90 @@ test_vcalc()	{
 }
 
 static void
-test_mconstruct() {
+test_mconstruct(void) {
     // repeat initalize the matrix for testing the wild pointer
 	qbase_matrix2 m1;
 	m1.m = NULL;
-	int i = 0;
-	for(;i < 1000; i++) {
-        qbase_matrix_zero(&m1, V_ROW);
-	}
-
 	//	check zero and normal construction
 	qbase_matrix_zero(&m1, V_ROW);
 	assert(
-		m1.m[0][0] == 0.0f && m1.m[0][1] == 0.0f &&
-		m1.m[1][0] == 0.0f && m1.m[1][1] == 0.0f
+		Q_EQUAL(m1.m[0][0], 0.0)>0 && Q_EQUAL(m1.m[0][1], 0.0)>0 &&
+		Q_EQUAL(m1.m[1][0], 0.0)>0 && Q_EQUAL(m1.m[1][1], 0.0)>0
 	);
 	printf("zero construction is ok\n");
 
 	qbase_matrix_init(&m1, V_ROW, 1, 2, 3, 4);
 	assert(
-		m1.m[0][0] == 1.0f && m1.m[0][1] == 2.0f &&
-		m1.m[1][0] == 3.0f && m1.m[1][1] == 4.0f
+		Q_EQUAL(m1.m[0][0], 1.0)>0 && Q_EQUAL(m1.m[0][1], 2.0)>0 &&
+		Q_EQUAL(m1.m[1][0], 3.0)>0 && Q_EQUAL(m1.m[1][1], 4.0)>0
 	);
 	printf("normal construction is ok\n");
 
 	// trans test, use the same matrix of init test
 	qbase_matrix_trans(&m1);
 	assert(
-		m1.m[0][0] == 1.0f && m1.m[0][1] == 3.0f &&
-		m1.m[1][0] == 2.0f && m1.m[1][1] == 4.0f
+		Q_EQUAL(m1.m[0][0], 1.0)>0 && Q_EQUAL(m1.m[0][1], 3.0)>0 &&
+		Q_EQUAL(m1.m[1][0], 2.0)>0 && Q_EQUAL(m1.m[1][1], 4.0)>0
 	);
 	printf("trans operation is ok\n");
 
 	// extend of matrix, use the same data of trans
 	qbase_matrix_extend(&m1, 0.5);
 	assert(
-		m1.m[0][0] == 0.5f && m1.m[0][1] == 1.5f &&
-		m1.m[1][0] == 1.0f && m1.m[1][1] == 2.0f
+		Q_EQUAL(m1.m[0][0], 0.5)>0 && Q_EQUAL(m1.m[0][1], 1.5)>0 &&
+		Q_EQUAL(m1.m[1][0], 1.0)>0 && Q_EQUAL(m1.m[1][1], 2.0)>0
 	);
 	qbase_matrix_extend(&m1, -2);
 	assert(
-		m1.m[0][0] == -1.0f && m1.m[0][1] == -3.0f &&
-		m1.m[1][0] == -2.0f && m1.m[1][1] == -4.0f
+		Q_EQUAL(m1.m[0][0], -1.0)>0 && Q_EQUAL(m1.m[0][1], -3.0)>0 &&
+		Q_EQUAL(m1.m[1][0], -2.0)>0 && Q_EQUAL(m1.m[1][1], -4.0)>0
 	);
 	qbase_matrix_extend(&m1, 0);
 	assert(
-		m1.m[0][0] == 0.0f && m1.m[0][1] == 0.0f &&
-		m1.m[1][0] == 0.0f && m1.m[1][1] == 0.0f
+		Q_EQUAL(m1.m[0][0], 0.0)>0 && Q_EQUAL(m1.m[0][1], 0.0)>0 &&
+		Q_EQUAL(m1.m[1][0], 0.0)>0 && Q_EQUAL(m1.m[1][1], 0.0)>0
 	);
 	qbase_matrix_free(&m1);
 	printf("extend method is OK\n");
 }
 
 static void
-test_mcalc()  {
+test_mcalc(void)  {
 	// adjoint matrix test
-    qbase_matrix2 mt;
+	Real det;
+    qbase_matrix2 mt, ma;
     mt.m = NULL;
     qbase_matrix_init(&mt, V_ROW, 1,4,3,5);
-    qbase_matrix2 ma = qbase_matrix_adjoint(&mt);
+    ma = qbase_matrix_adjoint(&mt);
 //    printf("ma:\n%f,%f,\n%f, %f\n---\nmt:\n%f, %f,\n%f, %f\n",
 //        ma.m[0][0], ma.m[0][1], ma.m[1][0], ma.m[1][1],
 //		mt.m[0][0], mt.m[0][1], mt.m[1][0], mt.m[1][1]
 //    );
     assert(
-        ma.m[0][0] == mt.m[1][1] && ma.m[0][1] == -mt.m[1][0] &&
-		ma.m[1][0] == -mt.m[0][1] && ma.m[1][1] == mt.m[0][0]
+        Q_EQUAL(ma.m[0][0], mt.m[1][1])>0 && Q_EQUAL(ma.m[0][1], -mt.m[1][0])>0 &&
+		Q_EQUAL(ma.m[1][0], -mt.m[0][1])>0 && Q_EQUAL(ma.m[1][1], mt.m[0][0])>0
     );
 	qbase_matrix_init(&mt, V_ROW, 4,-2.5,3.01,-7.312);
     ma = qbase_matrix_adjoint(&mt);
     assert(
-        ma.m[0][0] == mt.m[1][1] && ma.m[0][1] == -mt.m[1][0] &&
-		ma.m[1][0] == -mt.m[0][1] && ma.m[1][1] == mt.m[0][0]
+        Q_EQUAL(ma.m[0][0], mt.m[1][1])>0 && Q_EQUAL(ma.m[0][1], -mt.m[1][0])>0 &&
+		Q_EQUAL(ma.m[1][0], -mt.m[0][1])>0 && Q_EQUAL(ma.m[1][1], mt.m[0][0])>0
     );
 	printf("adjoint test is OK\n");
 
 	// matrix det value test
 	qbase_matrix_init(&mt, V_ROW, 1, 1, 1, 1);
-	Real det = qbase_matrix_det(&mt);
-	assert(det == 0.0f);
+	det = qbase_matrix_det(&mt);
+	assert(Q_EQUAL(det, 0.0)>0);
 	qbase_matrix_init(&mt, V_ROW, 5, 2.5, 4, 4);
 	det = qbase_matrix_det(&mt);
-	assert(det == 10.0f);
+	assert(Q_EQUAL(det, 10.0)>0);
 	qbase_matrix_init(&mt, V_ROW, 1, 2, -3, 4);
 	det = qbase_matrix_det(&mt);
-	assert(det == 10.0f);
+	assert(Q_EQUAL(det, 10.0)>0);
 	qbase_matrix_init(&mt, V_ROW, -1, 1, 19, -31);
 	det = qbase_matrix_det(&mt);
-	assert(det == 12.0f);
+	assert(Q_EQUAL(det, 12.0)>0);
 
 	// matrix extend value test
 
