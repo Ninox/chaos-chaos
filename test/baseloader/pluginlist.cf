@@ -1,4 +1,4 @@
-OGL_Render = 'oglrender.dll'
-math_a = 'matha.dll'
-math_b = 'inner\\mathb.dll'
-strhelper = 'inner\\strhelper.dll'
+OGL_Render = 'librender.dll'
+math_a = 'libmatha.dll'
+math_b = 'libmathb.dll'
+strhelper = 'libstr.dll'
