@@ -1,0 +1,4 @@
+OGL_Render = 'oglrender.dll'
+math_a = 'matha.dll'
+math_b = 'inner\\mathb.dll'
+strhelper = 'inner\\strhelper.dll'
