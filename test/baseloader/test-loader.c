@@ -44,7 +44,7 @@ int main()	{
 	assert(saying != NULL);
 
 	assert(nadd(3,9) == 12);	// checked whether the function execute successfully
-	assert(nmin(-3,-0.12));
+	assert(nmin(-3,-0.12f));
 	assert(mdot() == -2.0f);
 	assert(msum() == 10.0f);
 	render();
