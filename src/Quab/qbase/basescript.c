@@ -3,13 +3,11 @@
 #include "basescript.h"
 #include <lualib.h>
 #include <lauxlib.h>
-
-#define MAX_POOL 256	/*	default pool size	*/
+#define MAX_POOL 16
 
 // qbase_sta status
 #define NOT_USE 0
 #define USED    1
-// more status will be added later...
 
 struct qbase_sta	{
 	lua_State* L;
@@ -72,20 +70,21 @@ int qbase_lua_init(qbase_sta** sta_ptr)	{
 	if(sta_pool_push(_sta_pool, sta_ptr) < 0)
 		return 1;
 	else    {
-	    // update the count of the pool
+	    // 更新总数
         sta_pool_updatecnt(_sta_pool);
         return 0;
 	}
 }
 
 void qbase_lua_close(qbase_sta* sta)	{
+	lua_gc(sta->L, LUA_GCCOLLECT, 0);
 	lua_close(sta->L);
 	_sta_pool->used_cnt--;
 	sta->status = 0;
 	sta_pool_updatecnt(_sta_pool);
 }
 
-int qbase_lua_exec(char* text, const char* chunk_name, qbase_sta* sta)	{
+int qbase_lua_exec(char* text, const char* chunk_name, int retcnt, qbase_ret* ret, qbase_sta* sta)	{
 	// set the parameters before load the buffer
 	if(!luaL_loadbuffer(sta->L, text, strlen(text),chunk_name))	{
         lua_pcall(sta->L, 0, 0, 0);
@@ -94,7 +93,7 @@ int qbase_lua_exec(char* text, const char* chunk_name, qbase_sta* sta)	{
 	else return 1;
 }
 
-int qbase_lua_load(char* file, const char* chunk_name, qbase_sta* sta)	{
+int qbase_lua_load(char* file, const char* chunk_name, int retcnt, qbase_ret* ret, qbase_sta* sta)	{
 	// set the parameters before load file
 	FILE* f = fopen(file,"r");
 	if(f == NULL)
@@ -105,8 +104,8 @@ int qbase_lua_load(char* file, const char* chunk_name, qbase_sta* sta)	{
 	else return 0;
 }
 
-void qbase_lua_reg(qbase_regfunc f, qbase_sta* sta)	{
-
+void qbase_lua_reg(qbase_regfunc f, const char *name, qbase_sta* sta);
+	luaL_register(sta->L, name, f);
 }
 
 qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t paramcnt, size_t retcnt, qbase_sta* sta)	{

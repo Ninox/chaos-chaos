@@ -77,6 +77,7 @@ int qbase_lua_init(qbase_sta** sta_ptr)	{
 }
 
 void qbase_lua_close(qbase_sta* sta)	{
+	lua_gc(sta->L, LUA_GCCOLLECT, 0);
 	lua_close(sta->L);
 	_sta_pool->used_cnt--;
 	sta->status = 0;
@@ -103,8 +104,8 @@ int qbase_lua_load(char* file, const char* chunk_name, int retcnt, qbase_ret* re
 	else return 0;
 }
 
-void qbase_lua_reg(qbase_regfunc f, qbase_sta* sta)	{
-
+void qbase_lua_reg(qbase_regfunc f, const char *name, qbase_sta* sta);
+	luaL_register(sta->L, name, f);
 }
 
 qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t paramcnt, size_t retcnt, qbase_sta* sta)	{
