@@ -39,8 +39,6 @@ int main()	{
 	render = (renderfunc)qbase_loader_getf("OGL_Render", "renderit");
 	saying = (sayfunc)qbase_loader_getf("strhelper", "say_somthing");
 
-	printf("press for continue...\n");
-    getchar();
 	// test function
 	assert(nadd != NULL);					// checked whether the function can load successfully
 	assert(nmin != NULL);
@@ -50,9 +48,13 @@ int main()	{
 	assert(saying != NULL);
 
 	assert(nadd(3,9) == 12);	// checked whether the function execute successfully
+	printf("nadd(3,9) == 12\n");
 	assert(nmin(-3,-0.12f));
+	printf("nmin(-3,-0.12f)\n");
 	assert(mdot() == -2.0f);
+	printf("mdot() == -2.0f --(1*4-2*3)--> true\n");
 	assert(msum() == 10.0f);
+	printf("msum() == 10.0f --(1+2+3+4)--> true\n");
 	render();
 	saying("yogi");
 
