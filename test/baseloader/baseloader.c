@@ -58,21 +58,22 @@ list_seekend()	{
 
 static const char *
 list_getconfig(const char *key)	{
+	lua_State *L = NULL;
 	FILE *f = NULL;
 	const char *val = NULL;
-	const char buf[128];
+	char buf[128];
 	// clear the buf
 	memset(&buf, 0, 128);
 	f = fopen(QBASE_PLUGINCONFIG, "r+");
 	if(f != NULL)	{
 		fclose(f);	// if the file exists, close and release it
-		lua_State *L = luaL_newstate();
+		L = luaL_newstate();
 		if(luaL_dofile(L, QBASE_PLUGINCONFIG) == 0)	{
 			lua_getglobal(L, key);
 			if(lua_type(L, -1) != LUA_TNIL)	{
 				val = lua_tostring(L, -1);
 				strcpy(buf, val);
-				val = &buf;
+				val = &buf[0];
 			}
 			lua_pop(L, 1);
 		}
