@@ -49,22 +49,32 @@ list_search(const char *name)	{
 static qbase_plugin_list *
 list_seekend()	{
 	qbase_plugin_list *node = plugin_list;
-	while(node != NULL)
-		node = node->next;
+	if(node != NULL)    {
+        while(node->next != NULL)
+            node = node->next;
+	}
 	return node;
 }
 
-static const char *
+static char *
 list_getconfig(const char *key)	{
+	lua_State *L = NULL;
 	FILE *f = NULL;
-	const char *val = NULL;
+	char *val = NULL;
 	f = fopen(QBASE_PLUGINCONFIG, "r+");
 	if(f != NULL)	{
-		lua_State *L = luaL_newstate();
-		lua_getglobal(L, "quab_plugin");
-		lua_pushstring(L, key);
-		lua_gettable(L, -2);
-		val = lua_tostring(L, -1);
+		fclose(f);	// if the file exists, close and release it
+		L = luaL_newstate();
+		if(luaL_dofile(L, QBASE_PLUGINCONFIG) == 0)	{
+			lua_getglobal(L, key);
+			if(lua_type(L, -1) != LUA_TNIL)	{
+                val = (char*)malloc(sizeof(char) * 256);
+                memset(val, 0, 256);
+				strcpy(val, lua_tostring(L, -1));
+			}
+			lua_pop(L, 1);
+		}
+		lua_gc(L, LUA_GCCOLLECT, 0);
 		lua_close(L);
 	}
 	return val;
@@ -75,7 +85,7 @@ list_freenode(qbase_plugin_list* node)	{
 	// 1. free the dynamic library
 	#ifdef QBASE_OS_LINUX
 	dlclose(node->data.handle);
-	#else	
+	#else
 	FreeLibrary(node->data.handle);
 	#endif
 	// 2. free the whole node
@@ -86,7 +96,7 @@ list_freenode(qbase_plugin_list* node)	{
 void
 qbase_loader_init(const char *name)	{
 	qbase_plugin_list *node = NULL, *end_node = list_seekend();
-	const char *path;
+	char *path;
 	// checked exists
 	node = list_search(name);
 	if(node == NULL)	{
@@ -94,20 +104,26 @@ qbase_loader_init(const char *name)	{
 		node->data.plugin_name = name;
 		node->next = NULL;
 		node->prev = end_node;
-		end_node->next = node;
+		if(end_node != NULL)    {
+            end_node->next = node;
+		}
+		else    {
+            plugin_list = node;
+		}
 	}
 	path = list_getconfig(name);
 	#ifdef QBASE_OS_LINUX
 	node->data.handle = dlopen(path, RTLD_LAZY);
 	#else
-	node->data.handle = LoadLibrary(paht);
-	#endif	
+	node->data.handle = LoadLibrary(path);
+	#endif
+	// release the string on heap
+	 free(path);
 }
 
 void
 qbase_loader_free(const char *name)	{
 	qbase_plugin_list	*node = plugin_list;
-	short is_first = 1;
 	while(node != NULL)
 	{
 		if(strcmp(node->data.plugin_name, name) == 0)	{
@@ -117,7 +133,7 @@ qbase_loader_free(const char *name)	{
 				plugin_list = NULL;
 				break;
 			}
-			else	{				
+			else	{
 				if(node->prev != NULL)
 					node->prev->next = node->next;
 				if(node->next != NULL)
@@ -125,7 +141,7 @@ qbase_loader_free(const char *name)	{
 				list_freenode(node);
 				break;
 			}
-				
+
 		}
 		else node = node->next;
 	}
@@ -134,26 +150,27 @@ qbase_loader_free(const char *name)	{
 void*
 qbase_loader_getf(const char *name, const char *fname)	{
 	qbase_plugin_list *node = list_search(name);
-	if(node == NULL)
+	if(node == NULL)	{
 		return NULL;
+	}
 	else	{
 		if(node->data.handle == NULL)
 			return NULL;
-		#ifdef QBASE_OS_LINUX	
+		#ifdef QBASE_OS_LINUX
 		return dlsym(node->data.handle, fname);
-		#else	
+		#else
 		return GetProcAddress(node->data.handle, fname);
 		#endif
 	}
 }
 
-void 
+void
 qbase_loader_destory()	{
 	qbase_plugin_list *node = plugin_list, *next_node = NULL;
-	while(node != NULL)	
+	while(node != NULL)
 	{
-		next_node = node->next();
-		list_freenode(node)
+		next_node = node->next;
+		list_freenode(node);
 		node = next_node;
 	}
 	plugin_list = NULL;
