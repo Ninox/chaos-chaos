@@ -76,6 +76,7 @@ list_getconfig(const char *key)	{
 			}
 			lua_pop(L, 1);
 		}
+		lua_gc(L, LUA_GCCOLLECT, 0);
 		lua_close(L);
 	}
 	return val;

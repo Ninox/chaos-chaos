@@ -19,14 +19,17 @@ int main()	{
 	mtrx_sum msum = NULL;
 	renderfunc render = NULL;
 	sayfunc saying = NULL;
-
+    printf("press for start...\n");
+    getchar();
     printf("==================  initalize start ==================\n");
 	// init the plugin
+	// memory waste here, 32KB per structure, but first initalize cost more than 32KB, in LUA
 	qbase_loader_init("OGL_Render");
 	qbase_loader_init("math_a");
 	qbase_loader_init("math_b");
 	qbase_loader_init("strhelper");
 
+    getchar();
 	printf("==================  get func start ==================\n");
 	// get function
 	nadd = (normal_add)qbase_loader_getf("math_a", "add");
@@ -35,6 +38,9 @@ int main()	{
 	msum = (mtrx_sum)qbase_loader_getf("math_b", "sum");
 	render = (renderfunc)qbase_loader_getf("OGL_Render", "renderit");
 	saying = (sayfunc)qbase_loader_getf("strhelper", "say_somthing");
+
+	printf("press for continue...\n");
+    getchar();
 	// test function
 	assert(nadd != NULL);					// checked whether the function can load successfully
 	assert(nmin != NULL);
@@ -50,10 +56,14 @@ int main()	{
 	render();
 	saying("yogi");
 
+    printf("press for continue (release)...\n");
+    getchar();
 	// release on plugin
 	qbase_loader_free("math_a")	;
 	// destory the plugin list
 	qbase_loader_destory();
 
+    printf("press for ending \n");
+    getchar();
 	return 0;
 }
