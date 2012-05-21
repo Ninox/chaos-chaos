@@ -73,7 +73,7 @@ int qbase_lua_init(qbase_sta** sta_ptr)	{
 	if(sta_pool_push(_sta_pool, sta_ptr) < 0)
 		return 1;
 	else    {
-	    // 更新总数
+	    // update the pool count
         sta_pool_updatecnt(_sta_pool);
         return 0;
 	}
@@ -87,16 +87,16 @@ void qbase_lua_close(qbase_sta* sta)	{
 	sta_pool_updatecnt(_sta_pool);
 }
 
-int qbase_lua_exec(char* text, const char* chunk_name, int retcnt, qbase_ret* ret, qbase_sta* sta)	{
+int qbase_lua_exec(char* text,int retcnt, qbase_ret* ret, qbase_sta* sta)	{
 	// set the parameters before load the buffer
-	if(!luaL_loadbuffer(sta->L, text, strlen(text),chunk_name))	{
+	if(!luaL_dostring(sta->L, text))	{
         lua_pcall(sta->L, 0, 0, 0);
 		return 2;
 	}
 	else return 1;
 }
 
-int qbase_lua_load(char* file, const char* chunk_name, int retcnt, qbase_ret* ret, qbase_sta* sta)	{
+int qbase_lua_load(char* file, int retcnt, qbase_ret* ret, qbase_sta* sta)	{
 	// set the parameters before load file
 	FILE* f = fopen(file,"r");
 	if(f == NULL)
@@ -112,9 +112,14 @@ void qbase_lua_reg(qbase_regfunc f, const char *name, qbase_sta* sta)   {
 }
 
 qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t paramcnt, size_t retcnt, qbase_sta* sta)	{
-	qbase_ret*	rets = NULL;
+	qbase_ret *rets = NULL;
+	int i, topcount = 0;
+	char *strbuffer = NULL;
+	char *tbname = NULL;
+	char tNum[12];
+
 	lua_getglobal(sta->L, func_name);
-	int i;
+
 	for(i = 0; i < paramcnt; i++)	{
 		switch(params[i].ret_type)
 		{
@@ -135,8 +140,64 @@ qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t
 	}
 	// call functions	&	return values
 	lua_pcall(sta->L, paramcnt, retcnt, 0);
+	if(retcnt > 0)  {
+        rets = (qbase_ret*)malloc(sizeof(qbase_ret)*retcnt);
+        for(i = 0; i < retcnt; i++) {
+            switch(lua_type(sta->L, -1*(i+1)))
+            {
+            case LUA_TNIL:
+            rets[i].ret_type = NIL;
+            break;
+            case LUA_TNUMBER:
+                if(lua_isnumber(sta->L, -1*(i+1)))	{
+                    rets[i].ret_type = NUMBER;
+                    rets[i].val.number_val = lua_tonumber(sta->L, -1*(i+1));
+                }
+                else rets[i].ret_type = NIL;
+                break;
+            case LUA_TBOOLEAN:
+                if(lua_isboolean(sta->L,-1))	{
+                    rets[i].ret_type = BOOLEAN;
+                    rets[i].val.bool_val = lua_toboolean(sta->L, -1*(i+1));
+                }
+                else rets[i].ret_type = NIL;
+                break;
+            case LUA_TSTRING:
+                if(lua_isstring(sta->L, -1*(i+1)))	{
+                rets[i].ret_type = STRING;
+                rets[i].val.str_val.len = strlen(lua_tostring(sta->L, -1*(i+1)));
+                strbuffer = (char*)malloc(sizeof(char)* rets[i].val.str_val.len);
+                strcpy(strbuffer, lua_tostring(sta->L, -1*(i+1)));
+                rets[i].val.str_val.str = strbuffer;
+            }
+                else rets[i].ret_type = NIL;
+                break;
+            case LUA_TTABLE:
+                // save a table as a global varible in lua, the return is a temp name for getting it;
+                // TODO: next version will implement this with a real table structure.
+                if(lua_istable(sta->L, -1*(i+1)))	{
+                    rets[i].ret_type = TABLE;
+                    tbname = (char*)malloc(sizeof(char)*20);
+                    memset(tbname, 0, 20);
+                    strcpy(tbname, "table_");
+                    sprintf(tNum, "%u", (unsigned)time(0));
+                    strcat(tbname, tNum);
+                    rets[i].val.str_val.str = tbname;
+                    rets[i].val.str_val.len = strlen(tbname);
+                    lua_setglobal(sta->L, tbname);
+                }
+                else rets[i].ret_type = NIL;
+                break;
+            default:
+                rets[i].ret_type = NIL;
+                luaL_error(sta->L, "not support");
+                break;
+            }
+        }
+	}
 	// pop it
-	lua_pop(sta->L, retcnt);
+	topcount = lua_gettop(sta->L);
+	lua_pop(sta->L, topcount);
 	return rets;
 
 }
@@ -145,7 +206,9 @@ qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t
 struct qbase_ret qbase_lua_get(const char* name, qbase_sta* sta)	{
 	// lua return
 	struct qbase_ret ret;
+	char *strbuff = NULL;
 	char *tbname = NULL;
+	char tNum[12];
 
 	lua_getglobal(sta->L, name);
 	switch(lua_type(sta->L, -1))
@@ -170,8 +233,10 @@ struct qbase_ret qbase_lua_get(const char* name, qbase_sta* sta)	{
 	case LUA_TSTRING:
 		if(lua_isstring(sta->L, -1))	{
 			ret.ret_type = STRING;
-			ret.val.str_val.str = lua_tostring(sta->L, -1);
-			ret.val.str_val.len = strlen(ret.val.str_val.str);
+			ret.val.str_val.len = strlen(lua_tostring(sta->L, -1));
+			strbuff = (char*)malloc(sizeof(char)* ret.val.str_val.len);
+			strcpy(strbuff, lua_tostring(sta->L, -1));
+			ret.val.str_val.str = strbuff;
 		}
 		else ret.ret_type = NIL;
 		break;
@@ -183,7 +248,6 @@ struct qbase_ret qbase_lua_get(const char* name, qbase_sta* sta)	{
 			tbname = (char*)malloc(sizeof(char)*20);
 			memset(tbname, 0, 20);
 			strcpy(tbname, "table_");
-			char tNum[12];
 			sprintf(tNum, "%u", (unsigned)time(0));
 			strcat(tbname, tNum);
 			ret.val.str_val.str = tbname;
@@ -198,8 +262,7 @@ struct qbase_ret qbase_lua_get(const char* name, qbase_sta* sta)	{
 		break;
 	}
 	// it the return is table. do not pop it
-	if(tbname == NULL)
-		lua_pop(sta->L,1);
+    lua_pop(sta->L,1);
 	return ret;
 }
 
