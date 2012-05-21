@@ -1,6 +1,6 @@
 ##	2012-05-20
 + 完成了qbase_script里面的call、reg 操作，能够简单地注册函数和调用lua里面的函数了
-+ 更新了get操作和getfield，现在能够获取table的放回了（as a name）
++ 更新了get操作和getfield，现在能够获取table的返回了（as a name）
 + 删除了qbase_tbl结构，暂时表格只是用一个全局的Name去保存。
 + 暂时没测试带参数call
 
