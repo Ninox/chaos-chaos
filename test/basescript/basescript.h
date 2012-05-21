@@ -18,17 +18,11 @@ typedef struct qbase_str	{
 	size_t len;
 } qbase_str;
 
-typedef struct qbase_tbl	{
-	const char** data;
-	size_t size;
-} qbase_tbl;
-
 typedef struct qbase_ret	{
 	union	{
 		double number_val;
 		int bool_val;
 		qbase_str str_val;
-		qbase_tbl* tbl_val;
 	} val;
 	int ret_type;
 } qbase_ret;
