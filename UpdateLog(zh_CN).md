@@ -1,4 +1,15 @@
-﻿## 2012-05-17
+##	2012-05-20
++ 完成了qbase_script里面的call、reg 操作，能够简单地注册函数和调用lua里面的函数了
++ 更新了get操作和getfield，现在能够获取table的返回了（as a name）
++ 删除了qbase_tbl结构，暂时表格只是用一个全局的Name去保存。
++ 暂时没测试带参数call
+
+		1.	get和getfield的重复代码比较多，下次需要重构一下这个部分
+		2.	另外现在取消了原来的qbase_tbl的设计，暂时采用全局（在lua_State里面）的表名作为调用
+		3.	下次重构将会实现一个真正的表结构(qbase_tbl)
+
+
+##	2012-05-17
 + 完成了qbase里面的baseloader模块
 + 添加了关于baseloader的测试用例
 + 经过测试，截止到目前，basescript、basemath、baseloader都能够顺利在windows和ubuntu下面编译成功
@@ -12,7 +23,7 @@
 
 		尽量在本周里面完成qbase的math，并且着手到packer
 
-## 2012-05-02
+##	2012-05-02
 
 + 更新了qbase的数学库接口定义，完成部分接口的实现
 + 在test里面增加了qbase_lua和qbase_math的测试

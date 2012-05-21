@@ -1,8 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "basescript.h"
+#include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
+
 #define MAX_POOL 16
 
 // qbase_sta status
@@ -104,8 +107,8 @@ int qbase_lua_load(char* file, const char* chunk_name, int retcnt, qbase_ret* re
 	else return 0;
 }
 
-void qbase_lua_reg(qbase_regfunc f, const char *name, qbase_sta* sta);
-	luaL_register(sta->L, name, f);
+void qbase_lua_reg(qbase_regfunc f, const char *name, qbase_sta* sta)   {
+    lua_register(sta->L, name, f);
 }
 
 qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t paramcnt, size_t retcnt, qbase_sta* sta)	{
@@ -124,20 +127,25 @@ qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t
 		case STRING	:
 			lua_pushstring(sta->L, params[i].val.str_val.str);
 			break;
-		case TABLE	:
+		default:
+			// more datatype will support in next version
+			luaL_error(sta->L, "not support");
 			break;
 		}
 	}
 	// call functions	&	return values
+	lua_pcall(sta->L, paramcnt, retcnt, 0);
 	// pop it
 	lua_pop(sta->L, retcnt);
 	return rets;
 
 }
 
+// TODO: refactor the get & getfield, use a common getter instead of the switch part in function
 struct qbase_ret qbase_lua_get(const char* name, qbase_sta* sta)	{
 	// lua return
 	struct qbase_ret ret;
+	char *tbname = NULL;
 
 	lua_getglobal(sta->L, name);
 	switch(lua_type(sta->L, -1))
@@ -168,21 +176,37 @@ struct qbase_ret qbase_lua_get(const char* name, qbase_sta* sta)	{
 		else ret.ret_type = NIL;
 		break;
 	case LUA_TTABLE:
-	case LUA_TUSERDATA:
-	case LUA_TLIGHTUSERDATA:
-
+		// save a table as a global varible in lua, the return is a temp name for getting it;
+		// TODO: next version will implement this with a real table structure.
+		if(lua_istable(sta->L, -1))	{
+			ret.ret_type = TABLE;
+			tbname = (char*)malloc(sizeof(char)*20);
+			memset(tbname, 0, 20);
+			strcpy(tbname, "table_");
+			char tNum[12];
+			sprintf(tNum, "%u", (unsigned)time(0));
+			strcat(tbname, tNum);
+			ret.val.str_val.str = tbname;
+			ret.val.str_val.len = strlen(tbname);
+			lua_setglobal(sta->L, tbname);
+		}
+		else ret.ret_type = NIL;
+		break;
 	default:
 		ret.ret_type = NIL;
 		luaL_error(sta->L, "not support");
 		break;
 	}
-	lua_pop(sta->L,1);
+	// it the return is table. do not pop it
+	if(tbname == NULL)
+		lua_pop(sta->L,1);
 	return ret;
 }
 
 struct qbase_ret qbase_lua_getfield(const char* tbname, const char* fieldname, qbase_sta* sta)	{
 	// lua return
 	struct qbase_ret ret;
+	char *tablename = NULL;
 
 	lua_getglobal(sta->L, tbname);
 	lua_pushstring(sta->L, fieldname);
@@ -206,13 +230,20 @@ struct qbase_ret qbase_lua_getfield(const char* tbname, const char* fieldname, q
 		ret.val.str_val.len = strlen(ret.val.str_val.str);
 		break;
 	case LUA_TTABLE:
-	case LUA_TUSERDATA:
-	case LUA_TLIGHTUSERDATA:
+		ret.ret_type = TABLE;
+		tablename = (char*)malloc(sizeof(char)*20);
+		memset(tablename, 0, 20);
+		sprintf(tablename, "%u", (unsigned)time(0));
+		ret.val.str_val.str = tablename;
+		ret.val.str_val.len = strlen(tablename);
+		lua_setglobal(sta->L, tablename);
+		break;
 	default:
 		ret.ret_type = NIL;
 		luaL_error(sta->L, "not support");
 		break;
 	}
-	lua_pop(sta->L, 1);
+	if(tbname == NULL)
+		lua_pop(sta->L, 1);
 	return ret;
 }

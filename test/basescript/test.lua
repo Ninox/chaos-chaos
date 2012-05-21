@@ -3,3 +3,6 @@ bval = true
 nval = 1234
 sval = "Hello world"
 smalltb= {name="chung siuyung", age=24}
+function goodtest()	
+	print("function test\n");
+end

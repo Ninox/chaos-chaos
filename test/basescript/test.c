@@ -2,6 +2,14 @@
 #include <stdio.h>
 #include "basescript.h"
 
+static int
+sayhello(lua_State *L)   {
+    int a = lua_tointeger(L, -1);
+    int b = lua_tointeger(L, -2);
+    lua_pushnumber(L, a*b);
+    return 1;
+}
+
 int main()
 {
 	struct qbase_sta * sta = NULL;
@@ -29,6 +37,9 @@ int main()
 		ret = qbase_lua_getfield("smalltb","age",sta);
 		printf("%s['%s'] => %f\n","smalltb","age",ret.val.number_val);
 
+        qbase_lua_reg(sayhello, "sayfunc", sta);
+        qbase_lua_exec("print(\"FUCK U!!!\"..sayfunc(1,2))","superfunc", 0, NULL, sta);
+        qbase_lua_call("goodtest",NULL,0,0,sta);
 //		close the state
 		qbase_lua_close(sta);
 	}
