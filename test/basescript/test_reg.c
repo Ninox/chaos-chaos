@@ -60,6 +60,8 @@ int main()
 {
     assert(test_normal()==1);
     assert(test_loop()==1);
+    printf("press ENTER key to quit...\n");
+    system("pause");
 	return 0;
 }
 
