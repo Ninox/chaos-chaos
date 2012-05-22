@@ -141,7 +141,7 @@ int qbase_lua_init(qbase_sta** sta_ptr)	{
 }
 
 void qbase_lua_close(qbase_sta* sta)	{
-	lua_gc(sta->L, LUA_GCSTOP, 0);
+	lua_gc(sta->L, LUA_GCCOLLECT, 0);
 	lua_close(sta->L);
 	_sta_pool->used_cnt--;
 	sta->status = 0;

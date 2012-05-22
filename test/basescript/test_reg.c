@@ -14,6 +14,7 @@ sayhello(lua_State *L)   {
 static int
 test_normal()   {
     qbase_sta *sta = NULL;
+    qbase_ret* result = NULL;
     qbase_lua_init(&sta);
     qbase_lua_load("test.lua", 0, NULL,sta);
     qbase_lua_reg(sayhello, "sayfunc", sta);
@@ -26,7 +27,8 @@ test_normal()   {
     params[0].val.number_val = 1;
     params[1].ret_type = NUMBER;
     params[1].val.number_val = 2;
-    qbase_lua_call("bestprint", &params[0], 2, 1, sta);
+    result = qbase_lua_call("bestprint", &params[0], 2, 1, sta);
+    free(result);
 
     qbase_lua_close(sta);
 	return 1;
@@ -35,6 +37,7 @@ test_normal()   {
 static int
 test_loop() {
     qbase_sta *sta = NULL;
+    qbase_ret *result = NULL;
     int i;
     qbase_lua_init(&sta);
     qbase_lua_load("test.lua", 0, NULL,sta);
@@ -50,7 +53,8 @@ test_loop() {
         params[0].val.number_val = 1;
         params[1].ret_type = NUMBER;
         params[1].val.number_val = 2;
-        qbase_lua_call("bestprint", &params[0], 2, 1, sta);
+        result = qbase_lua_call("bestprint", &params[0], 2, 1, sta);
+        free(result);
     }
     qbase_lua_close(sta);
 	return 1;
