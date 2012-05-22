@@ -89,11 +89,12 @@ void qbase_lua_close(qbase_sta* sta)	{
 
 int qbase_lua_exec(char* text,int retcnt, qbase_ret* ret, qbase_sta* sta)	{
 	// set the parameters before load the buffer
+	int stack_count = 0;
 	if(!luaL_dostring(sta->L, text))	{
-        lua_pcall(sta->L, 0, 0, 0);
-		return 2;
+        stack_count = lua_gettop(sta->L);
+		return 1;
 	}
-	else return 1;
+	else return 0;
 }
 
 int qbase_lua_load(char* file, int retcnt, qbase_ret* ret, qbase_sta* sta)	{
@@ -209,6 +210,7 @@ struct qbase_ret qbase_lua_get(const char* name, qbase_sta* sta)	{
 	char *strbuff = NULL;
 	char *tbname = NULL;
 	char tNum[12];
+	int stackcnt =0;
 
 	lua_getglobal(sta->L, name);
 	switch(lua_type(sta->L, -1))
@@ -262,7 +264,8 @@ struct qbase_ret qbase_lua_get(const char* name, qbase_sta* sta)	{
 		break;
 	}
 	// it the return is table. do not pop it
-    lua_pop(sta->L,1);
+	stackcnt = lua_gettop(sta->L);
+    lua_pop(sta->L,stackcnt);
 	return ret;
 }
 
@@ -270,7 +273,8 @@ struct qbase_ret qbase_lua_getfield(const char* tbname, const char* fieldname, q
 	// lua return
 	struct qbase_ret ret;
 	char *tablename = NULL;
-
+	int stackcnt = 0;
+	
 	lua_getglobal(sta->L, tbname);
 	lua_pushstring(sta->L, fieldname);
 	lua_gettable(sta->L, -2);
@@ -306,7 +310,7 @@ struct qbase_ret qbase_lua_getfield(const char* tbname, const char* fieldname, q
 		luaL_error(sta->L, "not support");
 		break;
 	}
-	if(tbname == NULL)
-		lua_pop(sta->L, 1);
+	stackcnt = lua_gettop(sta->L);
+    lua_pop(sta->L,stackcnt);
 	return ret;
 }
