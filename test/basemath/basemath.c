@@ -128,7 +128,7 @@ void qbase_matrix_inverse(qbase_matrix2* mtx)	{
 	mtx->m[0][1] = m.m[0][1];
 	mtx->m[1][0] = m.m[1][0];
 	mtx->m[1][1] = m.m[1][1];
-
+    free(m.m);
 	qbase_matrix_extend(mtx, fabs(1.0f/det));
 }
 Real qbase_matrix_det(const qbase_matrix2* mtx)	{

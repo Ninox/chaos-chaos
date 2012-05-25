@@ -181,6 +181,8 @@ test_mconstruct(void) {
 		Q_EQUAL(m1.m[0][0], 0.0)>0 && Q_EQUAL(m1.m[0][1], 0.0)>0 &&
 		Q_EQUAL(m1.m[1][0], 0.0)>0 && Q_EQUAL(m1.m[1][1], 0.0)>0
 	);
+	free(m1.m);
+	m1.m=NULL;
 	printf("zero construction is ok\n");
 
 	qbase_matrix_init(&m1, V_ROW, 1, 2, 3, 4);
@@ -235,6 +237,10 @@ test_mcalc(void)  {
         Q_EQUAL(ma.m[0][0], mt.m[1][1])>0 && Q_EQUAL(ma.m[0][1], -mt.m[0][1])>0 &&
 		Q_EQUAL(ma.m[1][0], -mt.m[1][0])>0 && Q_EQUAL(ma.m[1][1], mt.m[0][0])>0
     );
+    free(mt.m);
+    mt.m=NULL;
+    free(ma.m);
+    ma.m=NULL;
 	qbase_matrix_init(&mt, V_ROW, 4,-2.5,3.01,-7.312);
     ma = qbase_matrix_adjoint(&mt);
     assert(
@@ -244,34 +250,51 @@ test_mcalc(void)  {
 	printf("adjoint test is OK\n");
 
 	// matrix det value test
+	free(mt.m);
+    mt.m=NULL;
+    free(ma.m);
+    ma.m=NULL;
 	qbase_matrix_init(&mt, V_ROW, 1, 1, 1, 1);
 	det = qbase_matrix_det(&mt);
 	assert(Q_EQUAL(det, 0.0)>0);
+	free(mt.m);
+    mt.m=NULL;
 	qbase_matrix_init(&mt, V_ROW, 5, 2.5, 4, 4);
 	det = qbase_matrix_det(&mt);
 	assert(Q_EQUAL(det, 10.0)>0);
+	free(mt.m);
+    mt.m=NULL;
 	qbase_matrix_init(&mt, V_ROW, 1, 2, -3, 4);
 	det = qbase_matrix_det(&mt);
 	assert(Q_EQUAL(det, 10.0)>0);
+	free(mt.m);
+    mt.m=NULL;
 	qbase_matrix_init(&mt, V_ROW, -1, 1, 19, -31);
 	det = qbase_matrix_det(&mt);
 	assert(Q_EQUAL(det, 12.0)>0);
 	printf("det test is OK\n");
 
 	// matrix mul test
+	free(mt.m);
+    mt.m=NULL;
 	qbase_matrix_init(&mt, V_ROW, -3, 0, 5, 0.5);
 	qbase_matrix_init(&ma, V_ROW, -7, 2, 4, 6);
+	void *p = ma.m;
 	ma = qbase_matrix_mul(&mt, &ma);
+	free(p);
 	assert(
 		Q_EQUAL(ma.m[0][0], 21)>0 && Q_EQUAL(ma.m[0][1], -6)>0 &&
 		Q_EQUAL(ma.m[1][0], -33)>0 && Q_EQUAL(ma.m[1][1], 13)>0
 	);
+	free(ma.m);
     printf("matrix mul test is OK\n");
 
 	// matrix vmul test
 	v.posX = 0;
 	v.posY = 1;
 	v.standard = V_ROW;
+	free(mt.m);
+    mt.m=NULL;
 	qbase_matrix_init(&mt, V_ROW, 2, 1, -1, 2);
 	v = qbase_matrix_vmul(&v, &mt);
 	assert(Q_EQUAL(v.posX, -1)>0 && Q_EQUAL(v.posY, 2)>0);
@@ -287,6 +310,8 @@ test_mcalc(void)  {
 		Q_EQUAL(mt.m[0][0], 0.4)>0 && Q_EQUAL(mt.m[0][1], -0.2)>0 &&
 		Q_EQUAL(mt.m[1][0], 0.2)>0 && Q_EQUAL(mt.m[1][1], 0.4)>0
 	);
+	free(mt.m);
+    mt.m=NULL;
 	qbase_matrix_init(&mt, V_ROW, -7, 2, 4, 6);
 	qbase_matrix_inverse(&mt);
 	assert(
@@ -294,21 +319,28 @@ test_mcalc(void)  {
 		Q_EQUAL(mt.m[1][0], -0.08f)>0 && Q_EQUAL(mt.m[1][1], -0.14f)>0
 	);
 	printf("inverse test is OK\n");
+	free(mt.m);
+    mt.m=NULL;
 }
 
 int main()
 {
+    int i;
 	// test the qbase_math basic calc
 	STOP_FOR_TEST("\n--------  basic test start  ----------\n");
+	for(i=0;i<10000;i++)
 	test_basic();
 	// test the vector api
 	STOP_FOR_TEST("\n--------  vector test start  ----------\n");
+	for(i=0;i<10000;i++){
 	test_vrelation();
 	test_vcalc();
+	}
 	// test the matrix api
 	STOP_FOR_TEST("\n--------  matrix test start  ----------\n");
+	for(i=0;i<10000;i++){
 	test_mconstruct();
-	test_mcalc();
+	test_mcalc();}
 
     STOP_FOR_TEST("\n       ALL TEST HAS BEEN RUN       \n");
 	return 0;
