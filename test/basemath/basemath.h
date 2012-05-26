@@ -18,7 +18,7 @@ typedef struct	qbase_vector	{
 } qbase_vector;
 
 typedef struct qbase_matrix2	{
-	matrix_ptr m;
+	Real m[2][2];
 	int standard;
 } qbase_matrix2;
 
@@ -37,7 +37,6 @@ Real qbase_vector_length(const qbase_vector* vec);
 int qbase_vector_mul(qbase_vector* v, Real k);
 
 /*	matrix	*/
-void qbase_matrix_free(qbase_matrix2* m);
 int qbase_matrix_zero(qbase_matrix2* m, int standard);
 int qbase_matrix_init(qbase_matrix2* m, int standard, Real m00, Real m01, Real m10, Real m11);
 void qbase_matrix_trans(qbase_matrix2* mtx);

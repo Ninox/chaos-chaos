@@ -12,20 +12,6 @@
 	(B) = (A) - (B);	\
 	(A) -= (B)
 
-/*******************   static func	*********************/
-static Real**
-matrix_new()	{
-	Real **m = NULL;
-	m = malloc(2*sizeof(Real*)+4*sizeof(Real));
-	*(m) = (Real*)(m+2);
-	*(m+1) = (Real*)(m+4);  // Real is 64bit, 8 byte.
-	*(Real*)(m+2) = 0;
-	*(Real*)(m+3) = 0;    // so the offset of the memory is 2(in 32-bit, 1 in 64bit)
-	*(Real*)(m+4) = 0;
-	*(Real*)(m+5) = 0;
-
-	return m;
-}
 
 /*******************	implement	*********************/
 
@@ -82,24 +68,12 @@ int qbase_vector_mul(qbase_vector* v, Real k)	{
 	return 1;
 }
 
-/*		matrix functions	*/
-void qbase_matrix_free(qbase_matrix2* m) {
-    if(m->m!= NULL) {
-        free(m->m);
-        m->m = NULL;
-    }
-}
-
 int qbase_matrix_zero(qbase_matrix2* m, int standard)	{
 	return qbase_matrix_init(m, standard, 0, 0, 0, 0);
 }
 
 int qbase_matrix_init(qbase_matrix2* mtrx, int standard, Real m00, Real m01, Real m10, Real m11)	{
-	/*	if mtrx data is not null, release it	*/
-	qbase_matrix_free(mtrx);
-
 	mtrx->standard = standard==0?ROW_BASE:COL_BASE;		//  [tablename] is row vector
-	mtrx->m = matrix_new();
 	if(mtrx->m == NULL)
         return 0;
 	mtrx->m[0][0] = m00;
@@ -113,7 +87,6 @@ void qbase_matrix_trans(qbase_matrix2* mtx)	{
 }
 qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx)	{
 	qbase_matrix2 m;
-	m.m = NULL;
 	//   2x2 matrix 	-->		adjoint matrix(Aij=Mji)
 	//    a		b				 d		-b
 	//	  c		d				-c		 a
@@ -146,7 +119,6 @@ qbase_matrix2 qbase_matrix_mul(const qbase_matrix2* mtx1, const qbase_matrix2* m
 	// | a1		b1 |	*	| a2	b2 | =	| a1[a2 b2] + b1[c2 d2] |
 	// | c1		d1 |	 	| c2	d2 |	| c1[a2 b2] + d1[c2 d2] |
 	qbase_matrix2 m;
-	m.m = NULL;
 	qbase_matrix_init(&m, ROW_BASE,
 		mtx1->m[0][0]*mtx2->m[0][0]+mtx1->m[0][1]*mtx2->m[1][0], mtx1->m[0][0]*mtx2->m[0][1]+mtx1->m[0][1]*mtx2->m[1][1],
 		mtx1->m[1][0]*mtx2->m[0][0]+mtx1->m[1][1]*mtx2->m[1][0], mtx1->m[1][0]*mtx2->m[0][1]+mtx1->m[1][1]*mtx2->m[1][1]
