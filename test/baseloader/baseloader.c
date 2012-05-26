@@ -61,16 +61,19 @@ list_getconfig(const char *key)	{
 	lua_State *L = NULL;
 	FILE *f = NULL;
 	char *val = NULL;
+	const char *retStr = NULL;
 	f = fopen(QBASE_PLUGINCONFIG, "r+");
 	if(f != NULL)	{
 		fclose(f);	// if the file exists, close and release it
 		L = luaL_newstate();
+		lua_gc(L, LUA_GCSTOP, 0);
 		if(luaL_dofile(L, QBASE_PLUGINCONFIG) == 0)	{
 			lua_getglobal(L, key);
 			if(lua_type(L, -1) != LUA_TNIL)	{
-                val = (char*)malloc(sizeof(char) * 256);
-                memset(val, 0, 256);
-				strcpy(val, lua_tostring(L, -1));
+                retStr = lua_tostring(L, -1);
+                val = (char*)malloc(sizeof(char) * (strlen(retStr)+1));
+                memset(val, 0, strlen(retStr)+1);
+				strcpy(val, retStr);
 			}
 			lua_pop(L, 1);
 		}
@@ -118,7 +121,7 @@ qbase_loader_init(const char *name)	{
 	node->data.handle = LoadLibrary(path);
 	#endif
 	// release the string on heap
-	 free(path);
+	free(path);
 }
 
 void
@@ -136,6 +139,8 @@ qbase_loader_free(const char *name)	{
 			else	{
 				if(node->prev != NULL)
 					node->prev->next = node->next;
+                else
+                    plugin_list = node->next;
 				if(node->next != NULL)
 					node->next->prev = node->prev;
 				list_freenode(node);
