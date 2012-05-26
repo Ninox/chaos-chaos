@@ -174,7 +174,6 @@ static void
 test_mconstruct(void) {
     // repeat initalize the matrix for testing the wild pointer
 	qbase_matrix2 m1;
-	m1.m = NULL;
 	//	check zero and normal construction
 	qbase_matrix_zero(&m1, V_ROW);
 	assert(
@@ -214,7 +213,6 @@ test_mconstruct(void) {
 		Q_EQUAL(m1.m[0][0], 0.0)>0 && Q_EQUAL(m1.m[0][1], 0.0)>0 &&
 		Q_EQUAL(m1.m[1][0], 0.0)>0 && Q_EQUAL(m1.m[1][1], 0.0)>0
 	);
-	qbase_matrix_free(&m1);
 	printf("extend method is OK\n");
 }
 
@@ -224,7 +222,6 @@ test_mcalc(void)  {
 	Real det;
     qbase_matrix2 mt, ma;
 	qbase_vector v;
-    mt.m = NULL;
     qbase_matrix_init(&mt, V_ROW, 1,4,3,5);
     ma = qbase_matrix_adjoint(&mt);
 //    printf("ma:\n%f,%f,\n%f, %f\n---\nmt:\n%f, %f,\n%f, %f\n",
