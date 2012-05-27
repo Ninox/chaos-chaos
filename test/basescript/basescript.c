@@ -159,6 +159,7 @@ int qbase_lua_exec(char* text,int retcnt, qbase_ret* ret, qbase_sta* sta)	{
                 set_luaret(sta, &ret[i], -1-i);
             }
         }
+        lua_gc(sta->L, LUA_GCCOLLECT, 0);
         stack_count = lua_gettop(sta->L);
         lua_pop(sta->L, stack_count);
 		return 1;
