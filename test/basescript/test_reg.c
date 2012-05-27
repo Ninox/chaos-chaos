@@ -45,7 +45,9 @@ test_loop() {
     for(i = 0; i < 10000; i++)   {
         qbase_lua_reg(sayhello, "sayfunc", sta);
         qbase_lua_exec("print(\"FUCK U!!!\"..sayfunc(1,2))", 0, NULL, sta);
-        qbase_lua_call("goodtest",NULL,0,0,sta);
+        result = qbase_lua_call("goodtest",NULL,0,0,sta);
+        if(result != NULL)
+            free(result);
 
         // input the parameter for call
         qbase_ret params[2];
@@ -62,10 +64,11 @@ test_loop() {
 
 int main()
 {
+    getchar();
     assert(test_normal()==1);
     assert(test_loop()==1);
     printf("press ENTER key to quit...\n");
-    system("pause");
+    getchar();
 	return 0;
 }
 

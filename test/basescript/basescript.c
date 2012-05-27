@@ -97,7 +97,7 @@ set_luaret(qbase_sta *sta, qbase_ret *ret, int idx)  {
 			(*ret).ret_type = STRING;
 			tempStr = lua_tostring(sta->L, idx);
 			(*ret).val.str_val.len = strlen(tempStr);
-			buffstr = (char*)malloc(sizeof(char)* (*ret).val.str_val.len);
+			buffstr = (char*)malloc(sizeof(char)* (*ret).val.str_val.len+1);
 			strcpy(buffstr, tempStr);
 			(*ret).val.str_val.str = buffstr;
 		}
@@ -150,9 +150,17 @@ void qbase_lua_close(qbase_sta* sta)	{
 
 int qbase_lua_exec(char* text,int retcnt, qbase_ret* ret, qbase_sta* sta)	{
 	// set the parameters before load the buffer
-//	int stack_count = 0;
+	int stack_count = 0;
+	int i;
 	if(!luaL_dostring(sta->L, text))	{
-//        stack_count = lua_gettop(sta->L);
+        // get returns
+        if(ret != NULL && retcnt > 0)   {
+            for(i = 0; i < retcnt; i++) {
+                set_luaret(sta, &ret[i], -1-i);
+            }
+        }
+        stack_count = lua_gettop(sta->L);
+        lua_pop(sta->L, stack_count);
 		return 1;
 	}
 	else return 0;
@@ -176,9 +184,13 @@ void qbase_lua_reg(qbase_regfunc f, const char *name, qbase_sta* sta)   {
 qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t paramcnt, size_t retcnt, qbase_sta* sta)	{
 	qbase_ret *rets = NULL;
 	int i, topcount = 0;
-
 	lua_getglobal(sta->L, func_name);
-
+	// check the funcion is exists
+	if(lua_type(sta->L, -1) == LUA_TNIL)    {
+        topcount = lua_gettop(sta->L);
+        lua_pop(sta->L, topcount);
+        return NULL;
+	}
 	for(i = 0; i < paramcnt; i++)	{
 		switch(params[i].ret_type)
 		{
@@ -198,11 +210,12 @@ qbase_ret* qbase_lua_call(const char* func_name, const qbase_ret* params, size_t
 		}
 	}
 	// call functions	&	return values
-	lua_pcall(sta->L, paramcnt, retcnt, 0);
-	if(retcnt > 0)  {
-        rets = (qbase_ret*)malloc(sizeof(qbase_ret)*retcnt);
-        for(i = 0; i < retcnt; i++) {
-            set_luaret(sta, &rets[i], -1*(i+1));
+	if(!lua_pcall(sta->L, paramcnt, retcnt, 0)) {
+        if(retcnt > 0)  {
+            rets = (qbase_ret*)malloc(sizeof(qbase_ret)*retcnt);
+            for(i = 0; i < retcnt; i++) {
+                set_luaret(sta, &rets[i], -1-i);
+            }
         }
 	}
 	// pop it
