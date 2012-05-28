@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "basescript.h"
-
+ 
 static int
 sayhello(lua_State *L)   {
     int a = lua_tointeger(L, -1);

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "basescript.h"
-
+ 
 int main()
 {
 	struct qbase_sta * sta = NULL;

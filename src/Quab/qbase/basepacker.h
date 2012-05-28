@@ -1,6 +1,6 @@
 #ifndef	QBASE_PACKER_H
 #define QBASE_PACKER_H
-
+ 
 enum package_ver	{
 	QPACK_VER_1 = 0x01
 };

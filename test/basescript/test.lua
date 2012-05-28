@@ -9,4 +9,4 @@ end
 function bestprint(a,b)
 	print("The result is:"..(3*a+b*a));
 	return 3*a+b*a;
-end
+end 
