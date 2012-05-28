@@ -30,7 +30,8 @@ typedef struct qbase_value		{
 	union	{
 		int	bval;
 		double nval;
-		qbase_string sval;		
+		qbase_string sval;	
+		qbase_table *table;
 	} values;
 };
 typedef struct qbase_sta qbase_sta;
@@ -39,7 +40,7 @@ typedef lua_CFunction qbase_regfunc;
 /**
 *	qbase lua initalization functions
 **/
-int qbase_lua_create(const qbase_sta **sta);
+int qbase_lua_create(const qbase_sta **sta_ptr);
 int qbase_lua_free(qbase_sta *sta);
 
 /**
