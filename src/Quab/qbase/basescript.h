@@ -16,32 +16,32 @@ enum qbase_buftype	{
 	FROM_FILE = 1
 };
 
+typedef struct qbase_table	 qbase_table;
+
 typedef struct qbase_string	{
 	char *str;
 	size_t len;
-} qbase_bytes;
-typedef struct qbase_table	{
-	// the fieldnames[0] means table name
-	char **fieldnames;
-	size_t field_count;
-} qbase_table;
+} qbase_string;
+
 typedef struct qbase_value		{
 	int vtype;
 	union	{
 		int	bval;
 		double nval;
-		qbase_string sval;	
+		qbase_string sval;
 		qbase_table *table;
 	} values;
-};
+} qbase_value;
+
 typedef struct qbase_sta qbase_sta;
 typedef lua_CFunction qbase_regfunc;
+typedef qbase_value** qbase_rets;
 
 /**
 *	qbase lua initalization functions
 **/
-int qbase_lua_create(const qbase_sta **sta_ptr);
-int qbase_lua_free(qbase_sta *sta);
+void qbase_lua_create(qbase_sta **sta_ptr);
+void qbase_lua_free(qbase_sta *sta);
 
 /**
 *	get lua's variable
@@ -54,8 +54,8 @@ qbase_value* qbase_lua_getfield(qbase_sta *sta, qbase_table *tb, const char *fie
 *	function executer
 **/
 void qbase_lua_reg(qbase_sta *sta, const char *name, qbase_regfunc f);
-qbase_value* qbase_lua_load(qbase_sta *sta, const char *buf, size_t retcnt, qbase_buftype from);
-qbase_value* qbase_lua_call(qbase_sta *sta, const char *fname, int paramcnt, qbase_value *v, int retcnt);
-qbase_value* qbase_lua_exec(qbase_sta *sta, const char *fname, int retcnt);
+qbase_rets qbase_lua_load(qbase_sta *sta, const char *buf, size_t retcnt, int from);
+qbase_rets qbase_lua_call(qbase_sta *sta, const char *fname, int paramcnt, qbase_value *v, int retcnt);
+qbase_rets qbase_lua_exec(qbase_sta *sta, const char *text, int retcnt);
 
 #endif
