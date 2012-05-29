@@ -85,11 +85,12 @@ table_len(qbase_sta *sta)	{
 static qbase_table *
 table_create(qbase_sta *sta)	{
 	int tblen = 0, i = 1;
+	const char *keystr = NULL;
+	qbase_table *t = NULL;
 	if(!lua_istable(sta->L, -1))
 		return NULL;
 	tblen = table_len(sta);
-	const char *keystr = NULL;
-	qbase_table *t = (qbase_table*)malloc(sizeof(qbase_table));
+	t = (qbase_table*)malloc(sizeof(qbase_table));
 	t->fieldnames = (char**)malloc(sizeof(char*)*(tblen+1));
 	t->field_count = tblen;
 	// TODO: set table name in fieldnames[0]
@@ -227,7 +228,8 @@ qbase_rets
 qbase_lua_load(qbase_sta *sta, const char *buf, size_t retcnt, int from)	{
 	FILE *f = NULL;
 	qbase_rets v = NULL;
-	int i, stackcnt = 0;
+	size_t i;
+	int stackcnt = 0;
 	int buffer_size = 0;
 	int has_ret = 0;
 	char *buffer = NULL;
