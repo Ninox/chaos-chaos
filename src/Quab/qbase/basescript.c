@@ -137,7 +137,7 @@ get_luavalue(qbase_sta * sta)	{
 		break;
 	case LUA_TBOOLEAN:
 		v->vtype = QBS_BOOLEAN;
-		v->values.nval = lua_toboolean(sta->L, -1);
+		v->values.bval = lua_toboolean(sta->L, -1);
 		break;
 	case LUA_TTABLE:
 		v->vtype = QBS_TABLE;
