@@ -63,19 +63,21 @@ sta_create()	{
 
 static void
 sta_release(qbase_sta *sta)	{
-	int cur = sta - &_stapool.pool[0];
 	lua_close(sta->L);
+	free(sta->L);
+	sta->L = NULL;
 	sta->status = STA_FREE;
 	_stapool.used -= 1;
-	_stapool.last = cur;
 }
 
 static int
 table_len(qbase_sta *sta)	{
 	int len = 0;
 	lua_pushnil(sta->L);
-	while(0 != lua_next(sta->L, -2))
+	while(0 != lua_next(sta->L, -2))    {
 		len+=1;
+		lua_pop(sta->L, 1);
+	}
 	return len;
 }
 
@@ -94,8 +96,9 @@ table_create(qbase_sta *sta)	{
 	while(0 != lua_next(sta->L, -2))	{
 		keystr = lua_tostring(sta->L, -2);
 		t->fieldnames[i] = (char*)malloc(strlen(keystr)+1);
-		memcpy(t->fieldnames[i], keystr, strlen(keystr));
+		strcpy(t->fieldnames[i], keystr);
 		lua_pop(sta->L, 1);
+		i++;
 	}
 	return t;
 }
@@ -130,7 +133,7 @@ get_luavalue(qbase_sta * sta)	{
 		t_str = lua_tostring(sta->L, -1);
 		v->values.sval.str = (char*)malloc(strlen(t_str)+1);
 		v->values.sval.len = strlen(t_str);
-		memcpy(v->values.sval.str, t_str, v->values.sval.len);
+		strcpy(v->values.sval.str, t_str);
 		break;
 	case LUA_TBOOLEAN:
 		v->vtype = QBS_BOOLEAN;
@@ -170,6 +173,11 @@ qbase_lua_get(qbase_sta *sta, const char *name)	{
 	int stackcnt = 0;
 	lua_getglobal(sta->L, name);
 	v = get_luavalue(sta);
+	// if v is table, set it's name
+	if(v->vtype == QBS_TABLE)   {
+        v->values.table->fieldnames[0] = (char*)malloc(strlen(name)+1);
+        strcpy(v->values.table->fieldnames[0], name);
+    }
 	stackcnt = lua_gettop(sta->L);
 	lua_pop(sta->L, stackcnt);
 	return v;
@@ -250,7 +258,47 @@ qbase_lua_load(qbase_sta *sta, const char *buf, size_t retcnt, int from)	{
 
 qbase_rets
 qbase_lua_call(qbase_sta *sta, const char *fname, int paramcnt, qbase_value *v, int retcnt)	{
-	return NULL;
+    qbase_rets rv = NULL;
+    int i, stackcnt = 0;
+	lua_getglobal(sta->L, fname);
+	if(!lua_isfunction(sta->L, -1)) {
+        return NULL;
+	}
+	if(paramcnt > 0)    {
+        for(i = 0; i < paramcnt; i++)   {
+            switch(v->vtype)
+            {
+            case QBS_NIL:
+                lua_pushnil(sta->L);
+                break;
+            case QBS_BOOLEAN:
+                lua_pushboolean(sta->L, v->values.bval);
+                break;
+            case QBS_NUMBER:
+                lua_pushnumber(sta->L, v->values.nval);
+                break;
+            case QBS_STRING:
+                lua_pushstring(sta->L, v->values.sval.str);
+                break;
+            case QBS_TABLE:
+            case QBS_UNKNOW:
+            default:
+                break;
+            }
+        }
+	}
+	if(lua_pcall(sta->L, 0, retcnt, 0) == 0)    {
+        if(retcnt>0)    {
+            rv = (qbase_rets)malloc(sizeof(qbase_value*)*retcnt);
+            for(i = 0; i < retcnt; i++) {
+                rv[i] = get_luavalue(sta);
+                lua_pop(sta->L, 1);
+            }
+        }
+	}
+	stackcnt = lua_gettop(sta->L);
+	lua_pop(sta->L,stackcnt);
+	return rv;
 }
 
 qbase_rets
