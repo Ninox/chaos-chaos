@@ -1,6 +1,7 @@
 #include "basescript.h"
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <lauxlib.h>
 #include <lualib.h>
 
@@ -192,6 +193,7 @@ qbase_lua_freetable(qbase_table *tbl)	{
 qbase_value*
 qbase_lua_getfield(qbase_sta *sta, qbase_table *tb, const char *field)	{
 	qbase_value *v = NULL;
+	char timestr[20];
 	int stackcnt = 0;
 	if(tb == NULL || tb->field_count <= 0 || tb->fieldnames == NULL)
 		return NULL;
@@ -203,7 +205,14 @@ qbase_lua_getfield(qbase_sta *sta, qbase_table *tb, const char *field)	{
 		free(v);
 		v = NULL;
 	}
-	// check the stack
+	if(v->vtype == QBS_TABLE)   {
+        v->values.table->fieldnames[0] = (char*)malloc(sizeof(char)*20);
+        strcpy(v->values.table->fieldnames[0], "table_");
+        sprintf(timestr, "%x", (unsigned)time(0));
+        strcat(v->values.table->fieldnames[0], timestr);
+        lua_setglobal(sta->L, v->values.table->fieldnames[0]);
+	}
+	/* check the stack */
 	stackcnt = lua_gettop(sta->L);
 	lua_pop(sta->L, stackcnt);
 	return v;
