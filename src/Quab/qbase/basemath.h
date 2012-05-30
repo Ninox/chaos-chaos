@@ -39,6 +39,7 @@ int qbase_vector_mul(qbase_vector* v, Real k);
 /*	matrix	*/
 int qbase_matrix_zero(qbase_matrix2* m, int standard);
 int qbase_matrix_init(qbase_matrix2* m, int standard, Real m00, Real m01, Real m10, Real m11);
+qbase_matrix2 qbase_matrix_plus(const qbase_matrix2 *m1, const qbase_matrix2 *m2);
 void qbase_matrix_trans(qbase_matrix2* mtx);
 qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx);
 void qbase_matrix_inverse(qbase_matrix2* mtx);
