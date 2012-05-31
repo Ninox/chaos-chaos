@@ -74,13 +74,19 @@ int qbase_matrix_zero(qbase_matrix2* m, int standard)	{
 
 int qbase_matrix_init(qbase_matrix2* mtrx, int standard, Real m00, Real m01, Real m10, Real m11)	{
 	mtrx->standard = standard==0?ROW_BASE:COL_BASE;		//  [tablename] is row vector
-	if(mtrx->m == NULL)
-        return 0;
 	mtrx->m[0][0] = m00;
 	mtrx->m[0][1] = m01;
 	mtrx->m[1][0] = m10;
 	mtrx->m[1][1] = m11;
 	return 1;
+}
+qbase_matrix2 qbase_matrix_plus(const qbase_matrix2 *m1, const qbase_matrix2 *m2)	{
+	qbase_matrix2 m;
+	qbase_matrix_init(&m, ROW_BASE, 
+		m1->m[0][0]+m2->m[0][0],m1->m[0][1]+m2->m[0][1],
+		m1->m[1][0]+m2->m[1][0],m1->m[1][1]+m2->m[1][1]
+	);
+	return m;
 }
 void qbase_matrix_trans(qbase_matrix2* mtx)	{
 	SWAP_AB(mtx->m[0][1], mtx->m[1][0]);
