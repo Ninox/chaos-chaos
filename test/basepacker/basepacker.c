@@ -1,5 +1,6 @@
 #include "basepacker.h"
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <zlib.h>
@@ -21,7 +22,7 @@ typedef struct qbase_packIndex	{
 } qbase_packIndex;
 
 struct qbase_pck	{
-	const char prefix_name[8];
+	char prefix_name[8];
 	char pwd[20];
 	int version;
 	int datasize;
@@ -56,7 +57,7 @@ pck_create_ver100(const char *pwd)	{
 	for(i = 0; i < 6; i++)	{
 		pck->indexer[i].resid = i;
 		pck->indexer[i].reslength = 0;
-		pck->indexer[i].items = NULL;		
+		pck->indexer[i].items = NULL;
 	}
 	pck->databytes = NULL;
 	return pck;
@@ -64,7 +65,7 @@ pck_create_ver100(const char *pwd)	{
 
 static int
 pck_writefile(char *path, qbase_pck *pck)	{
-	FILE *f = NULL;	
+	FILE *f = NULL;
 	int i, itemidx;
 	if(pck == NULL)
 		return PACKER_ERROR;
@@ -80,17 +81,17 @@ pck_writefile(char *path, qbase_pck *pck)	{
 			fwrite(&pck->indexer[i].reslength, sizeof(int), 1, f);
 			if(pck->indexer[i].items != NULL && pck->indexer[i].reslength>0)	{
 				for(itemidx = 0; itemidx < pck->indexer[i].reslength; itemidx++)	{
-					fwrite(&pck->indexer[i].items[i]->item_name, sizeof(char), 24, f);
-					fwrite(&pck->indexer[i].items[i]->data_idx, sizeof(int), 1, f);
+					fwrite(&pck->indexer[i].items[i].item_name, sizeof(char), 24, f);
+					fwrite(&pck->indexer[i].items[i].data_idx, sizeof(int), 1, f);
 				}
 			}
 		}
 		if(pck->datasize > 0 && pck->databytes != NULL)	{
-			fwrite(pck->databytes, sizeof(qbase_byte), pck->datasize);
+			fwrite(pck->databytes, sizeof(qbase_byte), pck->datasize,f);
 		}
 		fclose(f);
 		return PACKER_OK;
-		
+
 	}
 	else return PACKER_ACSERR;
 }
