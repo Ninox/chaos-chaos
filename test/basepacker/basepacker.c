@@ -124,7 +124,8 @@ res_removeidx(int res, const char *name)	{
 }
 
 static void
-res_updateidx(int res, const char *oldname, const char *newname, int newidx)	{
+res_updateidx(int res, const char *oldname,
+              const char *newname, int newidx)	{
 	return;
 }
 
@@ -150,15 +151,46 @@ qbase_packer_create(char *path, char *pwd, int ver)	{
 	return pck;
 }
 
+qbase_pck* qbase_packer_load(char *path, char *pwd, int ver)    {
+    return NULL;
+}
+
 qbase_byte*
-qbase_packer_get(qbase_pck *pck, int pres, char *name, char *pwd, int ver)	{
+qbase_packer_get(qbase_pck *pck, int pres,
+                 char *name, char *pwd, int ver)	{
+	int i, len;
+	int posId;
+	qbase_byte *data = NULL;
 	if(pck == NULL)
 		return NULL;
-	return NULL;
+    len = pck->indexer[pres].reslength
+    if(len > 0)    {
+        for(i = 0; i < len; i++)    {
+            if(strcmp(pck->indexer[pres].items[i].item_name, name)) {
+                posId = pck->indexer[pres].items[i].data_idx;
+                break;
+            }
+        }
+        if(posId>=0)    {
+            /*      get the index of data       */
+            data = pck->databytes+posId;
+            /*      DECRYPT the data        */
+            /*      return      */
+            return data;
+        }
+    }
+    return NULL;
 }
 
 int
-qbase_packer_add(qbase_pck *pck, int pres, qbase_byte *bytes, char *name, char *pwd, int ver)	{
+qbase_packer_add(qbase_pck *pck, int pres,
+                 qbase_byte *bytes, char *name,
+                 char *pwd, int ver)	{
+    qbase_byte *data = NULL;
+    int i, len, pos;
+    /*      get the last position of databytes      */
+    /*      add a new data after the last one      */
+    /*      update the index of pck      */
 	return PACKER_ERROR;
 }
 
@@ -167,10 +199,13 @@ qbase_packer_setpwd(qbase_pck *pck, char *pwd)	{
 	return PACKER_ERROR;
 }
 int
-qbase_packer_update(qbase_pck *pck, int pres, char *name, qbase_byte *newbytes, char *pwd, int ver)	{
+qbase_packer_update(qbase_pck *pck, int pres,
+                    char *name, qbase_byte *newbytes,
+                    char *pwd, int ver)	{
 	return PACKER_ERROR;
 }
 int
-qbase_packer_remove(qbase_pck *pck, int pres, char *name ,char *pwd, int ver)	{
+qbase_packer_remove(qbase_pck *pck, int pres,
+                    char *name ,char *pwd, int ver)	{
 	return PACKER_ERROR;
 }
