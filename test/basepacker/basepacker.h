@@ -2,12 +2,12 @@
 #define QBASE_PACKER_H
 
 /*		version define		*/
-enum	qbase_pversion {
+enum qbase_pversion {
 	PACKVER_100 = 0x100
 };
 
 /*		resource path define	*/
-enum	qbase_presource	{
+enum qbase_presource	{
 	RES_ROOT = 0,
 	RES_SCRIPT = 1,
 	RES_IMG = 2,
@@ -24,7 +24,7 @@ typedef char qbase_byte;
 qbase_pck* qbase_packer_create(char *path, char *pwd, int ver);
 qbase_pck* qbase_packer_load(char *path, char *pwd, int ver);
 qbase_byte* qbase_packer_get(qbase_pck *pck, int pres, char *name, char *pwd, int ver);
-int qbase_packer_add(qbase_pck *pck, int pres, qbase_byte *bytes, char *name, char *pwd, int ver);
+int qbase_packer_add(qbase_pck *pck, int pres, qbase_byte *bytes, char *name, int ver);
 int qbase_packer_setpwd(qbase_pck *pck, char *pwd);
 int qbase_packer_update(qbase_pck *pck, int pres, char *name, qbase_byte *newbytes, char *pwd, int ver);
 int qbase_packer_remove(qbase_pck *pck, int pres, char *name ,char *pwd, int ver);
