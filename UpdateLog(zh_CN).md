@@ -1,3 +1,12 @@
+##	2012-06-01
++ 完成了basescript的开发
++ 创建了分支lua_new_api，用于重新实现basescript
++ 通过测试，已经基本解决了内存泄露问题，吧lua_new_api分支和master分支合并
+
+		1.	6月份目标是完成basepacker并且测试好，如果出现内存泄露则解决之
+		2.	6月底，大约28号之后，尝试整体编译qbase并测试静态库
+
+
 ##	2012-05-20
 + 完成了qbase_script里面的call、reg 操作，能够简单地注册函数和调用lua里面的函数了
 + 更新了get操作和getfield，现在能够获取table的返回了（as a name）
