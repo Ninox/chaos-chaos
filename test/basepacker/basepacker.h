@@ -23,6 +23,7 @@ typedef char qbase_byte;
 /*		API declaration		*/
 qbase_pck* qbase_packer_create(char *path, char *pwd, int ver);
 qbase_pck* qbase_packer_load(char *path, int ver);
+void qbase_packer_save(qbase_pck *pck, char *path);
 void qbase_packer_close(qbase_pck *pck);
 qbase_byte* qbase_packer_get(qbase_pck *pck, int *sz, int pres, char *name, char *pwd, int ver);
 int qbase_packer_add(qbase_pck *pck, int pres, qbase_byte *bytes, int sz, char *name);
