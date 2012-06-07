@@ -23,6 +23,6 @@ int test_remove(){
 
 int main()
 {
-
+    getchar();
 	return 0;
 }
