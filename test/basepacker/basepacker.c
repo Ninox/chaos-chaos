@@ -348,7 +348,7 @@ qbase_packer_add(qbase_pck *pck, int pres,
     new_sz = sz;
     cmp_data = (qbase_byte*)malloc(new_sz);
     compress((Bytef*)cmp_data, (uLongf*)&new_sz, (Bytef*)bytes, (uLongf)sz);
-    pwd_encrypted(pck, cmp_data, new_sz);
+//    pwd_encrypted(pck, cmp_data, new_sz);
     idx->data = cmp_data;
     idx->data_size = new_sz;
 
