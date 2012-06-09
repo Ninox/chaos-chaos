@@ -64,7 +64,7 @@ pck_create(char *path, char *pwd, int ver) {
 static qbase_pck *
 pck_loadfile(const char *path) {
     int remainSize;
-    int pres, dz, i;
+    int pres, dz, oz, i;
     qbase_byte *data = NULL;
     char fname[20];
     qbase_packIndexer *idx = NULL;
@@ -89,10 +89,12 @@ pck_loadfile(const char *path) {
             fread(&pres, sizeof(int), 1, f);
             fread(&fname[0], sizeof(char), 20, f);
             fread(&dz, sizeof(int), 1, f);
+            fread(&oz, sizeof(int), 1, f);
             data = (qbase_byte*)malloc(dz);
             fread(data, sizeof(qbase_byte), dz, f);
 
             idx->data_size = dz;
+            idx->old_size = oz;
             idx->data = data;
             strcpy(idx->name, fname);
             bck->current = idx;
@@ -160,6 +162,7 @@ pck_writefile(qbase_pck *pck, const char *path) {
                     fwrite(&i, sizeof(int), 1, f);
                     fwrite(&pb->current->name, sizeof(char), 20, f);
                     fwrite(&pb->current->data_size, sizeof(int), 1, f);
+                    fwrite(&pb->current->old_size, sizeof(int), 1, f);
                     fwrite(pb->current->data, sizeof(qbase_byte), pb->current->data_size, f);
                     pb = pb->next;
                 }while(pb != NULL && pb != pck->blocks[i]);
