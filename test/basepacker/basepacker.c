@@ -16,6 +16,7 @@ typedef struct qbase_packIndexer {
     char name[20];
     qbase_byte *data;
     int data_size;
+    int old_size;
     struct qbase_packIndexer *prev;
     struct qbase_packIndexer *next;
 } qbase_packIndexer;
@@ -185,6 +186,8 @@ pck_free(qbase_pck *pck)    {
             if(pIdx->data != NULL)  {
                 free(pIdx->data);
             }
+            if(pIdx == pck->indexer && pIdx->prev != NULL)
+                pIdx->prev->next = NULL;
             free(pIdx);
             pIdx = pIdex_next;
         }while(pIdx != NULL);
@@ -195,6 +198,8 @@ pck_free(qbase_pck *pck)    {
             do
             {
                 ptB_next = ptB->next;
+                if(ptB == pck->blocks[i] && pck->blocks[i]->prev != NULL)
+                    pck->blocks[i]->prev->next = NULL;
                 free(ptB);
                 ptB = ptB_next;
             }while(ptB != NULL);
@@ -282,10 +287,10 @@ qbase_packer_get(qbase_pck *pck, int *sz, int pres,
                 len = pBlocks->current->data_size;
                 data = pBlocks->current->data;
                 data = pwd_translate(data, len, pwd);
-                *sz = len;
-                uncmp_data = (qbase_byte*)malloc(len*1000);
                 /*   uncompress   */
-                uncompress((Bytef*)uncmp_data,(uLongf*)sz, (Bytef*)data, (uLongf)len);
+                *sz = pBlocks->current->old_size;
+                uncmp_data = (qbase_byte*)malloc(*sz);
+                uncompress((Bytef*)uncmp_data,(uLongf*)sz, (Bytef*)data, (uLong)len);
             }
             pBlocks = pBlocks->next;
         }while(pBlocks != NULL && pBlocks != pck->blocks[pres]);
@@ -296,16 +301,30 @@ qbase_packer_get(qbase_pck *pck, int *sz, int pres,
 int
 qbase_packer_add(qbase_pck *pck, int pres,
                  qbase_byte *bytes, int sz, char *name)  {
-    int new_sz;
+    int new_sz, name_count = 0;
     qbase_packIndexer *idx = (qbase_packIndexer*)malloc(sizeof(qbase_packIndexer));
     qbase_typeBlocks *bck = (qbase_typeBlocks*)malloc(sizeof(qbase_typeBlocks));
+    qbase_typeBlocks *pb = pck->blocks[pres];
     qbase_byte *cmp_data = NULL;
     if(pck == NULL || bytes == NULL || pres < 0 || name == NULL)    {
         free(idx);
         free(bck);
         return PACKER_ERROR;
     }
-    idx->data           = NULL;
+    /*   check same name   */
+    if(pb != NULL)  {
+        do
+        {
+            if(strcmp(pb->current->name, name) == 0)    {
+                free(idx);
+                free(bck);
+                return PACKER_ERROR;
+                break;
+            }
+            pb = pb->next;
+        }while(pb != NULL && pb != pck->blocks[pres]);
+    }
+    idx->data = NULL;
     strcpy(idx->name, name);
     bck->current = idx;
     /* get tails of indexer */
@@ -345,13 +364,13 @@ qbase_packer_add(qbase_pck *pck, int pres,
         }
     }
     /*  compress the data   */
-    new_sz = sz;
+    new_sz = compressBound(sz);
     cmp_data = (qbase_byte*)malloc(new_sz);
-    compress((Bytef*)cmp_data, (uLongf*)&new_sz, (Bytef*)bytes, (uLongf)sz);
+    compress((Bytef*)cmp_data, (uLongf*)&new_sz, (Bytef*)bytes, (uLong)sz);
 //    pwd_encrypted(pck, cmp_data, new_sz);
     idx->data = cmp_data;
     idx->data_size = new_sz;
-
+    idx->old_size = sz;
     pck->datasize += idx->data_size;
 
     return PACKER_OK;

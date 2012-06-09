@@ -4,9 +4,11 @@
 #include <stdio.h>
 #include <assert.h>
 
+static char *opath = "lh.jpg";
+static char *rpath = "lh-release.jpg";
+
 int test_compress()	{
-	const char *path = "test.dat";
-	FILE *f = fopen(path, "rb");
+	FILE *f = fopen(opath, "rb");
 	qbase_pck *pck = NULL;
 	int len;
 	qbase_byte *buffer = NULL;
@@ -17,7 +19,7 @@ int test_compress()	{
         buffer = (qbase_byte*)malloc(len);
         fread(buffer, sizeof(qbase_byte), len, f);
         pck = qbase_packer_create("test.pck",  NULL, PACKVER_100);
-        qbase_packer_add(pck, RES_DATA, buffer, len, "test.dat");
+        qbase_packer_add(pck, RES_DATA, buffer, len, opath);
         qbase_packer_save(pck, "test.pck");
         qbase_packer_close(pck);
         return 1;
@@ -27,15 +29,14 @@ int test_compress()	{
 
 int test_uncompress()	{
     const char *path = "test.pck";
-    const char *target = "test-release.dat";
     qbase_pck *pck = NULL;
     int len;
     qbase_byte *buffer = NULL;
     FILE *f = NULL;
 
     pck = qbase_packer_load(path, PACKVER_100);
-    buffer = qbase_packer_get(pck, &len, 4, "test.dat", NULL, PACKVER_100);
-    f = fopen(target, "wb");
+    buffer = qbase_packer_get(pck, &len, 4, opath, NULL, PACKVER_100);
+    f = fopen(rpath, "wb");
     if(f != NULL)   {
         fwrite(buffer, sizeof(qbase_byte), len, f);
         fclose(f);
@@ -58,7 +59,7 @@ int test_remove(){
 
 int main()
 {
-//    printf("test compress:%s\n", test_compress()==1? "success": "failure");
+    printf("test compress:%s\n", test_compress()==1? "success": "failure");
     printf("test uncompress:%s\n", test_uncompress()==1? "success": "failure");
     getchar();
 	return 0;
