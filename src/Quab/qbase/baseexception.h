@@ -1,0 +1,4 @@
+#ifndef QBASE_EXCEPTION_H
+#define QBASE_EXCEPTION_H
+
+#endif
