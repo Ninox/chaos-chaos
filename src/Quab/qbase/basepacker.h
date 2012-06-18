@@ -32,6 +32,7 @@ typedef struct qbase_pdata	{
 
 typedef struct qbase_pck qbase_pck;
 
+/*   use src to encryt or decrypt the dest   */
 typedef void (*qbase_securityfn)(char *dest, int size, const char *src);
 
 /*		packer create or load API		*/

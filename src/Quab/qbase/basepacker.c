@@ -203,6 +203,20 @@ pck_checkpwd(qbase_pck *pck, const char *pwd)   {
     return PACKER_FN_ERROR;
 }
 
+static int
+pck_checksame(qbase_pck *pck, int resid const char *name)   {
+    qbase_resblock *bck = NULL;
+    if(pck->blocks == NULL)
+        return PACKER_FN_ERROR;
+    bck = pck->blocks[resid];
+    while(bck != NULL)  {
+        if(strcmp(bck->current->fname, name) == 0)
+            return PACKER_FN_DENY;
+        else bck = bck->next;
+    }
+    return PACKER_FN_OK;
+}
+
 /******		API implementation		******/
 
 /*		packer create or load API		*/
@@ -291,7 +305,8 @@ qbase_packer_show(qbase_pck *pck, int resid)	{
 
 /*		pack common CRUD operations		*/
 qbase_pdata*
-qbase_packer_get(qbase_pck *pck, int resid, char *fname, char *pwd)	{
+qbase_packer_get(qbase_pck *pck, int resid,
+                 char *fname, char *pwd)	{
     unsigned short hashID;
     int len;
     qbase_pdata *ret = NULL;
@@ -321,16 +336,104 @@ qbase_packer_get(qbase_pck *pck, int resid, char *fname, char *pwd)	{
 }
 
 int
-qbase_packer_add(qbase_pck *pck, int resid, char *fname, qbase_pdata *data)	{
-	return PACKER_FN_ERROR;
+qbase_packer_add(qbase_pck *pck, int resid,
+                 char *fname, qbase_pdata *data)	{
+    unsigned short hashID =-1;
+    char *buffer = NULL;
+    int len;
+    char *pwd = NULL;
+    qbase_datainfo *info = NULL;
+    qbase_resblock *bck = NULL;
+
+    if(pck == NULL)
+        return PACKER_FN_ERROR;
+
+    hashID = hash_gethashid(pck, resid, name);
+    if(hashID < 0)
+        return PACKER_FN_DENY;
+
+    info = (qbase_datainfo*)malloc(sizeof(qbase_datainfo));
+
+    /*   set datainfo   */
+    info->fname = (char*)malloc(strlen(fname)+1);
+    strcpy(info->fname, fname);
+    info->hash_id = hashID;
+    info->old_sz = data->sz;
+    info->resId = resid;
+
+    /*   compress data and set into datainfo    */
+    buffer = (char*)malloc(data->sz);
+    len = data->sz;
+    /*   if compress fail   */
+    if(compress((Bytef*)buffer, (uLongf*)&len, (Bytef*)data->pdata, (uLong)data->sz) != Z_OK)   {
+        free(buffer);
+        free(info->fname);
+        free(info);
+        return PACKER_FN_ERROR;
+    }
+    info->data.sz = len;
+    /*   check status of pck for encrypting the buffer data   */
+    if(pck->decrypt != NULL && pck->encrypt != NULL)    {
+        pwd = (char*)malloc(20);
+        memcpy(pwd, pck->pwd, 20);
+        pck->decrypt(pwd, 20, NULL);
+        pck->encrypt(buffer, info->data.sz, pwd);
+        free(pwd);
+    }
+    info->data.pdata = buffer;
+
+    /*   set datainfo into hash   */
+    pck->hash_info[info->hash_id] = info;
+    /*   set into blocks and update item count of pck   */
+    bck = (qbase_resblock*)malloc(sizeof(qbase_resblock));
+    bck->current = info;
+    bck->next = pck->blocks[resid];
+    pck->blocks[resid] = bck;
+
+    pck->datasize += info->data.sz;
+    pck->count++;
+
+	return PACKER_FN_OK;
 }
 
 int
 qbase_packer_remove(qbase_pck *pck, int resid, char *fname)	{
+    unsigned short hashID = -1;
+    qbase_resblock *bck = NULL;
+
+    if(pck == NULL)
+        return PACKER_FN_ERROR;
+    hashID = hash_gethashid(pck, resid, fname);
+    if(hashID < 0)
+        return PACKER_FN_NOTEXSIT;
+    /*   remove from blocks   */
+    bck = pck->blocks[resid];
+    if(bck != NULL) {
+        if(strcmp(bck->current->fname, fname) == 0)  {
+            pck->blocks[resid] = bck->next;
+            free(bck);
+        }
+        else    {
+            while(bck->next != NULL)    {
+                if(strcmp(bck->next->current->fname, fname) == 0)   {
+                    bck->next = bck->next->next;
+                    free(bck->next);
+                    break;
+                }
+                bck = bck->next;
+            }
+        }
+    }
+    /*   remove from hash   */
+    free(pck->hash_info[hashID]->data.pdata);
+    free(pck->hash_info[hashID]);
+    pck->hash_info[hashID] = NULL
+
 	return PACKER_FN_ERROR;
 }
 
 int
-qbase_packer_update(qbase_pck *pck, int resid, char *fname, qbase_pdata *data, char *pwd)	{
+qbase_packer_update(qbase_pck *pck, int resid,
+                    char *fname, qbase_pdata *data, char *pwd)	{
 	return PACKER_FN_ERROR;
 }
