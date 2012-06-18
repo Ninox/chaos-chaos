@@ -204,7 +204,7 @@ pck_checkpwd(qbase_pck *pck, const char *pwd)   {
 }
 
 static int
-pck_checksame(qbase_pck *pck, int resid const char *name)   {
+pck_checksame(qbase_pck *pck, int resid, const char *name)   {
     qbase_resblock *bck = NULL;
     if(pck->blocks == NULL)
         return PACKER_FN_ERROR;
@@ -345,17 +345,20 @@ qbase_packer_add(qbase_pck *pck, int resid,
     qbase_datainfo *info = NULL;
     qbase_resblock *bck = NULL;
 
+    if(pck_checksame(pck, resid, fname) != PACKER_FN_OK)    {
+        return PACKER_FN_DENY;
+    }
+
     if(pck == NULL)
         return PACKER_FN_ERROR;
 
-    hashID = hash_gethashid(pck, resid, name);
+    hashID = hash_gethashid(pck, resid, fname);
     if(hashID < 0)
         return PACKER_FN_DENY;
 
     info = (qbase_datainfo*)malloc(sizeof(qbase_datainfo));
 
     /*   set datainfo   */
-    info->fname = (char*)malloc(strlen(fname)+1);
     strcpy(info->fname, fname);
     info->hash_id = hashID;
     info->old_sz = data->sz;
@@ -427,7 +430,7 @@ qbase_packer_remove(qbase_pck *pck, int resid, char *fname)	{
     /*   remove from hash   */
     free(pck->hash_info[hashID]->data.pdata);
     free(pck->hash_info[hashID]);
-    pck->hash_info[hashID] = NULL
+    pck->hash_info[hashID] = NULL;
 
 	return PACKER_FN_ERROR;
 }
