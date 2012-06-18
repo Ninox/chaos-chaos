@@ -13,6 +13,7 @@ enum pck_version	{
 	PCK_VER_0100		= 0x0100
 };
 enum pck_resource	{
+    RES_TOTAL_COUNT =5,
 	RES_ROOT		=0,
 	RES_IMG			=1,
 	RES_MODEL	    =2,

@@ -1,34 +1,58 @@
-#ifndef	QBASE_PACKER_H
+#ifndef QBASE_PACKER_H
 #define QBASE_PACKER_H
 
-/*		version define		*/
-enum qbase_pversion {
-	PACKVER_100 = 0x100
+#include <stddef.h>
+
+#define PACKER_FN_OK					0
+#define PACKER_FN_ERROR			1
+#define PACKER_FN_DENY				2
+#define PACKER_FN_NOTEXSIT	3
+
+enum pck_version	{
+	PCK_CUR_VER 		= 0x0100,
+	PCK_VER_0100		= 0x0100
+};
+enum pck_resource	{
+    RES_TOTAL_COUNT =5,
+	RES_ROOT		=0,
+	RES_IMG			=1,
+	RES_MODEL	    =2,
+	RES_SCRIPT	    =3,
+	RES_DATA		=4
 };
 
-/*		resource path define	*/
-enum qbase_presource	{
-	RES_ROOT = 0,
-	RES_SCRIPT = 1,
-	RES_IMG = 2,
-	RES_MODEL = 3,
-	RES_DATA = 4,
-	RES_RESOURCE = 5
-};
+typedef struct qbase_resinfo{
+	char **filename;
+	size_t count;
+} qbase_resinfo;
 
-/*		data structure declaration		*/
+typedef struct qbase_pdata	{
+	char *pdata;
+	size_t sz;
+} qbase_pdata;
+
 typedef struct qbase_pck qbase_pck;
-typedef char qbase_byte;
 
-/*		API declaration		*/
-qbase_pck* qbase_packer_create(char *path, char *pwd, int ver);
-qbase_pck* qbase_packer_load(char *path, int ver);
-void qbase_packer_save(qbase_pck *pck, char *path);
-void qbase_packer_close(qbase_pck *pck);
-qbase_byte* qbase_packer_get(qbase_pck *pck, int *sz, int pres, char *name, char *pwd, int ver);
-int qbase_packer_add(qbase_pck *pck, int pres, qbase_byte *bytes, int sz, char *name);
-int qbase_packer_setpwd(qbase_pck *pck, char *oldPwd, char *pwd);
-int qbase_packer_update(qbase_pck *pck, int pres, char *name, qbase_byte *newbytes, int sz, char *pwd);
-int qbase_packer_remove(qbase_pck *pck, int pres, char *name ,char *pwd);
+/*   use src to encryt or decrypt the dest   */
+typedef void (*qbase_securityfn)(char *dest, int size, const char *src);
+
+/*		packer create or load API		*/
+qbase_pck* qbase_packer_create(char *path);
+qbase_pck* qbase_packer_load(char *path);
+void qbase_packer_save(qbase_pck *pck, const char *path);
+void qbase_packer_free(qbase_pck *pck);
+
+/*		packer security API		*/
+int qbase_packer_setsercurity(qbase_pck *pck, qbase_securityfn encryptfn, qbase_securityfn decryptfn);
+int qbase_packer_setpwd(qbase_pck *pck, char *npwd, const char *opwd);
+
+/*		packer file lists API*/
+qbase_resinfo* qbase_packer_show(qbase_pck *pck, int resid);
+
+/*		pack common CRUD operations		*/
+qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, char *fname, char *pwd);
+int qbase_packer_add(qbase_pck *pck, int resid, char *fname, qbase_pdata *data);
+int qbase_packer_remove(qbase_pck *pck, int resid, char *fname);
+int qbase_packer_update(qbase_pck *pck, int resid, char *fname, qbase_pdata *data, char *pwd);
 
 #endif
