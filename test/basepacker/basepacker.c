@@ -399,7 +399,7 @@ qbase_packer_get(qbase_pck *pck, int resid,
     int len;
     qbase_pdata *ret = NULL;
     qbase_datainfo *data = NULL;
-    char *buffer = NULL;
+    char *buffer = NULL, *e_data = NULL;
 
 	if(resid >= RES_TOTAL_COUNT)
 		return NULL;
@@ -414,7 +414,19 @@ qbase_packer_get(qbase_pck *pck, int resid,
         buffer = (char*)malloc(data->old_sz);
         memset(buffer, 0, data->old_sz);
         len = data->old_sz;
-        uncompress((Bytef*)buffer, (uLongf*)&len, (Bytef*)data->data.pdata, data->old_sz);
+        if(pck->encrypt != NULL && pck->decrypt != NULL && pck->pwd[0] != '\0')  {
+            e_data = (char*)malloc(data->old_sz);
+            memcpy(e_data, data->data.pdata, data->data.sz);
+            if(pck_checkpwd(pck, pwd) == PACKER_FN_OK)  {
+                pck->decrypt(e_data, len, pwd);
+                uncompress((Bytef*)e_data, (uLongf*)&len, (Bytef*)data->data.pdata, data->old_sz);
+            }
+            else    {
+                free(buffer);
+                return NULL;
+            }
+        }
+        else uncompress((Bytef*)buffer, (uLongf*)&len, (Bytef*)data->data.pdata, data->old_sz);
         ret = (qbase_pdata*)malloc(sizeof(qbase_pdata));
         ret->pdata = buffer;
         ret->sz = len;
