@@ -18,7 +18,7 @@ void encrypt_function(char *dest, size_t sz, const char *src)   {
     else    {
         srcLen = strlen(src);
         for(i = 0; i < sz; i++) {
-            dest[i] ^= src[i%srcLen];
+            dest[i] += 1;
         }
     }
 }
@@ -33,7 +33,7 @@ void decrypt_function(char *dest, size_t sz, const char *src)   {
     else    {
         srcLen = strlen(src);
         for(i = 0; i < sz; i++) {
-            dest[i] ^= src[i%srcLen];
+            dest[i] -= 1;
         }
     }
 }
@@ -47,12 +47,12 @@ int test_compress()	{
 	qbase_pdata data;
 	qbase_pck *pck = NULL;
 	int len;
-	char *buffer = NULL;
+	uchar *buffer = NULL;
 	if(f != NULL)   {
         fseek(f, 0, SEEK_END);
         len = ftell(f);
         fseek(f, 0, SEEK_SET);
-        buffer = (char*)malloc(len);
+        buffer = (uchar*)malloc(len);
         fread(buffer, sizeof(char), len, f);
         data.pdata = buffer;
         data.sz = len;
@@ -88,11 +88,11 @@ int test_setpwd()	{
     FILE *f = NULL;
     int len;
     qbase_pdata *dt1 = NULL, *dt2 = NULL;
-    char *buffer = NULL;
+    uchar *buffer = NULL;
     pck = qbase_packer_create("test_pwd.pck");
     if(qbase_packer_setsercurity(pck, encrypt_function, decrypt_function) != PACKER_FN_OK)
         return 0;
-    if(qbase_packer_setpwd(pck, "123321", NULL) != PACKER_FN_OK)
+    if(qbase_packer_setpwd(pck, (uchar*)"123321", NULL) != PACKER_FN_OK)
         return 0;
 
     f = fopen("test.dat", "rb");
@@ -100,8 +100,8 @@ int test_setpwd()	{
     fseek(f, 0, SEEK_END);
     len = ftell(f);
     fseek(f, 0, SEEK_SET);
-    buffer = (char*)malloc(len);
-    fread(buffer, sizeof(char), len, f);
+    buffer = (uchar*)malloc(len);
+    fread(buffer, sizeof(uchar), len, f);
     dt1 = (qbase_pdata*)malloc(sizeof(qbase_pdata));
     dt1->pdata = buffer;
     dt1->sz = len;
@@ -109,8 +109,8 @@ int test_setpwd()	{
     qbase_packer_add(pck, RES_DATA, "test.dat", dt1);
 
     f = fopen("test-release-pwd.dat", "wb");
-    dt2 = qbase_packer_get(pck, RES_DATA, "test.dat", "123321");
-    fwrite(dt2->pdata, sizeof(char), sizeof(dt2->sz), f);
+    dt2 = qbase_packer_get(pck, RES_DATA, "test.dat", (uchar*)"123321");
+    fwrite(dt2->pdata, sizeof(char), dt2->sz, f);
     fclose(f);
 	return 1;
 }
@@ -125,8 +125,8 @@ int test_remove(){
 
 int main()
 {
-    printf("test compress:%s\n", test_compress()==1? "success": "failure");
-    printf("test uncompress:%s\n", test_uncompress()==1? "success": "failure");
+//    printf("test compress:%s\n", test_compress()==1? "success": "failure");
+//    printf("test uncompress:%s\n", test_uncompress()==1? "success": "failure");
     printf("test setpwd:%s\n", test_setpwd()==1? "success": "failure");
     getchar();
 	return 0;

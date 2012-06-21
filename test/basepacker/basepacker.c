@@ -8,10 +8,10 @@
 
 typedef struct qbase_datainfo	{
     char fname[20];
-	unsigned short hash_id;
+	ushort hash_id;
 	size_t old_sz;
 	qbase_pdata data;
-	unsigned char resId;
+	uchar resId;
 } qbase_datainfo;
 
 typedef struct qbase_resblock	{
@@ -20,11 +20,11 @@ typedef struct qbase_resblock	{
 } qbase_resblock;
 
 struct qbase_pck	{
-	char pwd[20];
+	uchar pwd[20];
 	char prefix[10];
 	qbase_securityfn encrypt;
 	qbase_securityfn decrypt;
-	unsigned short version;
+	ushort version;
 	size_t datasize;
 	size_t count;
 	qbase_resblock *blocks[5];
@@ -32,6 +32,17 @@ struct qbase_pck	{
 };
 
 /*****		helper functions		*****/
+static int
+pwdcmp(const uchar *s1, const uchar *s2, size_t sz)   {
+    int i;
+    for(i = 0; i < sz; i++) {
+        if(s1[i] != s2[i])
+            return 1;
+    }
+    return 0;
+}
+
+
 static qbase_pck *
 pck_create(char *path) {
     qbase_pck *pck = NULL;
@@ -63,11 +74,11 @@ static qbase_pck *
 pck_load(char *path)    {
     int read_sz = 0;
     int i;
-    unsigned char resid;
+    uchar resid;
     int osz, csz;
-    unsigned short hashId;
+    ushort hashId;
     char fname[20];
-    char *buffer  = NULL;
+    uchar *buffer  = NULL;
     qbase_datainfo *info = NULL;
     qbase_resblock *bck = NULL;
     qbase_pck *pck = (qbase_pck*)malloc(sizeof(qbase_pck));
@@ -88,7 +99,7 @@ pck_load(char *path)    {
     if(f != NULL)   {
         fread(pck->prefix, sizeof(char), 10, f);
         fread(&pck->version, sizeof(short), 1, f);
-        fread(pck->pwd, sizeof(char), 20, f);
+        fread(pck->pwd, sizeof(uchar), 20, f);
         fread(&pck->count, sizeof(int), 1, f);
         fread(&pck->datasize, sizeof(int), 1, f);
 
@@ -97,13 +108,13 @@ pck_load(char *path)    {
             return NULL;
         }
         while(read_sz < pck->datasize)  {
-            fread(&resid, sizeof(char), 1, f);
+            fread(&resid, sizeof(uchar), 1, f);
             fread(fname, sizeof(char), 20, f);
-            fread(&hashId, sizeof(unsigned short), 1, f);
+            fread(&hashId, sizeof(ushort), 1, f);
             fread(&osz, sizeof(int), 1, f);
             fread(&csz, sizeof(int), 1, f);
-            buffer = (char*)malloc(csz);
-            fread(buffer, sizeof(char), csz,f);
+            buffer = (uchar*)malloc(csz);
+            fread(buffer, sizeof(uchar), csz,f);
 
             info = (qbase_datainfo*)malloc(sizeof(qbase_datainfo));
             info->hash_id = hashId;
@@ -147,7 +158,7 @@ pck_writefile(qbase_pck *pck, const char *path)   {
             /*     write fixed fields    */
             fwrite(pck->prefix, sizeof(char), 10, f);
             fwrite(&pck->version, sizeof(short), 1, f);
-            fwrite(pck->pwd, sizeof(char), 20, f);
+            fwrite(pck->pwd, sizeof(uchar), 20, f);
             fwrite(&pck->count, sizeof(int), 1, f);
             fwrite(&pck->datasize, sizeof(int), 1, f);
 
@@ -155,12 +166,12 @@ pck_writefile(qbase_pck *pck, const char *path)   {
             for(i = 0; i < 5; i++)  {
                 bck = pck->blocks[i];
                 while(bck != NULL)  {
-                    fwrite(&bck->current->resId, sizeof(char), 1, f);
+                    fwrite(&bck->current->resId, sizeof(uchar), 1, f);
                     fwrite(bck->current->fname, sizeof(char), 20, f);
                     fwrite(&bck->current->hash_id, sizeof(short), 1, f);
                     fwrite(&bck->current->old_sz, sizeof(int), 1, f);
                     fwrite(&bck->current->data.sz, sizeof(int), 1, f);
-                    fwrite(bck->current->data.pdata, sizeof(char), bck->current->data.sz, f);
+                    fwrite(bck->current->data.pdata, sizeof(uchar), bck->current->data.sz, f);
 
                     bck = bck->next;
                 }
@@ -207,14 +218,14 @@ pck_freeobj(qbase_pck *pck) {
 }
 
 static int
-pck_checkpwd(qbase_pck *pck, const char *pwd)   {
-    char t_pwd[20];
+pck_checkpwd(qbase_pck *pck, const uchar *pwd)   {
+    uchar t_pwd[20];
     memset(t_pwd, 0, 20);
     /*   if no encrypt/decrypt in pck, this function will return OK    */
     if(pck->encrypt != NULL && pck->decrypt != NULL)    {
-        strcpy(t_pwd, pwd);
+        strcpy((char*)t_pwd, (char*)pwd);
         pck->encrypt(t_pwd, 20, NULL);
-        if(strcmp(t_pwd, pck->pwd) == 0)
+        if(pwdcmp(t_pwd, pck->pwd, 20) == 0)
             return PACKER_FN_OK;
         else
             return PACKER_FN_ERROR;
@@ -238,26 +249,26 @@ pck_checksame(qbase_pck *pck, int resid, const char *name)   {
     return PACKER_FN_OK;
 }
 
-static unsigned char
-hash_calelement(qbase_pck *pck, unsigned char resId, const char *name,
-                unsigned char *mid_ch, unsigned char *min_ch, unsigned char *max_ch) {
+static uchar
+hash_calelement(qbase_pck *pck, uchar resId, const char *name,
+                uchar *mid_ch, uchar *min_ch, uchar *max_ch) {
     *mid_ch = 0, *max_ch = 0, *min_ch = 255;
     int len = strlen(name), i;
 
     *mid_ch = name[len/2];
     for(i = 0; i < len; i++)    {
-        if((unsigned char)name[i] >= *max_ch)
-            *max_ch = (unsigned char)name[i];
-        else if((unsigned char)name[i] <= *min_ch)
-            *min_ch = (unsigned char)name[i];
+        if((uchar)name[i] >= *max_ch)
+            *max_ch = (uchar)name[i];
+        else if((uchar)name[i] <= *min_ch)
+            *min_ch = (uchar)name[i];
     }
     return (*mid_ch + *max_ch + *min_ch)/3;
 }
 
-static unsigned short
-hash_createid(qbase_pck *pck, unsigned char resId, const char *name)    {
-    unsigned char mid_ch, max_ch = 0, min_ch = 255, hashCode;
-    unsigned short idx, i;
+static ushort
+hash_createid(qbase_pck *pck, uchar resId, const char *name)    {
+    uchar mid_ch, max_ch = 0, min_ch = 255, hashCode;
+    ushort idx, i;
     hashCode = hash_calelement(pck, resId, name, &mid_ch, &min_ch, &max_ch);
 
     if(pck->hash_info[hashCode] == NULL)
@@ -273,10 +284,10 @@ hash_createid(qbase_pck *pck, unsigned char resId, const char *name)    {
     }
 }
 
-static unsigned short
-hash_gethashid(qbase_pck *pck, unsigned char resId, const char *name)   {
-    unsigned char mid_ch, max_ch = 0, min_ch = 255, hashCode;
-    unsigned short idx, i;
+static ushort
+hash_gethashid(qbase_pck *pck, uchar resId, const char *name)   {
+    uchar mid_ch, max_ch = 0, min_ch = 255, hashCode;
+    ushort idx, i;
     hashCode = hash_calelement(pck, resId, name, &mid_ch, &min_ch, &max_ch);
 
     idx = (int)hashCode;
@@ -326,30 +337,30 @@ qbase_packer_setsercurity(qbase_pck *pck, qbase_securityfn encryptfn, qbase_secu
 }
 
 int
-qbase_packer_setpwd(qbase_pck *pck, char *npwd, const char *opwd)	{
-    char encrypt_pwd[20];
+qbase_packer_setpwd(qbase_pck *pck, uchar *npwd, const uchar *opwd)	{
+    uchar encrypt_pwd[20];
     if(pck->encrypt == NULL || pck->decrypt == NULL)    {
         return PACKER_FN_NOTEXSIT;
     }
     if(opwd == NULL && pck->pwd[0] == '\0') {
         memset(encrypt_pwd, 0, 20);
-        strcpy(encrypt_pwd, npwd);
+        strcpy((char*)encrypt_pwd, (char*)npwd);
         pck->encrypt(encrypt_pwd, 20, NULL);
-        strcpy((char*)pck->pwd, encrypt_pwd);
+        strcpy((char*)pck->pwd, (char*)encrypt_pwd);
         memset(encrypt_pwd, 0, 20);
         return PACKER_FN_OK;
     }
     else    {
         if(pck->pwd[0] != '\0' && opwd != NULL) {
             memset(encrypt_pwd, 0, 20);
-            strcpy(encrypt_pwd, opwd);
+            strcpy((char*)encrypt_pwd, (char*)opwd);
             pck->encrypt(encrypt_pwd, 20, NULL);
-            if(strcmp(encrypt_pwd, pck->pwd) == 0)  {
+            if(pwdcmp(encrypt_pwd, pck->pwd, 20) == 0)  {
                 memset(encrypt_pwd, 0, 20);
-                strcpy(encrypt_pwd, npwd);
+                strcpy((char*)encrypt_pwd, (char*)npwd);
                 pck->encrypt(encrypt_pwd, 20, NULL);
                 memset(pck->pwd, 0, 20);
-                strcpy((char*)pck->pwd, encrypt_pwd);
+                strcpy((char*)pck->pwd, (char*)encrypt_pwd);
                 return PACKER_FN_OK;
             }
             return PACKER_FN_DENY;
@@ -394,12 +405,12 @@ qbase_packer_show(qbase_pck *pck, int resid)	{
 /*		pack common CRUD operations		*/
 qbase_pdata*
 qbase_packer_get(qbase_pck *pck, int resid,
-                 char *fname, char *pwd)	{
-    unsigned short hashID;
+                 char *fname, uchar *pwd)	{
+    ushort hashID;
     int len;
     qbase_pdata *ret = NULL;
     qbase_datainfo *data = NULL;
-    char *buffer = NULL, *e_data = NULL;
+    uchar *buffer = NULL, *e_data = NULL;
 
 	if(resid >= RES_TOTAL_COUNT)
 		return NULL;
@@ -411,17 +422,19 @@ qbase_packer_get(qbase_pck *pck, int resid,
     hashID = hash_gethashid(pck, resid, fname);
     if(hashID != -1)    {
         data = pck->hash_info[hashID];
-        buffer = (char*)malloc(data->old_sz);
+        buffer = (uchar*)malloc(data->old_sz);
         memset(buffer, 0, data->old_sz);
         len = data->old_sz;
         if(pck->encrypt != NULL && pck->decrypt != NULL && pck->pwd[0] != '\0')  {
-            e_data = (char*)malloc(data->old_sz);
+            e_data = (uchar*)malloc(data->data.sz);
             memcpy(e_data, data->data.pdata, data->data.sz);
             if(pck_checkpwd(pck, pwd) == PACKER_FN_OK)  {
-                pck->decrypt(e_data, len, pwd);
-                uncompress((Bytef*)e_data, (uLongf*)&len, (Bytef*)data->data.pdata, data->old_sz);
+                pck->decrypt(e_data, data->data.sz, pwd);
+                uncompress((Bytef*)buffer, (uLongf*)&len, (Bytef*)e_data, data->data.sz);
+                free(e_data);
             }
             else    {
+                free(e_data);
                 free(buffer);
                 return NULL;
             }
@@ -440,10 +453,10 @@ qbase_packer_get(qbase_pck *pck, int resid,
 int
 qbase_packer_add(qbase_pck *pck, int resid,
                  char *fname, qbase_pdata *data)	{
-    unsigned short hashID =-1;
-    char *buffer = NULL;
+    ushort hashID =-1;
+    uchar *buffer = NULL;
     int len;
-    char *pwd = NULL;
+    uchar *pwd = NULL;
     qbase_datainfo *info = NULL;
     qbase_resblock *bck = NULL;
 
@@ -470,7 +483,7 @@ qbase_packer_add(qbase_pck *pck, int resid,
     info->resId = resid;
 
     /*   compress data and set into datainfo    */
-    buffer = (char*)malloc(data->sz);
+    buffer = (uchar*)malloc(data->sz);
     len = data->sz;
     /*   if compress fail   */
     if(compress((Bytef*)buffer, (uLongf*)&len, (Bytef*)data->pdata, (uLong)data->sz) != Z_OK)   {
@@ -482,7 +495,7 @@ qbase_packer_add(qbase_pck *pck, int resid,
     info->data.sz = len;
     /*   check status of pck for encrypting the buffer data   */
     if(pck->decrypt != NULL && pck->encrypt != NULL)    {
-        pwd = (char*)malloc(20);
+        pwd = (uchar*)malloc(20);
         memcpy(pwd, pck->pwd, 20);
         pck->decrypt(pwd, 20, NULL);
         pck->encrypt(buffer, info->data.sz, pwd);
@@ -506,7 +519,7 @@ qbase_packer_add(qbase_pck *pck, int resid,
 
 int
 qbase_packer_remove(qbase_pck *pck, int resid, char *fname)	{
-    unsigned short hashID = -1;
+    ushort hashID = -1;
     qbase_resblock *bck = NULL;
 
 	if(resid >= RES_TOTAL_COUNT)
@@ -544,11 +557,11 @@ qbase_packer_remove(qbase_pck *pck, int resid, char *fname)	{
 
 int
 qbase_packer_update(qbase_pck *pck, int resid,
-                    char *fname, qbase_pdata *data, char *pwd)	{
+                    char *fname, qbase_pdata *data, uchar *pwd)	{
     int len;
-    char *buffer = NULL;
-    char t_pwd[20];
-    unsigned short hashID = -1;
+    uchar *buffer = NULL;
+    uchar t_pwd[20];
+    ushort hashID = -1;
 
 	if(resid >= RES_TOTAL_COUNT)
 		return PACKER_FN_ERROR;
@@ -565,7 +578,7 @@ qbase_packer_update(qbase_pck *pck, int resid,
     if(hashID < 0)
         return PACKER_FN_NOTEXSIT;
     /*   compress data   */
-    buffer = (char*)malloc(data->sz);
+    buffer = (uchar*)malloc(data->sz);
     len = data->sz;
     if(compress((Bytef*)buffer, (uLongf*)&len, (Bytef*)data->pdata, (uLong)data->sz) != Z_OK)    {
         free(buffer);

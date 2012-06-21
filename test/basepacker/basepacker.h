@@ -1,6 +1,7 @@
 #ifndef QBASE_PACKER_H
 #define QBASE_PACKER_H
 
+#include "basedef.h"
 #include <stddef.h>
 
 #define PACKER_FN_OK					0
@@ -27,14 +28,14 @@ typedef struct qbase_resinfo{
 } qbase_resinfo;
 
 typedef struct qbase_pdata	{
-	char *pdata;
+	uchar *pdata;
 	size_t sz;
 } qbase_pdata;
 
 typedef struct qbase_pck qbase_pck;
 
 /*   use src to encryt or decrypt the dest   */
-typedef void (*qbase_securityfn)(char *dest, int size, const char *src);
+typedef void (*qbase_securityfn)(uchar *dest, int size, const uchar *src);
 
 /*		packer create or load API		*/
 qbase_pck* qbase_packer_create(char *path);
@@ -44,15 +45,15 @@ void qbase_packer_free(qbase_pck *pck);
 
 /*		packer security API		*/
 int qbase_packer_setsercurity(qbase_pck *pck, qbase_securityfn encryptfn, qbase_securityfn decryptfn);
-int qbase_packer_setpwd(qbase_pck *pck, char *npwd, const char *opwd);
+int qbase_packer_setpwd(qbase_pck *pck, uchar *npwd, const uchar *opwd);
 
 /*		packer file lists API*/
 qbase_resinfo* qbase_packer_show(qbase_pck *pck, int resid);
 
 /*		pack common CRUD operations		*/
-qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, char *fname, char *pwd);
+qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, char *fname, uchar *pwd);
 int qbase_packer_add(qbase_pck *pck, int resid, char *fname, qbase_pdata *data);
 int qbase_packer_remove(qbase_pck *pck, int resid, char *fname);
-int qbase_packer_update(qbase_pck *pck, int resid, char *fname, qbase_pdata *data, char *pwd);
+int qbase_packer_update(qbase_pck *pck, int resid, char *fname, qbase_pdata *data, uchar *pwd);
 
 #endif
