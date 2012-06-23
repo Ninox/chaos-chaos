@@ -53,7 +53,8 @@ qbase_resinfo* qbase_packer_show(qbase_pck *pck, int resid);
 /*		pack common CRUD operations		*/
 qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, char *fname, uchar *pwd);
 int qbase_packer_add(qbase_pck *pck, int resid, char *fname, qbase_pdata *data);
-int qbase_packer_remove(qbase_pck *pck, int resid, char *fname);
+int qbase_packer_remove(qbase_pck *pck, int resid, char *fname, uchar *pwd);
 int qbase_packer_update(qbase_pck *pck, int resid, char *fname, qbase_pdata *data, uchar *pwd);
+int qbase_packer_rename(qbase_pck *pck, int resid, char *fname, char *newname, uchar *pwd);
 
 #endif
