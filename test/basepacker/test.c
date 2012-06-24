@@ -246,33 +246,40 @@ int test_rename()   {
 int main()
 {
     int i;
+    printf("please press any key to start this testing.... \n");
     getchar();
+    printf("test_compress start\n");
     for(i=0;i<10000;i++)
         test_compress();
-    printf("test_compress done, %d\n", i);
-//    printf("test compress:%s\n", test_compress()==1? "success": "failure");
+    printf("done, press any key to continue\n=====================\n\n");
+
     getchar();
+    printf("test_uncompress start\n");
     for(i=0;i<10000;i++)
         test_uncompress();
-    printf("test_uncompress done\n");
-//    printf("test uncompress:%s\n", test_uncompress()==1? "success": "failure");
+    printf("done, press any key to continue\n=====================\n\n");
+
     getchar();
+    printf("test_setpwd start\n");
     for(i=0;i<10000;i++)
         test_setpwd();
-    printf("test_setpwd done\n");
-//    printf("test setpwd:%s\n", test_setpwd()==1? "success": "failure");
+    printf("done, press any key to continue\n=====================\n\n");
+
     getchar();
+    printf("test_update start\n");
     for(i=0;i<10000;i++)
         test_update();
-    printf("test_update done\n");
+    printf("done, press any key to continue\n=====================\n\n");
     getchar();
+    printf("test_rename start\n");
     for(i=0;i<10000;i++)
         test_rename();
-    printf("test_rename done\n");
+    printf("done, press any key to continue\n=====================\n\n");
     getchar();
+    printf("test_remove start\n");
     for(i=0;i<10000;i++)
         test_remove();
-    printf("test_remove done\n");
+    printf("done, press any key to end\n=====================\n\n");
     getchar();
 	return 0;
 }

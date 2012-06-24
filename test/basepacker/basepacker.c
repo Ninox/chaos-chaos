@@ -532,7 +532,7 @@ int
 qbase_packer_remove(qbase_pck *pck, int resid,
                     char *fname, uchar *pwd)	{
     ushort hashID = 0;
-    qbase_resblock *bck = NULL;
+    qbase_resblock *bck = NULL, *next_bck = NULL;
 
     if(pck == NULL)
         return PACKER_FN_ERROR;
@@ -554,14 +554,17 @@ qbase_packer_remove(qbase_pck *pck, int resid,
         }
         else    {
             while(bck->next != NULL)    {
-                if(strcmp(bck->next->current->fname, fname) == 0)   {
-                    bck->next = bck->next->next;
-                    pck->datasize -= bck->next->current->data.sz;
+                /*  if the next element is not null, get the next pointer   */
+                next_bck = bck->next;
+                if(strcmp(next_bck->current->fname, fname) == 0)   {
+                    pck->datasize -= next_bck->current->data.sz;
                     pck->count --;
-                    free(bck->next);
+                    /*   reset the current pointer's next element(next_bck) to next next elment   */
+                    bck->next = next_bck->next;
+                    free(next_bck);
                     break;
                 }
-                bck = bck->next;
+                else bck = bck->next;
             }
         }
     }
@@ -624,7 +627,6 @@ qbase_packer_update(qbase_pck *pck, int resid,
 int
 qbase_packer_rename(qbase_pck *pck, int resid,
                     char *fname, char *newname, uchar *pwd) {
-    qbase_datainfo *info  = NULL;
     qbase_resblock *bck = NULL;
 
     if(pck == NULL)
