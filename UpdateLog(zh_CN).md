@@ -1,3 +1,14 @@
+##	2012-06-24
++ 基本完成了basepacker的功能，实现了基本的add, get, remove, rename, setpwd, update, create, load等功能
++ 新增能了basedef，用于自定义数据类型（typedef）
++ 新增了basedebug，用于输出简单的调试信息
++ qbase里面各个模块（见test），能够分别独立在Linux和Windows下面编译
++ 修改了目录结构下面的cmake文件，经过测试目前能够在 *windows* 平台下使用 *mingw* 成功编译qbase
+
+		1.	接下来将对qbase整体进行一个测试（by gtest）,主要是功能性的测试和性能测试
+		2.	尽量在7月初能够正式release第一个版本
+
+
 ##	2012-06-10
 + 基本完成了packer部分的压缩和解压功能
 + 解决了重复添加文件的bug
