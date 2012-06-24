@@ -1,4 +1,5 @@
 #include "basepacker.h"
+#include <string.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <stdio.h>
@@ -252,8 +253,8 @@ pck_checksame(qbase_pck *pck, int resid, const char *name)   {
 static uchar
 hash_calelement(qbase_pck *pck, uchar resId, const char *name,
                 uchar *mid_ch, uchar *min_ch, uchar *max_ch) {
-    *mid_ch = 0, *max_ch = 0, *min_ch = 255;
     int len = strlen(name), i;
+	*mid_ch = 0, *max_ch = 0, *min_ch = 255;   
 
     *mid_ch = name[len/2];
     for(i = 0; i < len; i++)    {

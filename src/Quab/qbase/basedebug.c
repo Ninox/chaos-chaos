@@ -58,6 +58,7 @@ debug_writemsg(const char * status, const char *obj, const char *msg)	{
 	char *filename = debug_filestring();
 	char *tstr = debug_timestring();
 	char *logfile = NULL;
+	FILE *f = NULL;
 
 	len += strlen(LOG_PATH);
 	len += strlen(filename);
@@ -71,7 +72,7 @@ debug_writemsg(const char * status, const char *obj, const char *msg)	{
 	strcat(logfile, filename);
 	free(filename);
 
-	FILE *f = fopen(logfile, "a");
+	f = fopen(logfile, "a");
 	if(f != NULL)	{
 		fprintf(f, "[%s]<%s> IN \"%s\" :%s\n", tstr, status != NULL? status: "MESSAGE", obj, msg);
 		fclose(f);
