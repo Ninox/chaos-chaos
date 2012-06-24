@@ -23,7 +23,7 @@ enum pck_resource	{
 };
 
 typedef struct qbase_resinfo{
-	uchar **filename;
+	char **filename;
 	size_t count;
 } qbase_resinfo;
 
@@ -38,9 +38,9 @@ typedef struct qbase_pck qbase_pck;
 typedef void (*qbase_securityfn)(uchar *dest, int size, const uchar *src);
 
 /*		packer create or load API		*/
-qbase_pck* qbase_packer_create(uchar *path);
-qbase_pck* qbase_packer_load(uchar *path);
-void qbase_packer_save(qbase_pck *pck, const uchar *path);
+qbase_pck* qbase_packer_create(char *path);
+qbase_pck* qbase_packer_load(char *path);
+void qbase_packer_save(qbase_pck *pck, const char *path);
 void qbase_packer_free(qbase_pck *pck);
 
 /*		packer security API		*/
@@ -51,9 +51,10 @@ int qbase_packer_setpwd(qbase_pck *pck, uchar *npwd, const uchar *opwd);
 qbase_resinfo* qbase_packer_show(qbase_pck *pck, int resid);
 
 /*		pack common CRUD operations		*/
-qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, uchar *fname, uchar *pwd);
-int qbase_packer_add(qbase_pck *pck, int resid, uchar *fname, qbase_pdata *data);
-int qbase_packer_remove(qbase_pck *pck, int resid, uchar *fname);
-int qbase_packer_update(qbase_pck *pck, int resid, uchar *fname, qbase_pdata *data, uchar *pwd);
+qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, char *fname, uchar *pwd);
+int qbase_packer_add(qbase_pck *pck, int resid, char *fname, qbase_pdata *data);
+int qbase_packer_remove(qbase_pck *pck, int resid, char *fname, uchar *pwd);
+int qbase_packer_update(qbase_pck *pck, int resid, char *fname, qbase_pdata *data, uchar *pwd);
+int qbase_packer_rename(qbase_pck *pck, int resid, char *fname, char *newname, uchar *pwd);
 
 #endif
