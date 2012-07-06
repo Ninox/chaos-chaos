@@ -1,4 +1,4 @@
-local q = require("qbase")
+﻿local q = require("qbase")
 local PI = 3.141592631
 local qtest = {}
 -------------------  test math module  -------------------
@@ -19,7 +19,18 @@ qtest.test_vplus = function(v1,v2)
     local rs = q.qbase_vector_plus(vec1,vec2)
     return {rs.posX, rs.posY}
 end
+--{{gv(0,1), gv(1,0)}, {gv(1.414,1.414),gv(-1.414,1.414)}, {gv(1.732,1),gv(5,0)}, {gv(3,4),gv(1,0)}, {gv(1,0),gv(-1,1.732)}, {gv(1,0),gv(0,0)} }
+qtest.test_getdotcossin = function()
+	local fix_case = {{0,1, 1,0}, {1.414,1.414,-1.414,1.414}, {1.732,1,5,0}, {3,4,1,0}, {1,0,-1,1.732}, {1,0,0,0}}
+	
+	local len = table.maxn(fix_case)
+	--- dot
+	local dot ={}
+	
+end
 
+--- get test case and expect
+local dcs_case, dcsr_dot, dcsr_cos, dcsr_sin = qtest.test_getdotcossin()
 
 local testcases = {
     ------    math case -------
@@ -36,16 +47,16 @@ local testcases = {
         expect = {0,30,60,90,120,180,210,240,270,360}, cycle = 10000
     },
     {
-        name = "vdot", f = q.qbase_vector_dot, mode="EQ", case = {{gv(0,1), gv(1,0)}, {gv(1.414,1.414),gv(-1.414,1.414)}, {gv(1.732,1),gv(5,0)}, {gv(3,4),gv(1,0)}, {gv(1,0),gc(-1,1.732)}, {gv(1,0),gv(0,0)} },
-        expect = {0,30,60,90,120,180,210,240,270,360}, cycle = 10000
+        name = "vdot", f = q.qbase_vector_dot, mode="EQ", case = dcs_case,
+        expect = dcsr_dot, cycle = 10000
     },
     {
-        name = "vcos", f = q.qbase_vector_cos, mode="EQ", case = {{gv(0,1), gv(1,0)}, {gv(1.414,1.414),gv(-1.414,1.414)}, {gv(1.732,1),gv(5,0)}, {gv(3,4),gv(1,0)}, {gv(1,0),gc(-1,1.732)}, {gv(1,0),gv(0,0)} },
-        expect = {0,30,60,90,120,180,210,240,270,360}, cycle = 10000
+        name = "vcos", f = q.qbase_vector_cos, mode="EQ", case = dcs_case,
+        expect = dcsr_cos, cycle = 10000
     },
     {
-        name = "vsin", f = q.qbase_vector_sin, mode="EQ", case =  {{gv(0,1), gv(1,0)}, {gv(1.414,1.414),gv(-1.414,1.414)}, {gv(1.732,1),gv(5,0)}, {gv(3,4),gv(1,0)}, {gv(1,0),gc(-1,1.732)}, {gv(1,0),gv(0,0)} },
-        expect = {0,30,60,90,120,180,210,240,270,360}, cycle = 10000
+        name = "vsin", f = q.qbase_vector_sin, mode="EQ", case = dcs_case,
+        expect = dcsr_sin, cycle = 10000
     },
     {
         name = "vparallel", f = q.qbase_vector_isparallel, mode="EQ", case = {{0},{PI/6},{PI/3},{PI/2},{PI*2/3},{PI},{7*PI/6},{4*PI/3},{3*PI/2},{2*PI}},
