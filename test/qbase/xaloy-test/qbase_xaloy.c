@@ -375,22 +375,42 @@ qmatrix_vmul(lua_State *L)    {
 /*---------- baseloader API binding ----------*/
 static int
 qloader_init(lua_State *L)	{
-	return 0;
+	const char *name = lua_checkstring(L, -1);
+	qbase_loader_init(name);
+	
+	lua_pushboolen(L, 1);
+	return 1;
 }
 
 static int
 qloader_free(lua_State *L)	{
-	return 0;
+	const char *name = lua_checkstring(L, -1);
+	qbase_loader_free(name);
+	
+	lua_pushboolean(L, 1);
+	return 1;
 }
 
 static int
 qloader_getf(lua_State *L)	{
-	return 0;
+	/*  must release in loader's binding  */
+	const char *fname = lua_checkstring(L, -1);
+	const char *name = lua_checkstring(L, -2);
+	void *foo = NULL;
+	qbase_loader_init(name);	
+	foo = qbase_loader_getf(name, fname);
+	if(foo == NULL)	
+		lua_pushboolean(L, 0);
+	else
+		lua_pushboolean(L, 1);
+
+	return 1;
 }
 
 static int
 qloader_destory(lua_State *L)	{
-	return 0;
+	/*	init some module's and release them	*/
+	return 1;
 }
 
 /*---------- basescript API binding ----------*/
@@ -523,32 +543,32 @@ struct luaL_Reg qbase_apis[] = {
     {"qmatrix_det", qmatrix_det},
     {"qmatrix_extend", qmatrix_extend},
     {"qmatrix_mul",qmatrix_mul},
-    {"qmatrix_vmul",qmatrix_vmul},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
+    {"qmatrix_vmul", qmatrix_vmul},
+    {"qloader_init", qloader_init},
+    {"qloader_free", qloader_free},
+    {"qloader_getf", qloader_getf},
+    {"qloader_destory", qloader_destory},
+    {"qlua_create", qlua_create},
+    {"qlua_free", qlua_free},
+    {"qlua_get", qlua_get},
+    {"qlua_freetable", qlua_freetable},
+    {"qlua_getfield",qlua_getfield},
+    {"qlua_reg", qlua_reg},
+    {"qlua_load", qlua_load},
+    {"qlua_call", qlua_call},
+    {"qlua_exec", qlua_exec},
+    {"qpacker_create",qpacker_create},
+    {"qpacker_load", qpacker_load},
+    {"qpacker_save",qpacker_save},
+    {"qpacker_free", qpacker_free},
+    {"qpacker_setsercurity", qpacker_setsercurity},
+    {"qpacker_setpwd", qpacker_setpwd},
+    {"qpacker_show", qpacker_show},
+    {"qpacker_get", qpacker_get},
+    {"qpacker_add", qpacker_add},
+    {"qpacker_remove", qpacker_remove},
+    {"qpacker_update", qpacker_update},
+    {"qpacker_rename", qpacker_rename},
     {NULL, NULL}
 };
 
