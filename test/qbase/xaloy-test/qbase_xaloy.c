@@ -53,11 +53,36 @@ get_matrix(lua_State *L, qbase_matrix2 *mtx)    {
 	}
 }
 
+static void
+set_qbasevalue(lua_State *L, qbase_value *v)	{
+	int ret;
+	switch(v->vtype)	
+	{
+	default:
+	case QBS_NIL:
+		ret = 0;
+	case QBS_NUMBER:
+		lua_pushnumber(L, v->values.nval);
+		ret = 1;
+	case QBS_BOOLEAN:
+		lua_pushboolean(L, v->values.bval);
+		ret = 1;
+	case QBS_STRING:
+		lua_pushstring(L, v->values.sval.str);
+		ret = 1;
+	case QBS_TABLE:	
+		lua_getglobal(L, v->values.table->fieldnames[0]);
+		ret = 1;
+	}
+	free(v);
+	return ret;
+}
+
 /*---------- basemath API binding ----------*/
 static int
 qmath_todegree(lua_State *L)    {
     double rad = lua_tonumber(L, -1);
-    lua_pushnumber(L, qbase_math_todegree((float)rad);
+    lua_pushnumber(L, qbase_math_todegree((float)rad));
     return 1;
 }
 
@@ -70,150 +95,118 @@ qmath_equal(lua_State *L)    {
 }
 
 static int
-qvector_plus(lua_State *L)    {
-    float v1x, v1y, v2x, v2y;
-
-    get_vector(L, &v2x, &v2y);
+qvector_plus(lua_State *L)    {    
+	qbase_vector v1, v2, ret;
+    get_vector(L, &v2);
     lua_pushvalue(L, -2);
-
-    get_vector(L, &v1x, &v1y);
+    get_vector(L, &v1);
     lua_pop(L, 1);
 
     /*    create a new table    */
+	ret = qbase_vector_plus(&v1, &v2);
     lua_newtable(L);
-    lua_pushstring(L, "x");
-    lua_pushnumber(L, v1x+v2x);
-    lua_pushstring(L, "y");
-    lua_pushnumber(L, v1x+v2x);
-    lua_settable(L,-5);
+    set_vector(L, &ret);
     return 1;
 }
 
 static int
 qvector_dot(lua_State *L)    {
-    float v1x, v1y, v2x, v2y;
     qbase_vector v1, v2;
 
-    get_vector(L, &v2x, &v2y);
+    get_vector(L, &v2);
     lua_pushvalue(L, -2);
-
-    get_vector(L, &v1x, &v1y);
+    get_vector(L, &v1);
     lua_pop(L, 1);
 
     /*    calculate the dot operation    */
-    v1.posX = v1x; v1.posY = v1y;
-    v2.posX = v2x; v2.posY = v2y;
-    lua_pushnumber(L, qbase_vector_dot(v1, v2))
+    lua_pushnumber(L, qbase_vector_dot(&v1, &v2));
     return 1;
 }
 
 static int
 qvector_cos(lua_State *L)    {
-    float v1x, v1y, v2x, v2y;
     qbase_vector v1, v2;
 
-    get_vector(L, &v2x, &v2y);
+    get_vector(L, &v2);
     lua_pushvalue(L, -2);
-
-    get_vector(L, &v1x, &v1y);
+    get_vector(L, &v1);
     lua_pop(L, 1);
 
     /*    calculate the dot operation    */
-    v1.posX = v1x; v1.posY = v1y;
-    v2.posX = v2x; v2.posY = v2y;
-    lua_pushnumber(L, qbase_vector_cos(v1, v2))
+    lua_pushnumber(L, qbase_vector_cos(&v1, &v2));
     return 1;
 }
 
 static int
 qvector_sin(lua_State *L)    {
-    float v1x, v1y, v2x, v2y;
     qbase_vector v1, v2;
 
-    get_vector(L, &v2x, &v2y);
+    get_vector(L, &v2);
     lua_pushvalue(L, -2);
-
-    get_vector(L, &v1x, &v1y);
+    get_vector(L, &v1);
     lua_pop(L, 1);
 
     /*    calculate the dot operation    */
-    v1.posX = v1x; v1.posY = v1y;
-    v2.posX = v2x; v2.posY = v2y;
-    lua_pushnumber(L, qbase_vector_sin(v1, v2))
+    lua_pushnumber(L, qbase_vector_sin(&v1, &v2));
     return 1;
 }
 
 static int
 qvector_isparallel(lua_State *L)    {
-    float v1x, v1y, v2x, v2y;
     qbase_vector v1, v2;
 
-    get_vector(L, &v2x, &v2y);
+    get_vector(L, &v2);
     lua_pushvalue(L, -2);
-
-    get_vector(L, &v1x, &v1y);
+	get_vector(L, &v1);
     lua_pop(L, 1);
 
     /*    calculate the dot operation    */
-    v1.posX = v1x; v1.posY = v1y;
-    v2.posX = v2x; v2.posY = v2y;
-    lua_pushinteger(L, qbase_vector_isparallel(v1, v2))
+    lua_pushinteger(L, qbase_vector_isparallel(&v1, &v2));
     return 1;
 }
 
 static int
 qvector_isvertical(lua_State *L)    {
-    float v1x, v1y, v2x, v2y;
     qbase_vector v1, v2;
 
-    get_vector(L, &v2x, &v2y);
+    get_vector(L, &v2);
     lua_pushvalue(L, -2);
-
-    get_vector(L, &v1x, &v1y);
+    get_vector(L, &v1);
     lua_pop(L, 1);
 
     /*    calculate the dot operation    */
-    v1.posX = v1x; v1.posY = v1y;
-    v2.posX = v2x; v2.posY = v2y;
-    lua_pushinteger(L, qbase_vector_isvertical(v1, v2))
+    lua_pushinteger(L, qbase_vector_isvertical(&v1, &v2));
     return 1;
 }
 
 static int
 qvector_length(lua_State *L)    {
-    float v1x, v1y;
-    qbase_vector v1;
+    qbase_vector v;
 
     /*    calculate the dot operation    */
-    get_vector(L, &v1x, &v1y);
-    v1.posX = v1x; v1.posY = v1y;
-    lua_pushinteger(L, qbase_vector_length(v1))
+    get_vector(L, &v);
+    lua_pushinteger(L, qbase_vector_length(&v));
     return 1;
 }
 
 static int
 qvector_mul(lua_State *L)    {
-    float vx, vy, k, ret;
     qbase_vector v;
+	int ret;
+	float k;
     /*    get the k value    */
     k = (float)lua_checknumber(L, -1);
 
     /*    get vector    */
     lua_pushvalue(L, -2);
-    get_vector(L, &vx, &vy);
-    lua_pop(L, 1);
-    v.posX = vx; v.posY = vy;
+    get_vector(L, &v);
+    lua_pop(L, 1);    
 
     /*    get the qbase' API returns */
     ret = qbase_vector_mul(&v, k);
     lua_newtable(L);
-    lua_pushstring(L, "x");
-    lua_pushnumber(L, v.posX);
-    lua_pushstring(L, "y");
-    lua_pushnumber(L, v.posY);
-    lua_settable(L, -5);
-    lua_pushinteger(L, ret);
-
+    set_vector(L, &ret);
+	lua_pushinteger(L, ret);
     return 2;
 }
 
@@ -232,7 +225,7 @@ static int
 qmatrix_zero(lua_State *L)    {
 	qbase_matrix2 mtx;
 	int result = -1;
-	qbase_matrix_zero(&mtx, ROW_BASE);
+	qbase_matrix_zero(&mtx, 0);
 
 	if(mtx.m[0][0] == 0 && mtx.m[0][1] == 0 && mtx.m[1][0] == 0 && mtx.m[1][1] == 0)	{
 		result = 1;
@@ -248,9 +241,9 @@ qmatrix_plus(lua_State *L)    {
 	int i;
 	qbase_matrix2 mtx1, mtx2, ret;
 	/*	get matrix data	*/
-	get_matrix(L, mtx2);
+	get_matrix(L, &mtx2);
 	lua_pushvalue(L, -2);
-	get_matrix(L, mtx1);
+	get_matrix(L, &mtx1);
 	lua_pop(L, 1);
 
 	/*  calculate the result and return it  */
@@ -356,7 +349,7 @@ qmatrix_mul(lua_State *L)    {
 static int
 qmatrix_vmul(lua_State *L)    {
 	qbase_vector v, ret;
-	qbase_matrix mtx;
+	qbase_matrix2 mtx;
 
 	/*  get arguments data  */
 	get_matrix(L, &mtx);
@@ -375,53 +368,142 @@ qmatrix_vmul(lua_State *L)    {
 /*---------- baseloader API binding ----------*/
 static int
 qloader_init(lua_State *L)	{
-	return 0;
+	const char *name = lua_checkstring(L, -1);
+	qbase_loader_init(name);
+	lua_pushboolean(L, 1);
+	return 1;
 }
 
 static int
 qloader_free(lua_State *L)	{
-	return 0;
+	const char *name = lua_checkstring(L, -1);
+	qbase_loader_init(name);
+	qbase_loader_free(name);
+	lua_pushboolean(L, 1);
+	return 1;
 }
 
 static int
 qloader_getf(lua_State *L)	{
-	return 0;
+	const char *module_name = lua_checkstring(L, -2);
+	const char *func_name = lua_checkstring(L, -1);
+	qbase_loader_init(module_name);
+	void *f = qbase_loader_getf(module_name, func_name);
+	lua_pushboolean(L, f == NULL? 0 : 1);
+	return 1;
 }
 
 static int
 qloader_destory(lua_State *L)	{
+	int i, cnt;
+	const char **name_table = NULL;
+	cnt = lua_checknumber(L, -2);	
+	name_table = (const char**)malloc(sizeof(char*) * cnt);	
+	for(i = 0; i < cnt; i++)	{
+		lua_rawgeti(L, -1, i+1);
+		name_table[i] = lua_checkstring(L, -1);
+		qbase_loader_init(name_table[i]);
+		lua_pop(L, 1);
+	}
+	// free name_table
+	free(name_table);
+	qbase_loader_destory();
+	return 1;
+}
+
+/*---------- basescript API binding ----------*/ 
+static qbase_sta *sta = NULL;
+static int
+push_functions(lua_State *L)	{
+	printf("Hello world\n");
 	return 0;
 }
 
-/*---------- basescript API binding ----------*/
 static int
 qlua_create(lua_State *L)	{
-	return 0;
+	qbase_lua_create(&sta);
+	lua_pushboolean(L, sta == NULL? 0 : 1);
+	qbase_lua_free(&sta);
+	if(sta != NULL)
+		free(sta);
+	return 1;
 }
 
 static int
 qlua_free(lua_State *L)	{
-	return 0;
+	qbase_lua_create(&sta);
+	qbase_lua_free(&sta);
+	lua_pushboolean(L, sta == NULL ? 1 : 0);
+	return 1;
 }
 
 static int
 qlua_get(lua_State *L)	{
-	return 0;
+	const char *example_src = lua_checkstring(L, -2);
+	const char *varname = lua_checkstring(L, -1);
+	int ret = 0;
+	qbase_value *v = NULL;
+	qbase_lua_create(&sta);
+	qbase_lua_load(sta, example_src, 0, FROM_FILE);
+	v = qbase_lua_get(sta, varname);
+	set_qbasevalue(L, v);
+	v = NULL;
+	qbase_lua_free(&sta);
+	return ret;
 }
 
 static int
 qlua_freetable(lua_State *L)	{
-	return 0;
+	const char *src = lua_checkstring(L, -2);
+	const char *tbname = lua_checkstring(L, -1);
+	qbase_value *v = NULL;
+	qbase_lua_create(&sta);
+	qbase_lua_load(sta, src, 0, FROM_FILE);
+	v = qbase_lua_get(sta, tbname);
+	
+	if(v->vtype != QBS_TABLE)	{
+		lua_pushboolean(L, 0);		
+	}
+	else	{
+		qbase_lua_freetable(&v->values.table);
+		if(v->values.table == NULL)	{
+			lua_pushboolean(L, 1);
+		} else	{
+			lua_pushboolean(L, 0);
+		}
+		free(v);
+	}
+	qbase_lua_free(&sta);
+	return 1;
 }
 
 static int
 qlua_getfield(lua_State *L)	{
-	return 0;
+	const char *src = lua_checkstring(L, -3);
+	const char *tbname = lua_checkstring(L, -2);
+	const char *field = lua_checkstring(L, -1);
+	qbase_value *v = NULL, *tv = NULL;
+
+	qbase_lua_create(&sta);
+	qbase_lua_load(sta, src, 0, FROM_FILE);
+	v = qbase_lua_get(sta, tbname);
+	tv = qbase_lua_getfield(sta, v->values.table, field);
+	set_qbasevalue(L, tv);
+	qbase_lua_freetable(&v->values.table);
+	free(v);
+	free(tv);	
+	v = NULL;
+	tv = NULL;
+	return 1;
 }
 
 static int
 qlua_reg(lua_State *L)	{
-	return 0;
+	qbase_lua_create(&sta);
+	qbase_lua_reg(sta, "sayhello", push_functions);
+	qbase_lua_exec(sta, "sayhello()", 0);
+	lua_pushboolean(L, 1);
+	return 1;
 }
 
 static int
@@ -524,31 +606,31 @@ struct luaL_Reg qbase_apis[] = {
     {"qmatrix_extend", qmatrix_extend},
     {"qmatrix_mul",qmatrix_mul},
     {"qmatrix_vmul",qmatrix_vmul},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
-    {},
+    {"qloader_init",qloader_init},
+    {"qloader_free",qloader_free},
+    {"qloader_getf",qloader_getf},
+    {"qloader_destory",qloader_destory},
+    {"qlua_create",qlua_create},
+    {"qlua_free",qlua_free},
+    {"qlua_get",qlua_get},
+    {"qlua_freetable",qlua_freetable},
+    {"qlua_getfield",qlua_getfield},
+    {"qlua_reg",qlua_reg},
+    {"qlua_load",qlua_load},
+    {"qlua_call",qlua_call},
+    {"qlua_exec",qlua_exec},
+    {"qpacker_create",qpacker_create},
+    {"qpacker_load",qpacker_load},
+    {"qpacker_save",qpacker_save},
+    {"qpacker_free",qpacker_free},
+    {"qpacker_setsercurity",qpacker_setsercurity},
+    {"qpacker_setpwd",qpacker_setpwd},
+    {"qpacker_show",qpacker_show},
+    {"qpacker_get",qpacker_get},
+    {"qpacker_add",qpacker_add},
+    {"qpacker_remove",qpacker_remove},
+    {"qpacker_update",qpacker_update},
+    {"qpacker_rename",qpacker_rename},
     {NULL, NULL}
 };
 
