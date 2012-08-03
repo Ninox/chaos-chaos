@@ -1,4 +1,4 @@
-#ifndef QBASE_MATH_H
+﻿#ifndef QBASE_MATH_H
 #define QBASE_MATH_H
 
 #define V_ROW 0
@@ -25,9 +25,9 @@ typedef struct qbase_matrix2	{
 /*	basic	*/
 
 
-/** \brief transfer RAD to DEGREE
+/** \brief transfer RADIAN to DEGREE
  *
- * \param a rad value, Real
+ * \param a radian value, Real
  * \return a degree value
  *
  */
@@ -41,6 +41,24 @@ Real qbase_math_todegree(Real rad);
  *
  */
 int qbase_math_equal(Real n, Real m);
+
+/** \brief check the values in parameters is equal (v1.x == v2.x && v1.y == v2.y)
+ *
+ * \param qbase_vector value_1, qbase_vector
+ * \param qbase_vector value_2, qbase_vector
+ * \return return 1 when the parameters is equal, or return 0;
+ *
+ */
+int qbase_math_equalV(const qbase_vector* v1, const qbase_vector* v2);
+
+/** \brief check the values in parameters is equal (matrix value and standard)
+ *
+ * \param qbase_matrix2 value_1, qbase_matrix2
+ * \param qbase_matrix2 value_2, qbase_matrix2
+ * \return return 1 when the parameters is equal, or return 0;
+ *
+ */
+int qbase_math_equalM(const qbase_matrix2* m1, const qbase_matrix2* m2);
 
 /*	vector	*/
 

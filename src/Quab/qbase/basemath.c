@@ -25,6 +25,31 @@ int qbase_math_equal(Real n, Real m)	{
 	return (diff<0)?(diff>=(-ES)):(diff<=ES);
 }
 
+int qbase_math_equalV(const qbase_vector* v1, const qbase_vector* v2)	{
+	Real diff_x, diff_y;
+	if(v1 == NULL || v2 == NULL)
+		return 0;
+	diff_x = v1->posX - v2->posX, diff_y = v1->posY - v2->posY;
+	if(abs(diff_x) < ES && abs(diff_y) < ES)
+		return 1;
+	else return 0;
+}
+
+int qbase_math_equalM(const qbase_matrix2* m1, const qbase_matrix2* m2)	{
+	int i;
+	if(m1 == NULL || ms == NULL)
+		return 0;
+	if(m1->standard != m2->standard)
+		return 0;
+	else	{
+		for(i = 0; i < 4; i++)	{
+			if(qbase_math_equal(m1->m[i/2][i%2], m2->m[i/2][i%2]) == 0)
+				return 0;			
+		}
+		return 1;
+	}
+}
+
 /*	vector functions	*/
 
 qbase_vector qbase_vector_plus(const qbase_vector* v1, const qbase_vector* v2)	{
