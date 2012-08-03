@@ -1,4 +1,4 @@
-#include <stdlib>
+#include <stdlib.h>
 #include <time.h>
 #include <xaloy.h>
 #include <Quab/qbase/qbase.h>

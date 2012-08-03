@@ -37,14 +37,14 @@ int qbase_math_equalV(const qbase_vector* v1, const qbase_vector* v2)	{
 
 int qbase_math_equalM(const qbase_matrix2* m1, const qbase_matrix2* m2)	{
 	int i;
-	if(m1 == NULL || ms == NULL)
+	if(m1 == NULL || m2 == NULL)
 		return 0;
 	if(m1->standard != m2->standard)
 		return 0;
 	else	{
 		for(i = 0; i < 4; i++)	{
 			if(qbase_math_equal(m1->m[i/2][i%2], m2->m[i/2][i%2]) == 0)
-				return 0;			
+				return 0;
 		}
 		return 1;
 	}
@@ -107,7 +107,7 @@ int qbase_matrix_init(qbase_matrix2* mtrx, int standard, Real m00, Real m01, Rea
 }
 qbase_matrix2 qbase_matrix_plus(const qbase_matrix2 *m1, const qbase_matrix2 *m2)	{
 	qbase_matrix2 m;
-	qbase_matrix_init(&m, ROW_BASE, 
+	qbase_matrix_init(&m, ROW_BASE,
 		m1->m[0][0]+m2->m[0][0],m1->m[0][1]+m2->m[0][1],
 		m1->m[1][0]+m2->m[1][0],m1->m[1][1]+m2->m[1][1]
 	);
