@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "basescript.h"
+#include <qbase.h>
 #include <xaloy.h>
 using namespace xaloy;
 
@@ -23,12 +23,11 @@ XALOY_TEST_MODULE(luaExecute)
     /*      global variable getter      */
     v = qbase_lua_get(sta, "NVal");
 	XALOY_ASSERT_NULL(XL_NOTNULL, v);
-	XALOY_EXPECT(XL_EQUAL, v->values.nval, 9876);
+	XALOY_EXPECT(XL_EQUAL, v->values.nval, 9876.0);
     free(v);
 	
 	v = qbase_lua_get(sta, "NVal2");
 	XALOY_ASSERT_NULL(XL_ISNULL, v);
-    free(v);
 	
     v = qbase_lua_get(sta, "BVal");
     XALOY_ASSERT_NULL(XL_NOTNULL, v);
@@ -49,7 +48,7 @@ XALOY_TEST_MODULE(luaExecute)
 	
     v2 = qbase_lua_getfield(sta, table, "num");
 	XALOY_ASSERT_NULL(XL_NOTNULL, v2);
-	XALOY_EXPECT(XL_EQUAL, v2->values.nval, 886);
+	XALOY_EXPECT(XL_EQUAL, v2->values.nval, 886.0);
     free(v2);
 	
     v2 = qbase_lua_getfield(sta, table, "str");
@@ -60,10 +59,10 @@ XALOY_TEST_MODULE(luaExecute)
 	
     v2 = qbase_lua_getfield(sta, table, "bol");
 	XALOY_ASSERT_NULL(XL_NOTNULL, v2);
-	XALOY_EXPECT_STR(XL_EQUAL, v2->values.bval, 1);
+	XALOY_EXPECT(XL_EQUAL, v2->values.bval, 1);
     free(v2);
 	
-    qbase_lua_freetable(table);
+    qbase_lua_freetable(&table);
     free(v);
 
     /*      inner table getter      */
@@ -79,7 +78,7 @@ XALOY_TEST_MODULE(luaExecute)
 	
     v3 = qbase_lua_getfield(sta, tb2, "n");
 	XALOY_ASSERT_NULL(XL_NOTNULL, v3);
-	XALOY_EXPECT(XL_EQUAL, v3->values.nval, 1)
+	XALOY_EXPECT(XL_EQUAL, v3->values.nval, 1.0);
     free(v3);
 	
     v3 = qbase_lua_getfield(sta, tb2, "s");
@@ -88,9 +87,9 @@ XALOY_TEST_MODULE(luaExecute)
     free(v3->values.sval.str);
     free(v3);
 	
-    qbase_lua_freetable(tb2);
+    qbase_lua_freetable(&tb2);
     free(v2);
-    qbase_lua_freetable(table);
+    qbase_lua_freetable(&table);
     free(v);
 
     /*      function executers      */
@@ -102,7 +101,7 @@ XALOY_TEST_MODULE(luaExecute)
 	XALOY_ASSERT_NULL(XL_NOTNULL, rets);
     if(rets != NULL)
         free(rets);
-    qbase_lua_free(sta);
+    qbase_lua_free(&sta);
 }
 
 

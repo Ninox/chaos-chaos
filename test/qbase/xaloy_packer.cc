@@ -1,4 +1,4 @@
-#include "basepacker.h"
+#include <qbase.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -6,8 +6,6 @@
 #include <assert.h>
 #include <xaloy.h>
 using namespace xaloy;
-
-XALOY_TEST_MODULE(luaExecute)
 
 /*********************************************/
 
@@ -43,10 +41,10 @@ void decrypt_function(char *dest, size_t sz, const char *src)   {
 }
 
 /*********************************************/
-static char **oldFiles = {"lh.jpg","gmon.out","test.dat", "noexists.txt"};
-static char **newFiles = {"lh-new.jpg","gmon-new.out","test-new.dat", "noexists-new.txt"};
-static char **rpath = {"lh-r.jpg", "gmon-r.out", "test-r.dat","noexists-r.txt"};
-static char **ppath = {"lh-rp.jpg", "gmon-rp.out", "test-rp.dat","noexists-rp.txt"};
+static const char *oldFiles[] = {"lh.jpg","gmon.out","test.dat", "noexists.txt"};
+static const char *newFiles[] = {"lh-new.jpg","gmon-new.out","test-new.dat", "noexists-new.txt"};
+static const char *rpath[] = {"lh-r.jpg", "gmon-r.out", "test-r.dat","noexists-r.txt"};
+static const char *ppath[] = {"lh-rp.jpg", "gmon-rp.out", "test-rp.dat","noexists-rp.txt"};
 
 XALOY_TEST_MODULE(compressTest)
 {
@@ -76,7 +74,7 @@ XALOY_TEST_MODULE(compressTest)
 		data.pdata = buffer;
 		data.sz = len;		
 		XALOY_EXPECT(XL_EQUAL, qbase_packer_add(pck, RES_DATA, oldFiles[i], &data), PACKER_FN_OK);
-		qbase_packer_save(pck, "test.pck")		
+		qbase_packer_save(pck, "test.pck");
 		free(buffer);
 	}
 	qbase_packer_free(pck);
@@ -92,7 +90,7 @@ XALOY_TEST_MODULE(uncompressTest)
 	XALOY_ASSERT_NULL(XL_NOTNULL, pck);
 	
 	for(int i = 0; i < 4; i++)	{
-		pdata = qbase_packer_get(pck, RES_DATA, opath, NULL);
+		pdata = qbase_packer_get(pck, RES_DATA, oldFiles[i], NULL);
 		if(i < 3)	{
 			XALOY_ASSERT_NULL(XL_NOTNULL, pdata);
 			XALOY_EXPECT_NULL(XL_NOTNULL,pdata->pdata);
@@ -104,7 +102,7 @@ XALOY_TEST_MODULE(uncompressTest)
 		}
 		if(pdata == NULL)
 			continue;
-		f = fopen(rpath, "wb");
+		f = fopen(rpath[i], "wb");
 		if(f != NULL)   {
 			fwrite(pdata->pdata, sizeof(char), pdata->sz, f);
 			fclose(f);			

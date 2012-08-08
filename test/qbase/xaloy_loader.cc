@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "baseloader.h"
+#include <qbase.h>
 #include <xaloy.h>
 using namespace xaloy;
 
@@ -57,9 +57,9 @@ XALOY_TEST_MODULE(baseloader)
 	
 
 	XALOY_EXPECT(XL_EQUAL, nadd(3,9), 12);
-	XALOY_EXPECT(XL_EQUAL, nmin(-3,-0.12f), -2.88f);
-	XALOY_EXPECT(XL_EQUAL, mdot(), -2.0f);
-	XALOY_EXPECT(XL_EQUAL, msum(), 10.0f);
+	XALOY_EXPECT(XL_EQUAL, nmin(-3,-0.12f), -2);
+	XALOY_EXPECT(XL_EQUAL, mdot(), -2);
+	XALOY_EXPECT(XL_EQUAL, msum(), 10);
 
 	// release on plugin
 	qbase_loader_free("math_a");

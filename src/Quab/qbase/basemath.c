@@ -30,7 +30,7 @@ int qbase_math_equalV(const qbase_vector* v1, const qbase_vector* v2)	{
 	if(v1 == NULL || v2 == NULL)
 		return 0;
 	diff_x = v1->posX - v2->posX, diff_y = v1->posY - v2->posY;
-	if(abs(diff_x) < ES && abs(diff_y) < ES)
+	if(fabs(diff_x) < ES && fabs(diff_y) < ES)
 		return 1;
 	else return 0;
 }

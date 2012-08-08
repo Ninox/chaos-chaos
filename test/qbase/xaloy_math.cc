@@ -2,22 +2,23 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
-#include "basemath.h"
+#include <qbase.h>
 #include <xaloy.h>
 using namespace std;
+using namespace xaloy;
 
 #define PI 3.1415926f
 #define Q_EQUAL(x,y) qbase_math_equal((x), (y))
 
 XALOY_TEST_MODULE(mathBasic)
 {
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/6), 30);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/3), 60);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/2), 90);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1), 180);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(2), 360);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(0) , 0);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(2/3), 120);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/6), 30.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/3), 60.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/2), 90.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1), 180.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(2), 360.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(0) , 0.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(2/3), 120.0f);
 
     XALOY_EXPECT(XL_EQUAL, qbase_math_equal(0.000001,0), 1);
 	XALOY_EXPECT(XL_EQUAL, qbase_math_equal(0, 1),  0);
@@ -30,7 +31,7 @@ XALOY_TEST_MODULE(mathBasic)
 
 XALOY_TEST_MODULE(mathVector)
 {
-	qbase_vector v1, v2;
+	qbase_vector v1, v2, v;
 	v1.standard = 0;
 	v2.standard = 1;
 	v1.posX = 0; v1.posY = 1;
@@ -63,38 +64,37 @@ XALOY_TEST_MODULE(mathVector)
 	XALOY_EXPECT(XL_NOT_EQUAL, qbase_vector_isparallel(&v1,&v2), 1);
 	XALOY_EXPECT(XL_NOT_EQUAL, qbase_vector_isvertical(&v1,&v2), 1);
 	
-	/***************  vector's calculate  ****************/
-	qbase_vector v1, v2, v;
+	/***************  vector's calculate  ****************/	
     v1.standard = 0; v2.standard = 0;
     v1.posX = 10.39; v1.posY = 6;
     v2.posX = 10; v2.posY = 0;
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(30*PI/180)), 0);
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(30*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(30*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(30*PI/180)), 0);
 
     v1.posX = 1; v1.posY = 1;
     v2.posX = 0; v2.posY = 50;
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(45*PI/180)), 0);
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(45*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(45*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(45*PI/180)), 0);
 
     v1.posX = 5; v1.posY = 8.66;
     v2.posX = 0; v2.posY = 10;
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(30*PI/180)), 0);
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(30*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(30*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(30*PI/180)), 0);
 
     v1.posX = 10.39; v1.posY = 6;
     v2.posX = 0; v2.posY = 10;
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(60*PI/180)), 0);
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(60*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(60*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(60*PI/180)), 0);
 
     v1.posX = 1; v1.posY = 1;
     v2.posX = -1; v2.posY = 1;
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(90*PI/180)), 0);
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(90*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(90*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(90*PI/180)), 0);
 
     v1.posX = -7; v1.posY = 12.1243;
     v2.posX = 10; v2.posY = 0;
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(120*PI/180)), 0);
-    XALOY_TEST_MODULE(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(120*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_cos(&v1, &v2),cos(120*PI/180)), 0);
+    XALOY_EXPECT(XL_GREATER, qbase_math_equal(qbase_vector_sin(&v1, &v2),sin(120*PI/180)), 0);
 
     // plus, dot, length, mul
     v1.posX = 1; v1.posY = 1;
@@ -162,7 +162,9 @@ XALOY_TEST_MODULE(mathVector)
 XALOY_TEST_MODULE(mathMatrix)
 {
 	// repeat initalize the matrix for testing the wild pointer
-	qbase_matrix2 m1;
+	qbase_matrix2 m1, mt, ma;
+	Real det;
+	qbase_vector v;
 	//	check zero and normal construction
 	qbase_matrix_zero(&m1, V_ROW);
 	XALOY_EXPECT(XL_EQUAL, (int)(
@@ -201,10 +203,7 @@ XALOY_TEST_MODULE(mathMatrix)
 	), 1);
 	
 	/**********  matrix's calculate  ********/
-	// adjoint matrix test
-	Real det;
-    qbase_matrix2 mt, ma;
-	qbase_vector v;
+	// adjoint matrix test	
     qbase_matrix_init(&mt, V_ROW, 1,4,3,5);
     ma = qbase_matrix_adjoint(&mt);
     XALOY_EXPECT(XL_EQUAL, (int)(
@@ -264,7 +263,7 @@ XALOY_TEST_MODULE(mathMatrix)
 	XALOY_EXPECT(XL_EQUAL, (int)(
 		Q_EQUAL(mt.m[0][0], 0.12f)>0 && Q_EQUAL(mt.m[0][1], -0.04f)>0 &&
 		Q_EQUAL(mt.m[1][0], -0.08f)>0 && Q_EQUAL(mt.m[1][1], -0.14f)>0
-	)£¬1);
+	), 1);
 }
 
 int main()

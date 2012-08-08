@@ -9,9 +9,10 @@ SET(QBASE_SRC_LIST
 ADD_LIBRARY(qbase STATIC ${QBASE_SRC_LIST})
    
 #	LINK LIBRARIES
-INCLUDE_DIRECTORIES("../../../lib/lua52/include" "../../../lib/zlib/include")
+INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/../lib/include")
+LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/../lib")
 IF(MINGW)
-	TARGET_LINK_LIBRARIES(qbase "../../../lib/lua52/liblua.a" "../../../lib/zlib/libz.a")
+	TARGET_LINK_LIBRARIES(qbase lua z)
 ELSEIF(MSVC)
-	TARGET_LINK_LIBRARIES(qbase "../../../lib/lua52/lua.lib" "../../../lib/zlib/zlib.lib")
+	TARGET_LINK_LIBRARIES(qbase lua.lib zlib.lib)
 ENDIF(MINGW)
