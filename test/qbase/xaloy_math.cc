@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <math.h>
-#include <qbase.h>
+#include <Quab/qbase/qbase.h>
 #include <xaloy.h>
 using namespace std;
 using namespace xaloy;

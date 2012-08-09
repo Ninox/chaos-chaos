@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <qbase.h>
+#include <Quab/qbase/qbase.h>
 #include <xaloy.h>
 using namespace xaloy;
 
@@ -13,8 +13,6 @@ XALOY_TEST_MODULE(luaExecute)
     qbase_rets  rets = NULL;
     qbase_table *table = NULL, *tb2 = NULL;
     qbase_sta *sta = NULL;
-    printf("READY?\n");
-    getchar();
     qbase_lua_create(&sta);
 	// assert to test the sta is not null
 	XALOY_ASSERT_NULL(XL_NOTNULL, sta);

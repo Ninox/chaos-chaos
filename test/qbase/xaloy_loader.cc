@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <qbase.h>
+#include <Quab/qbase/qbase.h>
 #include <xaloy.h>
 using namespace xaloy;
 
@@ -68,8 +68,6 @@ XALOY_TEST_MODULE(baseloader)
 	// destory the plugin list
 	qbase_loader_destory();
 	XALOY_EXPECT_NULL(XL_ISNULL, render);
-
-    getchar();
 }
 
 int main()	{	

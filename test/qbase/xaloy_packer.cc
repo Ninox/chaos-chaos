@@ -1,4 +1,4 @@
-#include <qbase.h>
+#include <Quab/qbase/qbase.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -9,7 +9,7 @@ using namespace xaloy;
 
 /*********************************************/
 
-void encrypt_function(char *dest, size_t sz, const char *src)   {
+void encrypt_function(uchar *dest, int sz, const uchar *src)   {
     int i = 0;
     int srcLen = 0;
     if(src == NULL) {
@@ -18,13 +18,13 @@ void encrypt_function(char *dest, size_t sz, const char *src)   {
         }
     }
     else    {
-        srcLen = strlen(src);
+        srcLen = strlen((char*)src);
         for(i = 0; i < sz; i++) {
             dest[i] += 1;
         }
     }
 }
-void decrypt_function(char *dest, size_t sz, const char *src)   {
+void decrypt_function(uchar *dest, int sz, const uchar *src)   {
     int i = 0;
     int srcLen = 0;
     if(src == NULL) {
@@ -33,7 +33,7 @@ void decrypt_function(char *dest, size_t sz, const char *src)   {
         }
     }
     else    {
-        srcLen = strlen(src);
+        srcLen = strlen((char*)src);
         for(i = 0; i < sz; i++) {
             dest[i] -= 1;
         }
@@ -59,7 +59,7 @@ XALOY_TEST_MODULE(compressTest)
 	
 	for(int i = 0; i < 4; i++)	{
 		f = fopen(oldFiles[i], "rb");
-		if(i < 3)
+		if(i < 4)
 			XALOY_ASSERT_NULL(XL_NOTNULL, oldFiles[i]);
 		else	{
 			XALOY_ASSERT_NULL(XL_ISNULL, oldFiles[i]);
@@ -73,7 +73,7 @@ XALOY_TEST_MODULE(compressTest)
 		fclose(f);
 		data.pdata = buffer;
 		data.sz = len;		
-		XALOY_EXPECT(XL_EQUAL, qbase_packer_add(pck, RES_DATA, oldFiles[i], &data), PACKER_FN_OK);
+		XALOY_EXPECT(XL_EQUAL, qbase_packer_add(pck, RES_DATA, const_cast<char*>(oldFiles[i]), &data), PACKER_FN_OK);
 		qbase_packer_save(pck, "test.pck");
 		free(buffer);
 	}
@@ -90,8 +90,8 @@ XALOY_TEST_MODULE(uncompressTest)
 	XALOY_ASSERT_NULL(XL_NOTNULL, pck);
 	
 	for(int i = 0; i < 4; i++)	{
-		pdata = qbase_packer_get(pck, RES_DATA, oldFiles[i], NULL);
-		if(i < 3)	{
+		pdata = qbase_packer_get(pck, RES_DATA, const_cast<char*>(oldFiles[i]), NULL);
+		if(i < 4)	{
 			XALOY_ASSERT_NULL(XL_NOTNULL, pdata);
 			XALOY_EXPECT_NULL(XL_NOTNULL,pdata->pdata);
 			XALOY_EXPECT(XL_GREATER, pdata->sz, 0);
@@ -131,7 +131,7 @@ XALOY_TEST_MODULE(setpwdTest)
 	
 	for(int i = 0; i < 4; i++)	{
     f = fopen(oldFiles[i], "rb");
-	if(i < 3)
+	if(i < 4)
 		XALOY_ASSERT_NULL(XL_NOTNULL, f);
 	else	{
 		XALOY_ASSERT_NULL(XL_ISNULL, f);
@@ -147,17 +147,17 @@ XALOY_TEST_MODULE(setpwdTest)
     dt1->pdata = buffer;
     dt1->sz = len;
     fclose(f);
-    XALOY_EXPECT(XL_EQUAL,qbase_packer_add(pck, RES_DATA, oldFiles[i], dt1), PACKER_FN_OK);
+    XALOY_EXPECT(XL_EQUAL,qbase_packer_add(pck, RES_DATA, const_cast<char*>(oldFiles[i]), dt1), PACKER_FN_OK);
 
     free(buffer);
     free(dt1);
 
     f = fopen(ppath[i], "wb");
-	dt2 = qbase_packer_get(pck, RES_DATA, oldFiles[i], NULL);
+	dt2 = qbase_packer_get(pck, RES_DATA, const_cast<char*>(oldFiles[i]), NULL);
 	XALOY_ASSERT_NULL(XL_ISNULL, dt2);
-	dt2 = qbase_packer_get(pck, RES_DATA, oldFiles[i], (uchar*)"asd");
+	dt2 = qbase_packer_get(pck, RES_DATA, const_cast<char*>(oldFiles[i]), (uchar*)"asd");
 	XALOY_ASSERT_NULL(XL_ISNULL, dt2);
-    dt2 = qbase_packer_get(pck, RES_DATA, oldFiles[i], (uchar*)"123321");
+    dt2 = qbase_packer_get(pck, RES_DATA, const_cast<char*>(oldFiles[i]), (uchar*)"123321");
 	XALOY_ASSERT_NULL(XL_NOTNULL, dt2);
 	XALOY_EXPECT(XL_GREATER, dt2->sz, 0);
 	XALOY_EXPECT_NULL(XL_NOTNULL, dt2->pdata);
@@ -183,12 +183,9 @@ XALOY_TEST_MODULE(updateTest)
 
 	/*	loop for the files	*/
 	f = fopen("gmon.out","rb");
-	if(i != 3)
-		XALOY_ASSERT_NULL(XL_NOTNULL, f);
-	else	{
-		XALOY_ASSERT_NULL(XL_ISNULL, f);
-		continue;
-	}
+	
+	XALOY_ASSERT_NULL(XL_NOTNULL, f);
+	
 	fseek(f, 0, SEEK_END);
 	len = ftell(f);
 	fseek(f, 0, SEEK_SET);
@@ -211,12 +208,7 @@ XALOY_TEST_MODULE(updateTest)
 		ret = qbase_packer_get(pck, RES_DATA, "lh.jpg", NULL);
 		XALOY_EXPECT_NULL(XL_NOTNULL, ret);
 		/*   ret must be null, because it was replaced by the new file   */
-		if(ret == NULL) {
-			free(ret->pdata);
-			free(ret);
-			qbase_packer_free(pck);
-			return 0;
-		}
+		XALOY_ASSERT_NULL(XL_NOTNULL, ret);
 		f = fopen("gmon-r.out","wb");
 		XALOY_EXPECT_NULL(XL_NOTNULL, ret->pdata);
 		XALOY_EXPECT(XL_GREATER, ret->sz, 0);
@@ -252,7 +244,7 @@ XALOY_TEST_MODULE(removeTest)
 
     /*  show data after remove  */
 	for(int i = 0; i < 4; i++)	{
-		XALOY_EXPECT(XL_EQUAL, qbase_packer_remove(pck, RES_DATA, oldFiles[i], NULL), PACKER_FN_OK);				
+		XALOY_EXPECT(XL_EQUAL, qbase_packer_remove(pck, RES_DATA, const_cast<char*>(oldFiles[i]), NULL), PACKER_FN_OK);				
 	}
 	ri = qbase_packer_show(pck, RES_DATA);
 	XALOY_ASSERT_NULL(XL_ISNULL, ri);
@@ -277,10 +269,10 @@ XALOY_TEST_MODULE(renameTest)
 	
     /*  show data after rename  */
 	for(int i = 0; i < 4; i++)	{
-		if(i < 3)
-			XALOY_EXPECT(XL_EQUAL, qbase_packer_rename(pck, RES_DATA, oldFiles[i], newFiles[i], NULL), PACKER_FN_OK);
+		if(i < 4)
+			XALOY_EXPECT(XL_EQUAL, qbase_packer_rename(pck, RES_DATA, const_cast<char*>(oldFiles[i]), const_cast<char*>(newFiles[i]), NULL), PACKER_FN_OK);
 		else	{
-			XALOY_EXPECT(XL_NOT_EQUAL, qbase_packer_rename(pck, RES_DATA, oldFiles[i], newFiles[i], NULL), PACKER_FN_OK);
+			XALOY_EXPECT(XL_NOT_EQUAL, qbase_packer_rename(pck, RES_DATA, const_cast<char*>(oldFiles[i]), const_cast<char*>(newFiles[i]), NULL), PACKER_FN_OK);
 		}		
 	}
     ri = qbase_packer_show(pck, RES_DATA);
