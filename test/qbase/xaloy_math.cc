@@ -12,13 +12,13 @@ using namespace xaloy;
 
 XALOY_TEST_MODULE(mathBasic)
 {
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/6), 30.0f);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/3), 60.0f);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1/2), 90.0f);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(1), 180.0f);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(2), 360.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(PI/6), 30.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(PI/3), 60.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(PI/2), 90.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(PI), 180.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(2*PI), 360.0f);
 	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(0) , 0.0f);
-	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(2/3), 120.0f);
+	XALOY_EXPECT(XL_EQUAL, qbase_math_todegree(2*PI/3), 120.0f);
 
     XALOY_EXPECT(XL_EQUAL, qbase_math_equal(0.000001,0), 1);
 	XALOY_EXPECT(XL_EQUAL, qbase_math_equal(0, 1),  0);

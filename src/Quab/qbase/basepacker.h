@@ -45,7 +45,7 @@ typedef void (*qbase_securityfn)(uchar *dest, int size, const uchar *src);
  * \return a pointer to the packer object
  *
  */
-qbase_pck* qbase_packer_create(char *path);
+qbase_pck* qbase_packer_create(const char *path);
 
 /** \brief get qbase packer object in file
  *
@@ -53,7 +53,7 @@ qbase_pck* qbase_packer_create(char *path);
  * \return a qbase pakcer object
  *
  */
-qbase_pck* qbase_packer_load(char *path);
+qbase_pck* qbase_packer_load(const char *path);
 
 /** \brief save the packer object's modifies
  *
@@ -116,7 +116,7 @@ qbase_resinfo* qbase_packer_show(qbase_pck *pck, int resid);
  * \return the packer data
  *
  */
-qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, char *fname, uchar *pwd);
+qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, const char *fname, const uchar *pwd);
 
 /** \brief add a file in qbase packer object
  *
@@ -127,7 +127,7 @@ qbase_pdata* qbase_packer_get(qbase_pck *pck, int resid, char *fname, uchar *pwd
  * \return the data in object i need to get
  *
  */
-int qbase_packer_add(qbase_pck *pck, int resid, char *fname, qbase_pdata *data);
+int qbase_packer_add(qbase_pck *pck, int resid, const char *fname, qbase_pdata *data);
 
 /** \brief remove the target in packer object
  *
@@ -138,7 +138,7 @@ int qbase_packer_add(qbase_pck *pck, int resid, char *fname, qbase_pdata *data);
  * \return operation status code
  *
  */
-int qbase_packer_remove(qbase_pck *pck, int resid, char *fname, uchar *pwd);
+int qbase_packer_remove(qbase_pck *pck, int resid, const char *fname, const uchar *pwd);
 
 /** \brief update or replace the file
  *
@@ -150,7 +150,7 @@ int qbase_packer_remove(qbase_pck *pck, int resid, char *fname, uchar *pwd);
  * \return 1 = true, 0 = false
  *
  */
-int qbase_packer_update(qbase_pck *pck, int resid, char *fname, qbase_pdata *data, uchar *pwd);
+int qbase_packer_update(qbase_pck *pck, int resid, const char *fname, qbase_pdata *data, const uchar *pwd);
 
 /** \brief rename a file in qbase packer object
  *
@@ -162,6 +162,6 @@ int qbase_packer_update(qbase_pck *pck, int resid, char *fname, qbase_pdata *dat
  * \return operation status code
  *
  */
-int qbase_packer_rename(qbase_pck *pck, int resid, char *fname, char *newname, uchar *pwd);
+int qbase_packer_rename(qbase_pck *pck, int resid, const char *fname, const char *newname, const uchar *pwd);
 
 #endif

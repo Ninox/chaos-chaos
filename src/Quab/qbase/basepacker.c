@@ -45,7 +45,7 @@ pwdcmp(const uchar *s1, const uchar *s2, size_t sz)   {
 
 
 static qbase_pck *
-pck_create(char *path) {
+pck_create(const char *path) {
     qbase_pck *pck = NULL;
     int i;
     FILE *f = fopen(path, "r");
@@ -72,7 +72,7 @@ pck_create(char *path) {
 }
 
 static qbase_pck *
-pck_load(char *path)    {
+pck_load(const char *path)    {
     int read_sz = 0;
     int i;
     uchar resid;
@@ -318,12 +318,12 @@ hash_gethashid(qbase_pck *pck, uchar resId, const char *name)   {
 
 /*		packer create or load API		*/
 qbase_pck*
-qbase_packer_create(char *path)	{
+qbase_packer_create(const char *path)	{
     return pck_create(path);
 }
 
 qbase_pck*
-qbase_packer_load(char *path)	{
+qbase_packer_load(const char *path)	{
 	return pck_load(path);
 }
 
@@ -426,7 +426,7 @@ qbase_packer_show(qbase_pck *pck, int resid)	{
 /*		pack common CRUD operations		*/
 qbase_pdata*
 qbase_packer_get(qbase_pck *pck, int resid,
-                 char *fname, uchar *pwd)	{
+                 const char *fname, const uchar *pwd)	{
     ushort hashID;
     int len;
     qbase_pdata *ret = NULL;
@@ -466,7 +466,7 @@ qbase_packer_get(qbase_pck *pck, int resid,
 
 int
 qbase_packer_add(qbase_pck *pck, int resid,
-                 char *fname, qbase_pdata *data)	{
+                 const char *fname, qbase_pdata *data)	{
     ushort hashID =0;
     uchar *buffer = NULL;
     int len;
@@ -531,7 +531,7 @@ qbase_packer_add(qbase_pck *pck, int resid,
 
 int
 qbase_packer_remove(qbase_pck *pck, int resid,
-                    char *fname, uchar *pwd)	{
+                    const char *fname, const uchar *pwd)	{
     ushort hashID = 0;
     qbase_resblock *bck = NULL, *next_bck = NULL;
 
@@ -579,7 +579,7 @@ qbase_packer_remove(qbase_pck *pck, int resid,
 
 int
 qbase_packer_update(qbase_pck *pck, int resid,
-                    char *fname, qbase_pdata *data, uchar *pwd)	{
+                    const char *fname, qbase_pdata *data, const uchar *pwd)	{
     int len;
     uchar *buffer = NULL;
     uchar t_pwd[20];
@@ -627,7 +627,7 @@ qbase_packer_update(qbase_pck *pck, int resid,
 
 int
 qbase_packer_rename(qbase_pck *pck, int resid,
-                    char *fname, char *newname, uchar *pwd) {
+                    const char *fname, const char *newname, const uchar *pwd) {
     qbase_resblock *bck = NULL;
 
     if(pck == NULL)

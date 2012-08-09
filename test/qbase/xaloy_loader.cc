@@ -63,11 +63,8 @@ XALOY_TEST_MODULE(baseloader)
 
 	// release on plugin
 	qbase_loader_free("math_a");
-	XALOY_EXPECT_NULL(XL_ISNULL, nadd);
-	XALOY_EXPECT_NULL(XL_ISNULL, nmin);
 	// destory the plugin list
 	qbase_loader_destory();
-	XALOY_EXPECT_NULL(XL_ISNULL, render);
 }
 
 int main()	{	
