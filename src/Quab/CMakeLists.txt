@@ -3,7 +3,7 @@
 #-----------------------------------------------------
 
 #	BUILD QBASE
-ADD_SUBDIRECTORY(qbase lib)
+ADD_SUBDIRECTORY(qbase)
 
 #	BUILD AI Module
 
