@@ -1,4 +1,4 @@
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/qbase)
+SET(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/test/qbase")
 
 ADD_LIBRARY(matha SHARED plugin_math_a.c)
 ADD_LIBRARY(mathb SHARED plugin_math_b.c)
@@ -7,6 +7,8 @@ ADD_LIBRARY(str SHARED plugin_str.c)
 
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/../lib/include/")
 LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/../lib/")
+
+SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/test/qbase")
 
 ADD_EXECUTABLE(xaloy_loader xaloy_loader.cc)
 ADD_EXECUTABLE(xaloy_lua xaloy_lua.cc)

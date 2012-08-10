@@ -224,12 +224,20 @@ pck_checkpwd(qbase_pck *pck, const uchar *pwd)   {
     memset(t_pwd, 0, 20);
     /*   if no encrypt/decrypt in pck, this function will return OK    */
     if(pck->encrypt != NULL && pck->decrypt != NULL)    {
-        strcpy((char*)t_pwd, (char*)pwd);
-        pck->encrypt(t_pwd, 20, NULL);
-        if(pwdcmp(t_pwd, pck->pwd, 20) == 0)
-            return PACKER_FN_OK;
-        else
-            return PACKER_FN_ERROR;
+		/* if initalize the sercurity callback, this function will check the input pwd whether it is null */
+		if(pwd != NULL)	{
+			strcpy((char*)t_pwd, (char*)pwd);
+			pck->encrypt(t_pwd, 20, NULL);
+			if(pwdcmp(t_pwd, pck->pwd, 20) == 0)
+				return PACKER_FN_OK;
+			else
+				return PACKER_FN_ERROR;
+		}
+		else	{
+			if(pck->pwd[0] == '\0')
+				return PACKER_FN_OK;
+			else return PACKER_FN_ERROR;
+		}
     }
     else return PACKER_FN_OK;
 }
