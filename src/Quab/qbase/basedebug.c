@@ -5,12 +5,13 @@
 #include <time.h>
 #include <stdlib.h>
 
-#ifdef QBASE_OS_LINUX
-#include <dir.h>
-#define LOG_PATH "log/"
-#else
+#ifdef QBASE_OS_WIN32
 #include <direct.h>
 #define LOG_PATH "log\\"
+#else
+#include <sys/stat.h>
+#include <sys/types.h>
+#define LOG_PATH "log/"
 #endif
 
 static char *
@@ -63,7 +64,7 @@ debug_writemsg(const char * status, const char *obj, const char *msg)	{
 	len += strlen(LOG_PATH);
 	len += strlen(filename);
 #ifdef QBASE_OS_LINUX
-	mkdir(LOG_PATH);
+	mkdir(LOG_PATH, S_IRWXU);
 #else
 	_mkdir(LOG_PATH);
 #endif

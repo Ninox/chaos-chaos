@@ -5,7 +5,8 @@
 #include <stdio.h>
 #include <zlib.h>
 
-#define MAX_FILE_COUNT 65536
+/*	 ONLY accept a unsigned integer value in [1, 65535]	*/
+#define MAX_FILE_COUNT 65535
 
 typedef struct qbase_datainfo	{
     char fname[20];
@@ -35,7 +36,7 @@ struct qbase_pck	{
 /*****		helper functions		*****/
 static int
 pwdcmp(const uchar *s1, const uchar *s2, size_t sz)   {
-    int i;
+    size_t i;
     for(i = 0; i < sz; i++) {
         if(s1[i] != s2[i])
             return 1;
@@ -73,7 +74,7 @@ pck_create(const char *path) {
 
 static qbase_pck *
 pck_load(const char *path)    {
-    int read_sz = 0;
+    size_t read_sz = 0;
     int i;
     uchar resid;
     int osz, csz;
@@ -259,42 +260,52 @@ pck_checksame(qbase_pck *pck, int resid, const char *name)   {
 }
 
 static uchar
-hash_calelement(qbase_pck *pck, uchar resId, const char *name,
-                uchar *mid_ch, uchar *min_ch, uchar *max_ch) {
-    int len = strlen(name), i;
-	*mid_ch = 0, *max_ch = 0, *min_ch = 255;   
-
-    *mid_ch = name[len/2];
-    for(i = 0; i < len; i++)    {
-        if((uchar)name[i] >= *max_ch)
-            *max_ch = (uchar)name[i];
-        else if((uchar)name[i] <= *min_ch)
-            *min_ch = (uchar)name[i];
-    }
-    return (*mid_ch + *max_ch + *min_ch)/3;
+hash_calelement(const char *name)	{                
+    int len = strlen(name), i, cgroup = 0;
+	const uchar FIX_BITS = 0x7B;
+	uchar hashcode = FIX_BITS;
+	for(i = 0; i < len; i++)	{
+		switch(cgroup)	
+		{
+		case 0:
+			hashcode &= name[i];
+			break;
+		case 1:
+			hashcode |= name[i];
+			break;
+		default:
+		case 2:
+			hashcode ^= name[i];
+			break;		
+		}
+		cgroup = (cgroup + 1) % 3;
+	}
+	return hashcode;
 }
 
 static ushort
 hash_createid(qbase_pck *pck, uchar resId, const char *name)    {
-    uchar mid_ch, max_ch = 0, min_ch = 255, hashCode;
-    ushort idx, i;
-    hashCode = hash_calelement(pck, resId, name, &mid_ch, &min_ch, &max_ch);
+    uchar hashCode;
+    ushort idx, i = 0;
+    hashCode = hash_calelement(name);
     if(hashCode == 0)
         hashCode = 1;
     if(pck->hash_info[hashCode] == NULL)
         return hashCode;
     else    {
         idx = (int)hashCode;
-        /*   start from 1 to MAX_FILE_COUNT   */
-        for(i = 1; i <= MAX_FILE_COUNT; i++) {
+        /*   start from 0 to MAX_FILE_COUNT   */		
+        while(1) {
             if(idx == 0)    {
                 idx++;
-                i--;
-                continue;
             }
             if(pck->hash_info[idx] == NULL)
                 return idx;
             else idx = (idx+1)%(MAX_FILE_COUNT+1);
+			
+			if(i < MAX_FILE_COUNT)
+				i++;
+			else break;
         }
         return 0;
     }
@@ -302,23 +313,26 @@ hash_createid(qbase_pck *pck, uchar resId, const char *name)    {
 
 static ushort
 hash_gethashid(qbase_pck *pck, uchar resId, const char *name)   {
-    uchar mid_ch, max_ch = 0, min_ch = 255, hashCode;
-    ushort idx, i;
-    hashCode = hash_calelement(pck, resId, name, &mid_ch, &min_ch, &max_ch);
+    uchar hashCode;
+    ushort idx, i = 0;
+    hashCode = hash_calelement(name);
     idx = (int)hashCode;
     /*      start from 1 to MAX_FILE_COUNT      */
-    for(i = 1; i <= MAX_FILE_COUNT; i++) {
+	/*		if the MAX_FILE_COUNT > 2^16 -1(65535), this loop will be infinity	*/
+    while(1)	{
         if(idx == 0)    {
             idx++;
-            i--;
-            continue;
         }
-        if(pck->hash_info[idx] == NULL)
-            return 0;
-        if(strcmp(pck->hash_info[idx]->fname, name) == 0 && pck->hash_info[idx]->resId == resId)
-            return idx;
-        else idx = (idx+1)%(MAX_FILE_COUNT+1);
-    }
+		/*	if the index is NOT null, and it has the same filename in same restype. 	*/
+        if(pck->hash_info[idx] != NULL)	{
+			if(strcmp(pck->hash_info[idx]->fname, name) == 0 && pck->hash_info[idx]->resId == resId)
+				return idx;
+		}
+        idx = (idx+1) % (MAX_FILE_COUNT+1);		
+		if(i < MAX_FILE_COUNT)
+			i++;
+		else break;		
+	}
     return 0;
 }
 
@@ -399,9 +413,9 @@ qbase_packer_setpwd(qbase_pck *pck, uchar *npwd, const uchar *opwd)	{
 
 /*		packer file lists API*/
 qbase_resinfo*
-qbase_packer_show(qbase_pck *pck, int resid)	{
+qbase_packer_show(qbase_pck *pck, int resid, int *cnt)	{
     qbase_resblock *bck = NULL;
-    qbase_resinfo *info = NULL;
+    qbase_resinfo *info = NULL;	
     int i = 0;
     int counter = 0;
     if(pck == NULL)
@@ -418,13 +432,16 @@ qbase_packer_show(qbase_pck *pck, int resid)	{
         counter++;
         bck = bck->next;
     }
-    info = (qbase_resinfo*)malloc(sizeof(qbase_resinfo));
-    info->count = counter;
-    info->filename = (char**)malloc(counter);
+	/*  set resinfo array's length  */
+	*cnt = counter;
+	
+    info = (qbase_resinfo*)malloc(sizeof(qbase_resinfo) * counter);
     /*     scan all file     */
     bck = pck->blocks[resid];
     while(bck != NULL)  {
-        info->filename[i] = bck->current->fname;
+        info[i].filename = bck->current->fname;
+		info[i].sz = bck->current->data.sz;
+		info[i].hashid = bck->current->hash_id;
         i++;
         bck = bck->next;
     }
@@ -447,7 +464,6 @@ qbase_packer_get(qbase_pck *pck, int resid,
 		return NULL;
     if(pck_checkpwd(pck, pwd) != PACKER_FN_OK)
         return NULL;
-
     hashID = hash_gethashid(pck, resid, fname);
     if(hashID != 0)    {
         data = pck->hash_info[hashID];
@@ -582,7 +598,7 @@ qbase_packer_remove(qbase_pck *pck, int resid,
     free(pck->hash_info[hashID]);
     pck->hash_info[hashID] = NULL;
 
-	return PACKER_FN_ERROR;
+	return PACKER_FN_OK;
 }
 
 int
