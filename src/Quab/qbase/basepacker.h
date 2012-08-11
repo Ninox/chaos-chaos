@@ -23,8 +23,9 @@ enum pck_resource	{
 };
 
 typedef struct qbase_resinfo{
-	char **filename;
-	size_t count;
+	const char *filename;
+	ushort hashid;
+	size_t sz;
 } qbase_resinfo;
 
 typedef struct qbase_pdata	{
@@ -100,10 +101,11 @@ int qbase_packer_setpwd(qbase_pck *pck, uchar *npwd, const uchar *opwd);
  *
  * \param qbase packer object, qbase_pck*
  * \param the resources' typeid of this object, int
+ * \param the resinfo array's length, int *
  * \return the resource type infomations
  *
  */
-qbase_resinfo* qbase_packer_show(qbase_pck *pck, int resid);
+qbase_resinfo* qbase_packer_show(qbase_pck *pck, int resid, int *cnt);
 
 /*		pack common CRUD operations		*/
 

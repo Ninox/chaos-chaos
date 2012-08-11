@@ -6,7 +6,6 @@ using namespace xaloy;
 
 XALOY_TEST_MODULE(luaExecute)
 {
-	int i;
     qbase_value *v = NULL;
     qbase_value *v2 = NULL;
     qbase_value *v3 = NULL;

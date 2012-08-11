@@ -219,25 +219,32 @@ XALOY_TEST_MODULE(removeTest)
 {
     qbase_pck *pck = qbase_packer_load("test.pck");
     qbase_resinfo *ri = NULL;
-    int i;
+    int i, cnt;
 	XALOY_ASSERT_NULL(XL_NOTNULL, pck);
 	
     /*  show data befor remove  */
-    ri = qbase_packer_show(pck, RES_DATA);
+    ri = qbase_packer_show(pck, RES_DATA, &cnt);
 	XALOY_ASSERT_NULL(XL_NOTNULL, ri);	
-    for(i = 0; i < ri->count; i++)  {
-        printf("%s\n", ri->filename[i]);
+    for(i = 0; i < cnt; i++)  {
+        printf("%d:%s[%d]\n", ri[i].hashid, ri[i].filename, ri[i].sz);
     }
-    free(ri->filename);
     free(ri);
-    ri = NULL;
+    ri = NULL;	
 
     /*  show data after remove  */
 	for(int i = 0; i < 4; i++)	{
-		XALOY_EXPECT(XL_EQUAL, qbase_packer_remove(pck, RES_DATA, oldFiles[i], NULL), PACKER_FN_OK);				
+		if(i != 3)	{
+			XALOY_EXPECT(XL_EQUAL, qbase_packer_remove(pck, RES_DATA, oldFiles[i], NULL), PACKER_FN_OK);
+		}
+		else	{
+			XALOY_EXPECT(XL_NOT_EQUAL, qbase_packer_remove(pck, RES_DATA, oldFiles[i], NULL), PACKER_FN_OK);
+		}
+		printf("%s\n", oldFiles[i]);
 	}
-	ri = qbase_packer_show(pck, RES_DATA);
+	ri = qbase_packer_show(pck, RES_DATA, &cnt);
+	// all data has deleted. so the resinfo must be null
 	XALOY_ASSERT_NULL(XL_ISNULL, ri);
+	
     qbase_packer_free(pck);
 }
 
@@ -245,32 +252,31 @@ XALOY_TEST_MODULE(renameTest)
 {
     qbase_pck *pck = qbase_packer_load("test.pck");
     qbase_resinfo *ri = NULL;
-    int i;
+    int i, cnt;
 	XALOY_ASSERT_NULL(XL_NOTNULL, pck);
     /* show data before rename  */
-    ri = qbase_packer_show(pck, RES_DATA);
+    ri = qbase_packer_show(pck, RES_DATA, &cnt);
 	XALOY_ASSERT_NULL(XL_NOTNULL, ri);
-    for(i = 0; i < ri->count; i++)  {
-		printf("%s\n", ri->filename[i]);
-	}
-    free(ri->filename);
+    for(i = 0; i < cnt; i++)  {
+		printf("%s\n", ri[i].filename);
+	}    
     free(ri);
     ri = NULL;
 	
     /*  show data after rename  */
 	for(int i = 0; i < 4; i++)	{
-		if(i < 3)
+		if(i != 3)	{
 			XALOY_EXPECT(XL_EQUAL, qbase_packer_rename(pck, RES_DATA, oldFiles[i], newFiles[i], NULL), PACKER_FN_OK);
+		}
 		else	{
 			XALOY_EXPECT(XL_NOT_EQUAL, qbase_packer_rename(pck, RES_DATA, oldFiles[i], newFiles[i], NULL), PACKER_FN_OK);
 		}		
 	}
-    ri = qbase_packer_show(pck, RES_DATA);
+    ri = qbase_packer_show(pck, RES_DATA, &cnt);
 	XALOY_ASSERT_NULL(XL_NOTNULL, ri);
-    for(i = 0; i < ri->count; i++)  {
-        printf("%s\n", ri->filename[i]);
+    for(i = 0; i < cnt; i++)  {
+        printf("%s\n", ri[i].filename);
     }
-    free(ri->filename);
     free(ri);
     ri = NULL;
 	

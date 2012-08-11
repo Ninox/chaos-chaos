@@ -1,5 +1,5 @@
 NVal = 9876
-BVal = 1
+BVal = true
 SVal = "Hello world";
 local i = 0;
 FVal = function ()	
