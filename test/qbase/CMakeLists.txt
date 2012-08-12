@@ -5,8 +5,10 @@ ADD_LIBRARY(mathb SHARED plugin_math_b.c)
 ADD_LIBRARY(render SHARED plugin_render.c)
 ADD_LIBRARY(str SHARED plugin_str.c)
 
-INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/../lib/include/")
-LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/../lib/")
+IF(WIN32)
+	INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/../lib/include/")
+	LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/../lib/")
+ENDIF()
 
 SET(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/test/qbase")
 
@@ -17,10 +19,10 @@ ADD_EXECUTABLE(xaloy_packer xaloy_packer.cc)
 
 SET(BASIC_LIB qbase xaloy)
 
-IF(WIN32)
+IF(WIN32)	
 	IF(MSVC)
-		SET(LUA_LIB qbase.lib xaloy.lib lua.lib)
-		SET(PACK_LIB qbase.lib xaloy.lib zlib.lib)
+		SET(LUA_LIB qbase xaloy lua)
+		SET(PACK_LIB qbase xaloy zlib)
 	ELSE(MSVC)
 		SET(LUA_LIB ${BASIC_LIB} lua)
 		SET(PACK_LIB ${BASIC_LIB} z)
