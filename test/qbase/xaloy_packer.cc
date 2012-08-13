@@ -285,5 +285,5 @@ XALOY_TEST_MODULE(renameTest)
 
 int main()
 {
-	return GLOBAL_TEST->execute(true);
+	return G_XALOY.execute(true);
 }

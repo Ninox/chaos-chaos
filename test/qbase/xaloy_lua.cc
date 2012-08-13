@@ -100,11 +100,10 @@ XALOY_TEST_MODULE(luaExecute)
     if(rets != NULL)
         free(rets);
     qbase_lua_free(&sta);
-	getchar();
 }
 
 
 int main()
 {    
-    return GLOBAL_TEST->execute();
+    return G_XALOY.execute();
 }

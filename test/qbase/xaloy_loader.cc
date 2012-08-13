@@ -68,5 +68,5 @@ XALOY_TEST_MODULE(baseloader)
 }
 
 int main()	{	
-	return GLOBAL_TEST->execute(true);
+	return G_XALOY.execute(true);
 }

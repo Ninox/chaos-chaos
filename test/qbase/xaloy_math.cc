@@ -269,5 +269,5 @@ XALOY_TEST_MODULE(mathMatrix)
 int main()
 {
 	XaloyTester::SetAllowPrec(0.0005);
-	return GLOBAL_TEST->execute(true);
+	return G_XALOY.execute(true);
 }
