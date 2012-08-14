@@ -59,7 +59,6 @@ sta_create()	{
 static void
 sta_release(qbase_sta *sta)	{
 	lua_close(sta->L);
-	free(sta->L);
 	sta->L = NULL;
 	sta->status = STA_FREE;
 	_stapool.used -= 1;
