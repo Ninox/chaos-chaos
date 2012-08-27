@@ -1,1 +1,1 @@
-#include "packer/QuabResource.h"
+#include "resource/QuabResource.h"

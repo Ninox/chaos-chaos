@@ -11,7 +11,6 @@ namespace Quab
     class QuabVector2D;
     class QuabMatrix2D;
 
-
     /** \brief a base math calculate helpers
      */
     class QuabMath

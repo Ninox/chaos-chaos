@@ -4,7 +4,7 @@
 #define V_ROW 0
 #define	V_COL 1
 
-#ifdef QBASE_OS_64BIT
+#ifdef QUAB_USE_DOUBLE
 typedef double Real;
 #else
 typedef float Real;
