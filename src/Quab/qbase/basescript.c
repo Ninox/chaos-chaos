@@ -17,12 +17,6 @@ struct qbase_sta {
 	int status;
 } ;
 
-struct qbase_table  {
-	// the fieldnames[0] means table name
-	char **fieldnames;
-	size_t field_count;
-};
-
 typedef struct {
 	qbase_sta pool[MAX_POOL_SIZE];
 	int last;
@@ -65,7 +59,6 @@ sta_create()	{
 static void
 sta_release(qbase_sta *sta)	{
 	lua_close(sta->L);
-	free(sta->L);
 	sta->L = NULL;
 	sta->status = STA_FREE;
 	_stapool.used -= 1;
@@ -165,8 +158,9 @@ qbase_lua_create(qbase_sta **sta_ptr)	{
 }
 
 void
-qbase_lua_free(qbase_sta *sta)	{
-	sta_release(sta);
+qbase_lua_free(qbase_sta **sta)	{
+	sta_release(*sta);
+	*sta = NULL;
 }
 
 qbase_value*
@@ -186,9 +180,10 @@ qbase_lua_get(qbase_sta *sta, const char *name)	{
 }
 
 void
-qbase_lua_freetable(qbase_table *tbl)	{
-	table_drop(tbl);
-	free(tbl);
+qbase_lua_freetable(qbase_table **tbl)	{
+	table_drop(*tbl);
+	free(*tbl);
+	*tbl = NULL;
 }
 
 qbase_value*
