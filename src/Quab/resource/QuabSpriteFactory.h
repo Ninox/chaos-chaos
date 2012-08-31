@@ -1,0 +1,6 @@
+#ifndef QUAB_SPRITEFACTORY_H
+#define QUAB_SPRITEFACTORY_H
+
+
+
+#endif
