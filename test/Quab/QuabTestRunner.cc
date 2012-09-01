@@ -5,9 +5,8 @@
 #include "Math_xTest.hpp"
 #include "Resource_xTest.hpp"
 #include "Sound_xTest.hpp"
-
 #include <xaloy.h>
 
 int main()  {
-    return GLOBAL_TEST.execute(true);
+    return G_XALOY.execute();
 }

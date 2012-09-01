@@ -5,15 +5,19 @@
 
 namespace Quab
 {
-    class QuabLog
+    struct logQueue;
+    class QuabLog;
+
+    class QuabDebug
     {
     public:
-        QuabLog(const char *dir = QUAB_DEFAULT_LOG_DIR);
+        QuabDebug(const char *dir = QUAB_DEFAULT_LOG_DIR);
 
-        void console(const char *msg);
+        void message(const char *msg);
         void log(const char *msg);
         void debug(void *obj);
     private:
+        QuabLog *logger;
         const char *_logdir;
     };
 }
