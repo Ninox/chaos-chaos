@@ -1,0 +1,1 @@
+#include "resource/QuabSpriteFactory.h"

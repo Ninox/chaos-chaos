@@ -1,0 +1,19 @@
+#include "resource/QuabResource.h"
+#include "qbase/qbase.h"
+using namespace Quab;
+
+/*    class QuabStream's implementation    */
+QuabStream::~QuabStream()	{
+
+}
+QuabStream::QuabStream()	{
+
+}
+QuabStream::QuabStream(const char *buffer, unsigned len)	{
+
+}
+QuabStream::QuabStream(const char *path)	{
+
+}
+
+/*    class QuabResource's implementation    */
