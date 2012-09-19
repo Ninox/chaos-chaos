@@ -14,7 +14,7 @@ namespace Quab
 
     /** \brief a base math calculate helpers
      */
-    class QuabMath
+    class QUAB_API QuabMath
     {
     public:
 		static Real PI;
@@ -33,7 +33,7 @@ namespace Quab
 
     /** \brief qbase_vector's C++ wrapper
      */
-    class QuabVector2D
+    class QUAB_API QuabVector2D
     {
     private:
         qbase_vector *_vec;
@@ -62,7 +62,7 @@ namespace Quab
 
     /** \brief qbase_matrix2's C++ wrapper
      */
-    class QuabMatrix2D
+    class QUAB_API QuabMatrix2D
     {
     private:
         qbase_matrix2 *m;

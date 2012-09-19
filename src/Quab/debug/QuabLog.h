@@ -1,27 +1,24 @@
 #ifndef QUAB_DEBUG_LOG_H
 #define QUAB_DEBUG_LOG_H
 
+#include "../QuabDef.h"
 #define QUAB_DEFAULT_LOG_DIR "./log/"
-
-struct logQueue;
 
 namespace Quab
 {
-    class QuabLog;
-
-    class QuabDebug
-    {
-    public:
-        QuabDebug(const char *dir = QUAB_DEFAULT_LOG_DIR);
-        ~QuabDebug();
-
-        void message(const char *msg);
-        void log(const char *msg);
-        void debug(void *obj);
-        void error(const char *msg);
-    private:
-        QuabLog *logger;
-        const char *_logdir;
-    };
+    class QUAB_API QuabLog
+	{
+	public:		
+		static void Log(const char *msg);		
+		static void Error(const char *msg);
+	};
+	
+	class QUAB_API QuabHello
+	{
+	public:
+		static void Hello(const char *hello);
+	};
+	
 }
+
 #endif // QuabLog.h

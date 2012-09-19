@@ -7,7 +7,7 @@ namespace Quab
 {
     namespace Widgets
     {
-        class QuabWidget
+        class QUAB_API QuabWidget
         {
         public:
             Real width;
@@ -17,37 +17,37 @@ namespace Quab
 
         };
 
-        class QwEnergyBar:public QuabWidget
+        class QUAB_API QwEnergyBar:public QuabWidget
         {
 
         };
 
-        class QwLabel:public QuabWidget
+        class QUAB_API QwLabel:public QuabWidget
         {
 
         };
 
-        class QwTextView:public QuabWidget
+        class QUAB_API QwTextView:public QuabWidget
         {
 
         };
 
-        class QwListView:public QuabWidget
+        class QUAB_API QwListView:public QuabWidget
         {
 
         };
 
-        class QwPanel:public QuabWidget
+        class QUAB_API QwPanel:public QuabWidget
         {
 
         };
 
-        class QwTableView:public QuabWidget
+        class QUAB_API QwTableView:public QuabWidget
         {
 
         };
 
-        class QwLoadingBar:public QuabWidget
+        class QUAB_API QwLoadingBar:public QuabWidget
         {
 
         };

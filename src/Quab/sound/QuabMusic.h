@@ -5,7 +5,7 @@
 
 namespace Quab
 {
-	interface IQuabMusic
+	interface QUAB_API IQuabMusic
 	{
     public:
         virtual void play()   = 0;

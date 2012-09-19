@@ -9,4 +9,17 @@ typedef double Real;
 typedef float Real;
 #endif
 
+#	ifdef QUAB_OS_LINUX
+#		define QUAB_API
+#	else
+#		ifdef QUAB_LIBRARY
+#			define QUAB_API __declspec(dllexport)
+#		else
+#			define QUAB_API __declspec(dllimport)
+#		endif
+#	endif
+#ifdef QUAB_OS_MAC
+#	define QUAB_API
+#endif
+
 #endif

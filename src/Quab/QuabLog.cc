@@ -1,15 +1,19 @@
 #include "debug/QuabLog.h"
-#include <map>
+#include <iostream>
 #include <assert.h>
+#include <string.h>
 #include <stdio.h>
 #include <time.h>
-#include <boost/thread/thread.hpp>
 
 #ifdef QUAB_OS_WIN32
 #include <windows.h>
 #endif
 using namespace Quab;
 
+#ifdef __cplusplus
+extern "C" 
+{
+#endif
 enum PRINT_COLOR{
 	COLOR_GREEN  = 10,
 	COLOR_BLUE   = 11,
@@ -17,24 +21,11 @@ enum PRINT_COLOR{
 	COLOR_YELLOW = 14
 };
 
-/* global logger map  */
-static std::map<const char*, QuabLog*>
-_logger_map;
-
-/*    the log struct definitions  */
-struct logQueue {
-    int color;
-    bool isWrite;
-    char timetrap[20];
-    const char *msgtype;
-    const char *text;
-    logQueue *next;
-    logQueue *prev;
-};
+#ifdef QUAB_STATUS_DEBUG
 
 /*    color printing helper    */
 static void
-printColorText(const char *text, int color = 0) {
+_printColorText(const char *text, int color = 0) {
     if(color <= 0)  {
         printf(text);
     }
@@ -70,26 +61,21 @@ printColorText(const char *text, int color = 0) {
     }
 }
 
-/*    helper function's for logQueue    */
 static void
-lq_add(logQueue *lq, int color, const char *type, const char *msg, bool isWrite = true)    {
-    logQueue *que = (logQueue*)malloc(sizeof(logQueue));
-    que->color = color;
-    que->isWrite = isWrite;
-    que->msgtype = type;
-    que->text = msg;
-    que->next = NULL;
-    que->prev = NULL;
+_writeConsole(int color, const char *prefix, const char *text)	{
+	_printColorText(prefix, color);
+	printf(text);
+	printf("\n");
+}
 
-    if(lq == NULL)  {
-        lq = que;
-    }
-    else    {
-        lq->prev->next = que;
-        que->prev = lq->prev;
-        que->next = lq;
-        lq->prev = que;
-    }
+#else
+static void
+_writeConsole(int color, const char *prefix, const char *text){}	
+#endif
+
+static char *
+time_string()	{
+	return NULL;
 }
 
 static char *
@@ -117,99 +103,75 @@ log_getname()   {
     strcat(filename, dateString);
     strcat(filename, ".txt");
     free(dateString);
+	return filename;
 }
 
-namespace Quab
-{
-    /*    the QuabLog class definitions    */
-    class QuabLog
-    {
-    private:
-        const char *logdir;
-        logQueue *_logqueue;
-
-        QuabLog():_logqueue(NULL), refCount(1) {}
-        QuabLog(const char *dir):_logqueue(NULL), refCount(1)    {
-            assert(dir != NULL);
-            logdir = dir;
-        }
-
-        void _writefile(const char *text)   {
-            char *filename = log_getname();
-            FILE *f = fopen(filename, "a");
-            free(filename);
-
-            if(f == NULL)   {
-                printf("cannot write log in local file\n");
-                return;
-            }
-            fwrite(text, sizeof(char), strlen(text), f);
-            fclose(f);
-        }
-
-        void _start()   {
-        }
-        void _stop() {
-        }
-
-    public:
-        unsigned refCount;
-
-        static QuabLog* create(const char *dir) {
-            QuabLog *log = NULL;
-            if(_logger_map.count(dir) > 0)  {
-                log = _logger_map[dir];
-                log->refCount += 1;
-                return log;
-            }
-            else  {
-                log = new QuabLog(dir);
-                _logger_map[dir] = log;
-                return log;
-            }
-        }
-
-        void message(const char *msg)   {
-            lq_add(_logqueue, COLOR_BLUE, "[MESSAGE] ", msg, false);
-        }
-
-        void log(const char *msg)   {
-            lq_add(_logqueue, COLOR_GREEN, "[LOG]     ", msg);
-        }
-
-        void debug(const char *msg) {
-            lq_add(_logqueue, COLOR_YELLOW, "[DEBUG]   ",msg);
-        }
-
-        void error(const char *msg) {
-            lq_add(_logqueue, COLOR_RED, "[ERROR]   ", msg);
-        }
-    };
+static char * 
+_getLogpath()	{
+	char *filename = log_getname();
+	int logLen = strlen(QUAB_DEFAULT_LOG_DIR) + strlen(filename) + 1;
+	char *logpath = (char*)malloc(logLen);
+	memset(logpath, 0, logLen);
+	strcpy(logpath, QUAB_DEFAULT_LOG_DIR);
+	strcat(logpath, filename);
+	free(filename);
+	return logpath;
 }
 
-/*    the implementions of QuabDebug    */
-QuabDebug::QuabDebug(const char *dir)   {
-    assert(dir);
-    this->logger = QuabLog::create(dir);
-    this->_logdir = dir;
+static void 
+_writeFile(char **filepath, const char *prefix, const char *msg)	{
+	char *path = NULL;	
+	FILE *f = NULL;
+	int outputLength = 0;
+	char *outputString = NULL;
+	char *timeStr = time_string();
+	
+	assert(filepath != NULL && *filepath != NULL);
+	
+	path = *filepath;
+	f = fopen(path, "a");
+	if(f != NULL)		{		
+		outputLength = strlen(prefix)+strlen(msg)+ 24; // '\n' + '\0' + 'yyyy-MM-dd HH:mm:ss' + ' | '
+		outputString = (char*)malloc(outputLength);
+		memset(outputString, 0, outputLength);
+		strcpy(outputString, timeStr);
+		strcat(outputString, " | ");
+		strcat(outputString, prefix);
+		strcat(outputString, msg);
+		
+		fwrite(outputString, outputLength, 1, f);
+		free(outputString);
+	}
+	
+	free(timeStr);
+	free(path);
+	*filepath = NULL;
 }
 
-QuabDebug::~QuabDebug() {
-    if(this->logger != NULL && logger->refCount == 1)   {
-        delete logger;
-        logger = NULL;
-        _logger_map.erase(this->_logdir);
-    }
+#ifdef __cplusplus
+}
+#endif
+
+/*    QuabLog implements    */
+
+void QuabLog::Log(const char *msg)	{
+	char *logPath = _getLogpath();
+	// print in console;
+	_writeConsole(COLOR_BLUE, "[LOG]     ", msg);
+	
+	// write file
+	_writeFile(&logPath, "[LOG]     ", msg);
 }
 
-void QuabDebug::message(const char *msg)  {
-    this->logger->message(msg);
+void QuabLog::Error(const char *msg)	{
+	char *logPath = _getLogpath();
+	// print in console;
+	_writeConsole(COLOR_RED, "[ERROR]   ", msg);
+	
+	// write file
+	_writeFile(&logPath, "[ERROR]   ", msg);
 }
-void QuabDebug::log(const char *msg)  {
-    this->logger->log(msg);
-}
-void QuabDebug::debug(void *obj)  {
-}
-void QuabDebug::error(const char *msg)  {
-    this->logger->error(msg);
+
+void QuabHello::Hello(const char *hello)	{
+	std::cout<<"Hello world!"<<std::ends<<hello<<std::endl;
 }
