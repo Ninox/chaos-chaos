@@ -11,14 +11,7 @@ namespace Quab
 	public:		
 		static void Log(const char *msg);		
 		static void Error(const char *msg);
-	};
-	
-	class QUAB_API QuabHello
-	{
-	public:
-		static void Hello(const char *hello);
-	};
-	
+	};	
 }
 
 #endif // QuabLog.h

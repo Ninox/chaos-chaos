@@ -1,5 +1,4 @@
 #include "debug/QuabLog.h"
-#include <iostream>
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
@@ -7,6 +6,10 @@
 
 #ifdef QUAB_OS_WIN32
 #include <windows.h>
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
 using namespace Quab;
 
@@ -75,7 +78,23 @@ _writeConsole(int color, const char *prefix, const char *text){}
 
 static char *
 time_string()	{
-	return NULL;
+	char *timestr = (char*)malloc(20);
+	struct tm *timeinfo = NULL;
+	time_t rawtime;	
+	memset(timestr, 0, 20);
+	
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+	
+	sprintf(
+		timestr, 
+		"%04d-%02d-%02d %02d:%02d:%02d",
+		timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
+		timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec
+	);
+	
+	free(timeinfo);
+	return timestr;
 }
 
 static char *
@@ -88,34 +107,30 @@ date_string()   {
 	
 	timeString = (char*)malloc(11);
 	memset(timeString, 0, 11);
-	sprintf(timeString, "%4d-%02d-%02d", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday);
+	sprintf(timeString, "%04d-%02d-%02d", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday);
 	free(timeinfo);	// can free?	
 	return timeString;
 }
 
 static char *
-log_getname()   {
+_getLogpath()   {
     char * dateString = date_string();
     int bufferLen = strlen(QUAB_DEFAULT_LOG_DIR) + 15;
     char *filename = (char*)malloc(bufferLen);
+
+	// created directory
+#ifdef QUAB_OS_WIN32
+	_mkdir(QUAB_DEFAULT_LOG_DIR);
+#else
+	mkdir(QUAB_DEFAULT_LOG_DIR, S_IRWXU);
+#endif	
+	
     memset(filename, 0, bufferLen);
     strcpy(filename, QUAB_DEFAULT_LOG_DIR);
     strcat(filename, dateString);
     strcat(filename, ".txt");
     free(dateString);
 	return filename;
-}
-
-static char * 
-_getLogpath()	{
-	char *filename = log_getname();
-	int logLen = strlen(QUAB_DEFAULT_LOG_DIR) + strlen(filename) + 1;
-	char *logpath = (char*)malloc(logLen);
-	memset(logpath, 0, logLen);
-	strcpy(logpath, QUAB_DEFAULT_LOG_DIR);
-	strcat(logpath, filename);
-	free(filename);
-	return logpath;
 }
 
 static void 
@@ -130,7 +145,7 @@ _writeFile(char **filepath, const char *prefix, const char *msg)	{
 	
 	path = *filepath;
 	f = fopen(path, "a");
-	if(f != NULL)		{		
+	if(f != NULL)		{
 		outputLength = strlen(prefix)+strlen(msg)+ 24; // '\n' + '\0' + 'yyyy-MM-dd HH:mm:ss' + ' | '
 		outputString = (char*)malloc(outputLength);
 		memset(outputString, 0, outputLength);
@@ -139,11 +154,12 @@ _writeFile(char **filepath, const char *prefix, const char *msg)	{
 		strcat(outputString, prefix);
 		strcat(outputString, msg);
 		
-		fwrite(outputString, outputLength, 1, f);
+		fprintf(f, "%s\n", outputString);
+		free(timeStr);
 		free(outputString);
+		fclose(f);
 	}
 	
-	free(timeStr);
 	free(path);
 	*filepath = NULL;
 }
@@ -170,8 +186,4 @@ void QuabLog::Error(const char *msg)	{
 	
 	// write file
 	_writeFile(&logPath, "[ERROR]   ", msg);
-}
-
-void QuabHello::Hello(const char *hello)	{
-	std::cout<<"Hello world!"<<std::ends<<hello<<std::endl;
 }
