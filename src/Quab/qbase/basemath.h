@@ -62,6 +62,23 @@ int qbase_math_equalM(const qbase_matrix2* m1, const qbase_matrix2* m2);
 
 /*	vector	*/
 
+/** \brief get a copy vector
+ *
+ * \param the vector, const qbase_vector*
+ * \return a copy of vector
+ *
+ */
+qbase_vector qbase_vector_copy(const qbase_vector *v);
+
+/** \brief vector's "+=" operation
+ *
+ * \param vector_1 qbase_vector*
+ * \param vector_2 const qbase_vector*
+ * \return just modified the vector, no return
+ *
+ */
+void qbase_vector_selfplus(qbase_vector* v1, const qbase_vector* v2);
+
 /** \brief vector's "+" operation
  *
  * \param vector_1 const qbase_vector*
@@ -164,6 +181,23 @@ int qbase_matrix_zero(qbase_matrix2* m, int standard);
  */
 int qbase_matrix_init(qbase_matrix2* m, int standard, Real m00, Real m01, Real m10, Real m11);
 
+/** \brief copy a matrix
+ *
+ * \param source matrix, const qbase_matrix2*
+ * \return return a copy
+ *
+ */
+qbase_matrix2 qbase_matrix_copy(const qbase_matrix2 *mtx);
+
+/** \brief the additive of matrix, it means "m1+=m2"
+ *
+ * \param m1 qbase_matrix2*
+ * \param m2 const qbase_matrix2*
+ * \return no return
+ *
+ */
+void qbase_matrix_selfplus(qbase_matrix2 *m1, const qbase_matrix2 *m2);
+
 /** \brief the additive of matrix
  *
  * \param m1 const qbase_matrix2*
@@ -219,6 +253,15 @@ Real qbase_matrix_det(const qbase_matrix2* mtx);
 void qbase_matrix_extend(qbase_matrix2* mtx, Real k);
 
 
+/** \brief get the result of matrix multiplication, equal to "mtx1*=mtx2"
+ *
+ * \param mtx1 qbase_matrix2*
+ * \param mtx2 const qbase_matrix2*
+ * \return no return, but modified the mtx1
+ *
+ */
+void qbase_matrix_selfmul(qbase_matrix2* mtx1, const qbase_matrix2* mtx2);
+
 /** \brief get the result of matrix multiplication
  *
  * \param mtx1 const qbase_matrix2*
@@ -228,6 +271,14 @@ void qbase_matrix_extend(qbase_matrix2* mtx, Real k);
  */
 qbase_matrix2 qbase_matrix_mul(const qbase_matrix2* mtx1, const qbase_matrix2* mtx2);
 
+/** \brief product of matrix and vector, equal to "v *= m"
+ *
+ * \param vec qbase_vector*
+ * \param mtx const qbase_matrix2*
+ * \return modified the vector, no returns
+ *
+ */
+qbase_vector qbase_matrix_selfvmul(qbase_vector* vec, const qbase_matrix2* mtx);
 
 /** \brief product of matrix and vector
  *

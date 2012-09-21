@@ -12,6 +12,19 @@
 	(B) = (A) - (B);	\
 	(A) -= (B)
 
+	
+/*     helper static functions     */
+static void mtx_adjoint(const qbase_matrix2 *m)	{
+	//   2x2 matrix 	-->		adjoint matrix(Aij=Mji)
+	//    a		b				 d		-b
+	//	  c		d				-c		 a
+	if(m == NULL)
+		return;
+	SWAP_AB(m->m[0][0], m->[1][1]);
+	SWAP_AB(m->m[0][1], m->[1][0]);
+	m->[0][1] *= -1;
+	m->[1][0] *= -1;
+}
 
 /*******************	implement	*********************/
 
@@ -51,11 +64,22 @@ int qbase_math_equalM(const qbase_matrix2* m1, const qbase_matrix2* m2)	{
 }
 
 /*	vector functions	*/
+qbase_vector qbase_vector_copy(const qbase_vector *v)	{
+	qbase_vector vec;	
+	vec.posX = v->posX;
+	vec.posY = v->posY;
+	vec.standard = v->standard;
+	return vec;
+}
+
+void qbase_vector_selfplus(qbase_vector* v1, const qbase_vector* v2)	{
+	v1->posX += v2->posX;
+	v1->posY += v2->posY;
+}
 
 qbase_vector qbase_vector_plus(const qbase_vector* v1, const qbase_vector* v2)	{
-	qbase_vector v;
-	v.posX = v1->posX+v2->posX;
-	v.posY = v1->posY+v2->posY;
+	qbase_vector v = qbase_vector_copy(v1);
+	qbase_vector_selfplus(&v, v2)
 	return v;
 }
 Real qbase_vector_dot(const qbase_vector* v1, const qbase_vector* v2)	{
@@ -105,29 +129,39 @@ int qbase_matrix_init(qbase_matrix2* mtrx, int standard, Real m00, Real m01, Rea
 	mtrx->m[1][1] = m11;
 	return 1;
 }
-qbase_matrix2 qbase_matrix_plus(const qbase_matrix2 *m1, const qbase_matrix2 *m2)	{
+
+qbase_matrix2 qbase_matrix_copy(const qbase_matrix2 *mtx)	{
 	qbase_matrix2 m;
-	qbase_matrix_init(&m, ROW_BASE,
-		m1->m[0][0]+m2->m[0][0],m1->m[0][1]+m2->m[0][1],
-		m1->m[1][0]+m2->m[1][0],m1->m[1][1]+m2->m[1][1]
-	);
+	qbase_matrix_init(&m, ROW_BASE, mtx->m[0][0], mtx->m[0][1], mtx->m[1][0], mtx->m[1][1]);
+	return m;
+}
+
+void qbase_matrix_selfplus(qbase_matrix2 *m1, const qbase_matrix2 *m2)	{
+	if(m1 == NULL || m2 == NULL)
+		return;
+	m1->m[0][0] += m2->m[0][0];
+	m1->m[0][1] += m2->m[0][1];
+	m1->m[1][0] += m2->m[1][0];
+	m1->m[1][1] += m2->m[1][1];
+}
+
+qbase_matrix2 qbase_matrix_plus(const qbase_matrix2 *m1, const qbase_matrix2 *m2)	{
+	qbase_matrix2 m = qbase_matrix_copy(m1);
+	qbase_matrix_selfplus(&m, m2);
 	return m;
 }
 void qbase_matrix_trans(qbase_matrix2* mtx)	{
 	SWAP_AB(mtx->m[0][1], mtx->m[1][0]);
 }
 qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx)	{
-	qbase_matrix2 m;
-	//   2x2 matrix 	-->		adjoint matrix(Aij=Mji)
-	//    a		b				 d		-b
-	//	  c		d				-c		 a
-	qbase_matrix_init(&m, ROW_BASE, mtx->m[1][1], -mtx->m[0][1], -mtx->m[1][0], mtx->m[0][0]);
+	qbase_matrix2 m = qbase_matrix_copy(mtx);
+	mtx_adjoint(m);
 	return m;
 }
 void qbase_matrix_inverse(qbase_matrix2* mtx)	{
 	// this function is need to optimize
-	qbase_matrix2 m = qbase_matrix_adjoint(mtx);
 	Real det = qbase_matrix_det(mtx);
+	mtx_adjoint(mtx);
 	mtx->m[0][0] = m.m[0][0];
 	mtx->m[0][1] = m.m[0][1];
 	mtx->m[1][0] = m.m[1][0];
@@ -143,30 +177,42 @@ void qbase_matrix_extend(qbase_matrix2* mtx, Real k)	{
 	mtx->m[1][0] *= k;
 	mtx->m[1][1] *= k;
 }
-qbase_matrix2 qbase_matrix_mul(const qbase_matrix2* mtx1, const qbase_matrix2* mtx2)	{
+
+void qbase_matrix_selfmul(qbase_matrix2* mtx1, const qbase_matrix2* mtx2)	{
+	if(mtx1 == NULL || mtx2 == NULL)
+		return;
+		
 	// need to optimize at next version
 	// the multiplication of 2x2 matrix:
 	// | a1		b1 |	*	| a2	b2 | =	| a1[a2 b2] + b1[c2 d2] |
 	// | c1		d1 |	 	| c2	d2 |	| c1[a2 b2] + d1[c2 d2] |
-	qbase_matrix2 m;
-	qbase_matrix_init(&m, ROW_BASE,
-		mtx1->m[0][0]*mtx2->m[0][0]+mtx1->m[0][1]*mtx2->m[1][0], mtx1->m[0][0]*mtx2->m[0][1]+mtx1->m[0][1]*mtx2->m[1][1],
-		mtx1->m[1][0]*mtx2->m[0][0]+mtx1->m[1][1]*mtx2->m[1][0], mtx1->m[1][0]*mtx2->m[0][1]+mtx1->m[1][1]*mtx2->m[1][1]
-	);
+	mtx1->m[0][0] = mtx1->m[0][0]*mtx2->m[0][0]+mtx1->m[0][1]*mtx2->m[1][0];
+	mtx1->m[0][1] = mtx1->m[0][0]*mtx2->m[0][1]+mtx1->m[0][1]*mtx2->m[1][1];
+	mtx1->m[1][0] = mtx1->m[1][0]*mtx2->m[0][0]+mtx1->m[1][1]*mtx2->m[1][0];
+	mtx1->m[1][1] = mtx1->m[1][0]*mtx2->m[0][1]+mtx1->m[1][1]*mtx2->m[1][1];
+}
+
+qbase_matrix2 qbase_matrix_mul(const qbase_matrix2* mtx1, const qbase_matrix2* mtx2)	{	
+	qbase_matrix2 m = qbase_matrix_copy(mtx1);
+	qbase_matrix_selfmul(&m, mtx2);
 	return m;
 }
-qbase_vector qbase_matrix_vmul(const qbase_vector* vec, const qbase_matrix2* mtx)	{
-	qbase_vector v;
-	v.standard = vec->standard;
+
+qbase_vector qbase_matrix_selfvmul(qbase_vector* vec, const qbase_matrix2* mtx)	{
 	if(vec->standard == 0)
 	{
-		v.posX = vec->posX*mtx->m[0][0] + vec->posY*mtx->m[1][0];
-		v.posY = vec->posX*mtx->m[0][1] + vec->posY*mtx->m[1][1];
+		vec->posX = vec->posX*mtx->m[0][0] + vec->posY*mtx->m[1][0];
+		vec->posY = vec->posX*mtx->m[0][1] + vec->posY*mtx->m[1][1];
 	}
 	else
 	{
-		v.posX = vec->posX*mtx->m[0][0] + vec->posY*mtx->m[0][1];
-		v.posY = vec->posX*mtx->m[1][0] + vec->posY*mtx->m[1][1];
+		vec->posX = vec->posX*mtx->m[0][0] + vec->posY*mtx->m[0][1];
+		vec->posY = vec->posX*mtx->m[1][0] + vec->posY*mtx->m[1][1];
 	}
+}
+
+qbase_vector qbase_matrix_vmul(const qbase_vector* vec, const qbase_matrix2* mtx)	{
+	qbase_vector v = qbase_vector_copy(vec);
+	qbase_matrix_selfvmul(&v, mtx);
 	return v;
 }
