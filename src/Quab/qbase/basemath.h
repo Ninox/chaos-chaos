@@ -231,7 +231,7 @@ qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx);
  * \return void
  *
  */
-void qbase_matrix_inverse(qbase_matrix2* mtx);
+int qbase_matrix_inverse(qbase_matrix2* mtx);
 
 
 /** \brief calculate the determinants of the matrix
