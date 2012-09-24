@@ -158,11 +158,17 @@ qbase_matrix2 qbase_matrix_adjoint(const qbase_matrix2* mtx)	{
 	mtx_adjoint(&m);
 	return m;
 }
-void qbase_matrix_inverse(qbase_matrix2* mtx)	{
-	// this function is need to optimize
+int qbase_matrix_inverse(qbase_matrix2* mtx)	{
+	/* this function is need to optimize */
+	
+	/* if the matrix is 'singular matrix', nothing will happen */
 	Real det = qbase_matrix_det(mtx);
+	if(det == 0)
+		return 0;
+
 	mtx_adjoint(mtx);
 	qbase_matrix_extend(mtx, fabs(1.0f/det));
+	return 1;
 }
 Real qbase_matrix_det(const qbase_matrix2* mtx)	{
 	return mtx->m[0][0]*mtx->m[1][1]-mtx->m[0][1]*mtx->m[1][0];
