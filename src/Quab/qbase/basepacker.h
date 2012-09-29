@@ -26,6 +26,7 @@ typedef struct qbase_resinfo{
 	const char *filename;
 	ushort hashid;
 	size_t sz;
+	size_t osz;
 } qbase_resinfo;
 
 typedef struct qbase_pdata	{

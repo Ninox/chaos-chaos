@@ -441,6 +441,7 @@ qbase_packer_show(qbase_pck *pck, int resid, int *cnt)	{
     while(bck != NULL)  {
         info[i].filename = bck->current->fname;
 		info[i].sz = bck->current->data.sz;
+		info[i].osz = bck->current->old_sz;
 		info[i].hashid = bck->current->hash_id;
         i++;
         bck = bck->next;
