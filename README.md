@@ -1,3 +1,7 @@
+# Notice
+
+代码已经放在develop分支，master分支暂时只放有qbase部分的代码，版本放出后才更新master
+
 # About chaos-chaos #
 
 chaos-chaos 是一个基于Quab引擎所制作的开源弹幕射击游戏
