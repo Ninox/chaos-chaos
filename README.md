@@ -1,8 +1,12 @@
-# About chaos-chaos #
+# Notice
+
+以后个人更新的代码将提交到这个分支里面
+
+# About chaos-chaos 
 
 chaos-chaos 是一个基于Quab引擎所制作的开源弹幕射击游戏
 
-# What is Quab #
+# What is Quab
 
 Quab是为chaos-chaos而设计的一款弹幕游戏引擎。他具有如下的特点:
 
@@ -10,11 +14,11 @@ Quab是为chaos-chaos而设计的一款弹幕游戏引擎。他具有如下的�
   + 支持多个平台，目前阶段兼容windows和Linux，日后往更多平台支持！
   + 具有良好的编辑工具，方便修改和拓展游戏
 
-# License #
+# License
 
 协议什么的都是浮云，硬是要说的话就来个apache License吧
 
-# How To Build #
+# How To Build
 
 整个项目推荐用CMake进行构建，尚在开发中，所引用的开发库暂时不能列出，目前主要使用到下面的库：
 
@@ -22,7 +26,7 @@ Quab是为chaos-chaos而设计的一款弹幕游戏引擎。他具有如下的�
 + zlib 1.2.7
 
 
-# Contact #
+# Contact
     yogichung.dcode＃gmail.com
     
     ＃替换成@什么的，我就不说啦……
