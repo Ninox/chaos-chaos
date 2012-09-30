@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef	QBASE_OS_LINUX
+#ifdef	QUAB_OS_LINUX
 #include <dlfcn.h>
 #else
 #include <windows.h>
@@ -14,7 +14,7 @@
 #define QBASE_PLUGINCONFIG "pluginlist.cf"
 
 typedef struct qbase_plugin	{
-	#ifdef QBASE_OS_LINUX
+	#ifdef QUAB_OS_LINUX
 	void	*handle;
 	#else
 	HMODULE	 handle;
@@ -86,7 +86,7 @@ list_getconfig(const char *key)	{
 static void
 list_freenode(qbase_plugin_list* node)	{
 	// 1. free the dynamic library
-	#ifdef QBASE_OS_LINUX
+	#ifdef QUAB_OS_LINUX
 	dlclose(node->data.handle);
 	#else
 	FreeLibrary(node->data.handle);
@@ -115,7 +115,7 @@ qbase_loader_init(const char *name)	{
 		}
 	}
 	path = list_getconfig(name);
-	#ifdef QBASE_OS_LINUX
+	#ifdef QUAB_OS_LINUX
 	node->data.handle = dlopen(path, RTLD_LAZY);
 	#else
 	node->data.handle = LoadLibrary(path);
@@ -161,7 +161,7 @@ qbase_loader_getf(const char *name, const char *fname)	{
 	else	{
 		if(node->data.handle == NULL)
 			return NULL;
-		#ifdef QBASE_OS_LINUX
+		#ifdef QUAB_OS_LINUX
 		return dlsym(node->data.handle, fname);
 		#else
 		return GetProcAddress(node->data.handle, fname);
