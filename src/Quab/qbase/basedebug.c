@@ -150,7 +150,7 @@ debug_writemsg(const char * status, const char *obj, const char *msg)	{
 /*		implementation of the header file's functions		*/
 void
 qbase_debug(const char *obj, const char *msg)	{
-#ifdef QBASE_DEBUG
+#ifdef QUAB_STATUS_DEBUG
 	debug_writemsg("DEBUG", obj, msg);
 #endif
 }
