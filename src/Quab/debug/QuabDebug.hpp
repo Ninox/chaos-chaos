@@ -9,7 +9,6 @@
 	Quab::QuabDebug::debugCharString(mname, __FILE__, __LINE__, #s, s)
 
 #include <iostream>
-#include <string>
 #include <stdio.h>
 
 #ifdef QUAB_OS_WIN32

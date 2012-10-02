@@ -79,6 +79,12 @@ Real QuabVector2D::operator *(const QuabVector2D &v)	{
 	return qbase_vector_dot(this->_vec, v._vec);
 }
 
+QuabVector2D& QuabVector2D::operator =(const QuabVector2D &v)	{
+	if(this->_vec != NULL)
+		free(this->_vec);
+	return  const_cast<QuabVector2D&>(v);
+}
+
 /*  implemention of QuabMatrix2D */
 QuabMatrix2D::QuabMatrix2D(const qbase_matrix2 *mtx)	{
 	this->m = (qbase_matrix2*)malloc(sizeof(qbase_matrix2));
@@ -100,7 +106,7 @@ inline Real QuabMatrix2D::get(int row, int col) const	{
 	assert(row <= 3 && row >= 0 && col >= 0 && col <=3);
 	return this->m->m[row][col];
 }
-void QuabMatrix2D::setZero()	{
+inline void QuabMatrix2D::setZero()	{
 	qbase_matrix_zero(this->m, V_ROW);
 }
 void QuabMatrix2D::init(Real m00, Real m01, Real m10, Real m11)	{
@@ -135,4 +141,10 @@ QuabMatrix2D QuabMatrix2D::operator +(const QuabMatrix2D &matrix)	{
 QuabMatrix2D QuabMatrix2D::operator *(const QuabMatrix2D &matrix)	{
 	qbase_matrix2 mtx = qbase_matrix_mul(this->m, matrix.m);
 	return QuabMatrix2D(mtx.m[0][0], mtx.m[0][1], mtx.m[1][0], mtx.m[1][1]);
+}
+QuabMatrix2D& QuabMatrix2D::operator=(const QuabMatrix2D& matrix)	{
+	if(this->m != NULL)	{
+		free(this->m);
+	}
+	return const_cast<QuabMatrix2D&>(matrix);
 }

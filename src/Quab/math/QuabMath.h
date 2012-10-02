@@ -43,9 +43,9 @@ namespace Quab
 		~QuabVector2D();
         void extend(Real k);
 
-		inline void set(Real x, Real y);
-		inline Real getX();
-		inline Real getY();
+		void set(Real x, Real y);
+		Real getX();
+		Real getY();
         Real sin(const QuabVector2D &v) const;
         Real cos(const QuabVector2D &v) const;
         bool isParallel(const QuabVector2D &v) const;
@@ -54,6 +54,7 @@ namespace Quab
 		
 		QuabVector2D operator +(const QuabVector2D &v);
 		Real operator*(const QuabVector2D &v);
+		QuabVector2D& operator =(const QuabVector2D &v);
 		
 		friend class QuabMath;
 		friend class QuabMatrix2D;
@@ -71,10 +72,10 @@ namespace Quab
         QuabMatrix2D(Real m00 = 0, Real m01 = 0, Real m10 = 0, Real m11 = 0);
 		~QuabMatrix2D();
 		
-        inline void setZero();
-        inline void init(Real m00, Real m01, Real m10, Real m11);
-		inline Real get(int row, int col) const;
-		inline void set(int row, int col, Real val);
+        void setZero();
+        void init(Real m00, Real m01, Real m10, Real m11);
+		Real get(int row, int col) const;
+		void set(int row, int col, Real val);
 		
         void transpose();
         QuabMatrix2D adjoint() const;
@@ -85,6 +86,7 @@ namespace Quab
 
         QuabMatrix2D operator+ (const QuabMatrix2D &matrix);
         QuabMatrix2D operator* (const QuabMatrix2D &matrix);
+		QuabMatrix2D& operator =(const QuabMatrix2D &matrix);
 		
 		friend class QuabMath;
     };
