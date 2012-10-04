@@ -2,11 +2,21 @@
 #define QUAB_RESOURCE_H
 
 #include "../QuabDef.h"
+#include <boost/shared_array.hpp>
 
 struct qbase_pck;
 
 namespace Quab
 {
+	enum ResourceType	{
+		RESTYPE_TOTAL_COUNT =5,
+		RESTYPE_ROOT		=0,
+		RESTYPE_IMG			=1,
+		RESTYPE_MODEL	    =2,
+		RESTYPE_SCRIPT	    =3,
+		RESTYPE_DATA		=4
+	};
+	
 	struct QuabFileList
 	{		
 		unsigned hashid;
@@ -21,7 +31,8 @@ namespace Quab
 	{
 	private:
 		// use smart pointer?
-		char * _buffer;
+//		char * _buffer;
+		boost::shared_array<char> _buffer;
 		unsigned int sz;
 		char *_name;
 	public:
