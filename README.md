@@ -24,6 +24,8 @@ Quab是为chaos-chaos而设计的一款弹幕游戏引擎。他具有如下的�
 
 + lua 5.2
 + zlib 1.2.7
++ boost 1.49
++ openAL
 
 
 # Contact
