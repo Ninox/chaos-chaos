@@ -69,6 +69,7 @@ bool QuabStream::read(const char *path)	{
 	fseek(f, 0, SEEK_SET);
 	newBuffer = (char*)malloc(size);
 	fread(newBuffer, sizeof(char), size, f);
+	fclose(f);
 	this->_buffer.reset(newBuffer);
 	this->sz = size;
 	return true;
@@ -117,6 +118,7 @@ QuabResource* QuabResource::create(const char *path)	{
 	if(f == NULL)
 		pck = qbase_packer_create(path);
 	else	{
+		fclose(f);
 		pck = qbase_packer_load(path);
 	}
 	if(pck == NULL)
