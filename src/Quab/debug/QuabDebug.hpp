@@ -40,9 +40,9 @@ namespace Quab
 		                            int line, const char *vname)	{
 			std::cout<<"  File Name : "<<filename<<std::endl
 			         <<"Module Name : "<<moduleName<<std::endl
-					 <<"       line : "<<line<<std::endl
-					 <<"    variable: "<<vname<<std::endl
-					 <<"       value: ";
+				 <<"       line : "<<line<<std::endl
+				 <<"    variable: "<<vname<<std::endl
+				 <<"       value: ";
 		}
 	public:
 		template<class T>
