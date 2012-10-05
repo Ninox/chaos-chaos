@@ -278,7 +278,7 @@ qbase_matrix2 qbase_matrix_mul(const qbase_matrix2* mtx1, const qbase_matrix2* m
  * \return modified the vector, no returns
  *
  */
-qbase_vector qbase_matrix_selfvmul(qbase_vector* vec, const qbase_matrix2* mtx);
+void qbase_matrix_selfvmul(qbase_vector* vec, const qbase_matrix2* mtx);
 
 /** \brief product of matrix and vector
  *

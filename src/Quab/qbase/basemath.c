@@ -93,7 +93,7 @@ Real qbase_vector_sin(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	if(vec1==NULL || vec2==NULL)
 		return -2;
 	cval = qbase_vector_cos(vec1,vec2);
-	return sqrt(1-cval*cval);
+	return (Real)sqrt(1-cval*cval);
 }
 int qbase_vector_isparallel(const qbase_vector* vec1, const qbase_vector* vec2)	{
 	if(vec1==NULL || vec2==NULL)
@@ -108,7 +108,7 @@ int qbase_vector_isvertical(const qbase_vector* vec1, const qbase_vector* vec2)	
 Real qbase_vector_length(const qbase_vector* vec)	{
 	if(vec==NULL)
 		return 0;
-	return sqrt(vec->posX*vec->posX+vec->posY*vec->posY);
+	return (Real)sqrt(vec->posX*vec->posX+vec->posY*vec->posY);
 }
 int qbase_vector_mul(qbase_vector* v, Real k)	{
 	if(v==NULL) return 0;
@@ -200,7 +200,7 @@ qbase_matrix2 qbase_matrix_mul(const qbase_matrix2* mtx1, const qbase_matrix2* m
 	return m;
 }
 
-qbase_vector qbase_matrix_selfvmul(qbase_vector* vec, const qbase_matrix2* mtx)	{
+void qbase_matrix_selfvmul(qbase_vector* vec, const qbase_matrix2* mtx)	{
 	if(vec->standard == 0)
 	{
 		vec->posX = vec->posX*mtx->m[0][0] + vec->posY*mtx->m[1][0];

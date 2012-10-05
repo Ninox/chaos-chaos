@@ -63,7 +63,7 @@ bool QuabVector2D::isParallel(const QuabVector2D &v) const	{
 	return qbase_vector_isparallel(this->_vec, v._vec) == 1;
 }
 bool QuabVector2D::isVertical(const QuabVector2D &v) const	{
-	return qbase_vector_isvertical(this->_vec, v._vec);
+	return qbase_vector_isvertical(this->_vec, v._vec) == 1;
 }
 Real QuabVector2D::length() const	{
 	return qbase_vector_length(this->_vec);
