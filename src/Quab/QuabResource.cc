@@ -97,19 +97,19 @@ bool QuabResource::destoryList(QuabFileList *qList)	{
 	return true;
 }
 
-int QuabResource::pack(int resid, const QuabStream &qs)	{
+int QuabResource::pack(int resid, const char *packName, const QuabStream &qs)	{
 	qbase_pdata data;
 	data.pdata = (uchar*)const_cast<char*>(qs.getStream());
 	data.sz = qs.getSize();	
-	return qbase_packer_add(this->_pck, resid, qs.getName(), &data);
+	return qbase_packer_add(this->_pck, resid, packName, &data);
 }
-int QuabResource::pack(int resid, const char *filename)	{
+int QuabResource::pack(int resid, const char *packName, const char *filename)	{
 	FILE *f = fopen(filename, "rb");	
 	if(f == NULL)
 		return 0;
 	else fclose(f);
 	QuabStream qs(filename);
-	return this->pack(resid, qs);
+	return this->pack(resid, packName, qs);
 }
 const QuabStream* QuabResource::unpack(int resid, const char *name)	{
 	QuabStream *qs = NULL;

@@ -6,91 +6,86 @@
 using namespace Quab;
 
 /*    class QuabStream's implementation    */
-QuabStream::~QuabStream()	{
-	this->_buffer.~shared_array();
+QuabStream::QuabStream():_sz(0)	{
+	this->_buffer.reset(NULL);	
 }
-QuabStream::QuabStream()	{
-	this->_buffer.reset(NULL);
-	this->sz = 0;
-}
+
 QuabStream::QuabStream(const char *buffer, unsigned len)	{
-	char *newBuffer = (char*)malloc(len);
-	memcpy(newBuffer, buffer, len);
-	this->_buffer.reset(newBuffer);
-	this->_sz = len;
+	this->read(buffer, len);
 }
+
 QuabStream::QuabStream(const char *path)	{
-	FILE *f = fopen(path, "rb");
-	char *buffer = NULL;
-	assert(f != NULL);
-	fseek(f, 0, SEEK_END);
-	this->sz = ftell(f);
-	fseek(f, 0, SEEK_SET);	
-	buffer = (char*)malloc(this->sz);
-	fread(buffer, 1, this->sz, f);
-	this->_buffer.reset(buffer);
-	fclose(f);
+	this->read(path);
+}
+
+QuabStream::~QuabStream()
+{
+	this->_buffer.~shared_array();
 }
 
 bool QuabStream::write(const char *path) const	{
 	FILE *f = fopen(path, "wb");
-	char *buffer = NULL;
-	if(f == NULL)
+	if(f != NULL)	{
+		const char *buff = this->_buffer.get();
+		if(buff == NULL)	{
+			fclose(f);
+			return false;
+		}
+		fwrite(buff, this->_sz, 1, f);
+		fclose(f);
+		return true;
+	} else {
 		return false;
-	buffer = this->_buffer.get();
-	fwrite(buffer, 1, this->sz, f);
-	fclose(f);
-	return true;
+	}
 }
 
 bool QuabStream::write(char **buffer, unsigned len) const	{
-	char *sbuffer = NULL;
-	if(buffer == NULL || this->sz < len)
+	if(buffer == NULL)
 		return false;
-	if(*buffer != NULL)	{
+	if(*buffer != NULL)
 		free(*buffer);
-	}
-	*buffer = (char*)malloc(len);
-	sbuffer = this->_buffer.get();
-	memcpy(*buffer, sbuffer, len);
+	*buffer = (char *)malloc(len);
+	const char *streamBuffer = this->_buffer.get();
+	memcpy(*buffer, streamBuffer, len);
 	return true;
 }
 
 QuabStream QuabStream::copy() const	{
-	QuabStream newStream;
-	newStream.sz = this->sz;
-	newStream._buffer = this->_buffer;
-	return newStream;
+	QuabStream qs;
+	qs._buffer = this->_buffer;
+	qs._sz = this->_sz;
+	return qs;
 }
 
 bool QuabStream::read(const char *path)	{
-	char *newBuffer = NULL;
 	FILE *f = fopen(path, "rb");
-	unsigned size = 0;
-	if(f == NULL)
-		return false;
-	fseek(f, 0, SEEK_END);
-	size = ftell(f);
-	fseek(f, 0, SEEK_SET);
-	newBuffer = (char*)malloc(size);
-	fread(newBuffer, sizeof(char), size, f);
-	fclose(f);
-	this->_buffer.reset(newBuffer);
-	this->sz = size;
-	return true;
+	if(f == NULL)	{
+		this->_buffer.reset(NULL);
+		this->_sz = 0;
+		return true;
+	} else	{
+		unsigned len = 0;
+		fseek(f, 0, SEEK_END);
+		len = ftell(f);
+		fseek(f, 0, SEEK_SET);
+		char *buffer = (char*)malloc(len);
+		fread(buffer, len, 1, f);
+		fclose(f);
+		this->_buffer.reset(buffer);
+		this->_sz = len;
+		return true;
+	}
 }
 
 bool QuabStream::read(const char *buffer, unsigned len)	{
-	char *readBuffer = NULL;
-	if(buffer == NULL || len < 0)
-		return false;	
-	readBuffer = (char*)malloc(len);
-	memcpy(readBuffer, buffer, len);
-	this->sz = len;	
-	this->_buffer.reset(readBuffer);
+	if(buffer == NULL)	{
+		this->_buffer.reset(NULL);
+		this->_sz = 0;
+		return false;
+	}
+	char *inputBuffer = (char *)malloc(len);
+	memcpy(inputBuffer, buffer, len);
+	this->_buffer.reset(inputBuffer);
+	this->_sz = len;
 	return true;
-}
-
-const char* QuabStream::getStream() const	{
-	return this->_buffer.get();
 }

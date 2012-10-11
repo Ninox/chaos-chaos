@@ -3,7 +3,6 @@
 
 #include "../QuabDef.h"
 #include <boost/shared_array.hpp>
-
 struct qbase_pck;
 
 namespace Quab
@@ -33,18 +32,14 @@ namespace Quab
 		// use smart pointer?
 //		char * _buffer;
 		boost::shared_array<char> _buffer;
-		unsigned int sz;
-		char *_name;
+		unsigned int _sz;
 	public:
 		QuabStream();
 		QuabStream(const char *buffer, unsigned len);
 		QuabStream(const char *path);
 		~QuabStream();
 		
-//		bool isWrite;
-		
-		inline unsigned int getSize() const {return this->sz;}
-		inline const char * getName() const {return this->_name;}
+		inline unsigned int getSize() const {return this->_sz;}
 				
 		bool write(const char *path) const;
 		bool write(char **buffer, unsigned len) const;
@@ -52,7 +47,7 @@ namespace Quab
 		bool read(const char *path);
 		bool read(const char *buffer, unsigned len);
 		
-		const char* getStream() const;
+		inline const char* getStream() const { return this->_buffer.get(); }
 	};
 	
 	class QUAB_API QuabResource
@@ -73,8 +68,8 @@ namespace Quab
 		static bool destoryList(QuabFileList *qList);
 		unsigned int getSize() { return this->_size; }
 		
-		int pack(int resid, const QuabStream &qs);
-		int pack(int resid, const char *filename);
+		int pack(int resid, const char *packName, const QuabStream &qs);
+		int pack(int resid, const char *packName, const char *filename);
 		const QuabStream* unpack(int resid, const char *name);
 		void save() const;
 		
