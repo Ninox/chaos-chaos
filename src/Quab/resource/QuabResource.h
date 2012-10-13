@@ -2,7 +2,6 @@
 #define QUAB_RESOURCE_H
 
 #include "../QuabDef.h"
-#include <boost/shared_array.hpp>
 struct qbase_pck;
 
 namespace Quab
@@ -31,8 +30,9 @@ namespace Quab
 	private:
 		// use smart pointer?
 //		char * _buffer;
-		boost::shared_array<char> _buffer;
+		char *_buffer;
 		unsigned int _sz;
+		QuabStream(const QuabStream& qs){}
 	public:
 		QuabStream();
 		QuabStream(const char *buffer, unsigned len);
@@ -47,7 +47,7 @@ namespace Quab
 		bool read(const char *path);
 		bool read(const char *buffer, unsigned len);
 		
-		inline const char* getStream() const { return this->_buffer.get(); }
+		inline const char* getStream() const { return this->_buffer; }
 	};
 	
 	class QUAB_API QuabResource

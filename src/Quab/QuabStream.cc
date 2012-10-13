@@ -7,7 +7,7 @@ using namespace Quab;
 
 /*    class QuabStream's implementation    */
 QuabStream::QuabStream():_sz(0)	{
-	this->_buffer.reset(NULL);	
+	this->_buffer = NULL;	
 }
 
 QuabStream::QuabStream(const char *buffer, unsigned len)	{
@@ -20,13 +20,15 @@ QuabStream::QuabStream(const char *path)	{
 
 QuabStream::~QuabStream()
 {
-	this->_buffer.~shared_array();
+	if(this->_buffer != NULL)
+		free(this->_buffer);
+	this->_buffer = NULL;
 }
 
 bool QuabStream::write(const char *path) const	{
 	FILE *f = fopen(path, "wb");
 	if(f != NULL)	{
-		const char *buff = this->_buffer.get();
+		const char *buff = this->_buffer;
 		if(buff == NULL)	{
 			fclose(f);
 			return false;
@@ -45,14 +47,17 @@ bool QuabStream::write(char **buffer, unsigned len) const	{
 	if(*buffer != NULL)
 		free(*buffer);
 	*buffer = (char *)malloc(len);
-	const char *streamBuffer = this->_buffer.get();
+	const char *streamBuffer = this->_buffer;
 	memcpy(*buffer, streamBuffer, len);
 	return true;
 }
 
 QuabStream QuabStream::copy() const	{
 	QuabStream qs;
-	qs._buffer = this->_buffer;
+	char *srcBuff = this->_buffer;
+	char *copyBuff = (char*)malloc(this->_sz);
+	memcpy(copyBuff, srcBuff, this->_sz);
+	qs._buffer = copyBuff;
 	qs._sz = this->_sz;
 	return qs;
 }
@@ -60,7 +65,9 @@ QuabStream QuabStream::copy() const	{
 bool QuabStream::read(const char *path)	{
 	FILE *f = fopen(path, "rb");
 	if(f == NULL)	{
-		this->_buffer.reset(NULL);
+		if(this->_buffer != NULL)
+			free(this->_buffer);
+		this->_buffer = NULL;
 		this->_sz = 0;
 		return true;
 	} else	{
@@ -71,7 +78,9 @@ bool QuabStream::read(const char *path)	{
 		char *buffer = (char*)malloc(len);
 		fread(buffer, len, 1, f);
 		fclose(f);
-		this->_buffer.reset(buffer);
+		if(this->_buffer != NULL)
+			free(this->_buffer);
+		this->_buffer = buffer;
 		this->_sz = len;
 		return true;
 	}
@@ -79,13 +88,17 @@ bool QuabStream::read(const char *path)	{
 
 bool QuabStream::read(const char *buffer, unsigned len)	{
 	if(buffer == NULL)	{
-		this->_buffer.reset(NULL);
+		if(this->_buffer != NULL)
+			free(this->_buffer);
+		this->_buffer = NULL;
 		this->_sz = 0;
 		return false;
 	}
 	char *inputBuffer = (char *)malloc(len);
 	memcpy(inputBuffer, buffer, len);
-	this->_buffer.reset(inputBuffer);
+	if(this->_buffer != NULL)
+		free(this->_buffer);
+	this->_buffer = inputBuffer;
 	this->_sz = len;
 	return true;
 }
