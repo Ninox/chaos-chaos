@@ -49,6 +49,7 @@ SET(QUAB_SRC
 SET(QUAB_SRC
 		${QUAB_SRC}
 		${QUAB_ROOT}/QuabResource.cc
+        ${QUAB_ROOT}/QuabStream.cc
 		${QUAB_ROOT}/QuabSpriteFactory.cc
 )
 #	BUILD Render

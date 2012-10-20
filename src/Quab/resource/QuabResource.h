@@ -70,7 +70,7 @@ namespace Quab
 		
 		int pack(int resid, const char *packName, const QuabStream &qs);
 		int pack(int resid, const char *packName, const char *filename);
-		const QuabStream* unpack(int resid, const char *name);
+		QuabStream* unpack(int resid, const char *name);
 		void save() const;
 		
 		bool remove(int resid, const char *name);

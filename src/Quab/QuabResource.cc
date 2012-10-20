@@ -23,8 +23,10 @@ QuabResource::QuabResource(const char *package)	{
 }
 QuabResource::~QuabResource()	{
 	this->_size = 0;
-	if(this->_pck != NULL)
+	if(this->_pck != NULL)  {
 		qbase_packer_free(this->_pck);	
+        this->_pck = NULL;
+    }
 }
 
 QuabResource* QuabResource::create(const char *path)	{	
@@ -111,12 +113,14 @@ int QuabResource::pack(int resid, const char *packName, const char *filename)	{
 	QuabStream qs(filename);
 	return this->pack(resid, packName, qs);
 }
-const QuabStream* QuabResource::unpack(int resid, const char *name)	{
+QuabStream* QuabResource::unpack(int resid, const char *name)	{
 	QuabStream *qs = NULL;
 	qbase_pdata *data = qbase_packer_get(this->_pck, resid, name, NULL);
-	if(data == NULL)	
-		return NULL;
+	if(data == NULL)
+        return NULL;
 	qs = new QuabStream((char*)data->pdata, data->sz);
+    free(data->pdata);
+    free(data);
 	return qs;
 }
 void QuabResource::save() const	{
