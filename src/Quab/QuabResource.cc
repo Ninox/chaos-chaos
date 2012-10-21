@@ -1,6 +1,7 @@
 #include "resource/QuabResource.h"
 #include "qbase/qbase.h"
 #include <assert.h>
+#include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
 using namespace Quab;
@@ -25,16 +26,18 @@ QuabResource::~QuabResource()	{
 	this->_size = 0;
 	if(this->_pck != NULL)  {
 		qbase_packer_free(this->_pck);	
-        this->_pck = NULL;
     }
+    this->_pck = NULL;
 }
 
 QuabResource* QuabResource::create(const char *path)	{	
 	qbase_pck *pck = NULL;
+    bool isCreate = true;
 	FILE *f = fopen(path, "rb");
 	if(f == NULL)
 		pck = qbase_packer_create(path);
 	else	{
+        isCreate = true;
 		fclose(f);
 		pck = qbase_packer_load(path);
 	}
@@ -44,7 +47,10 @@ QuabResource* QuabResource::create(const char *path)	{
 	res->_pck = pck;
 	res->_size = 0;
 	res->_path = path;
-	qbase_packer_save(pck, path);
+
+    // create file when the package is created
+    if(isCreate)
+    	qbase_packer_save(pck, path);
 	return res;
 }
 		
@@ -116,11 +122,19 @@ int QuabResource::pack(int resid, const char *packName, const char *filename)	{
 QuabStream* QuabResource::unpack(int resid, const char *name)	{
 	QuabStream *qs = NULL;
 	qbase_pdata *data = qbase_packer_get(this->_pck, resid, name, NULL);
+//    char *buffer = NULL;
 	if(data == NULL)
         return NULL;
-	qs = new QuabStream((char*)data->pdata, data->sz);
-    free(data->pdata);
+//    buffer = (char*)malloc(data->sz);
+//    memcpy(buffer,(char*)data->pdata, data->sz);
+//	qs = new QuabStream(buffer, data->sz);
+    qs = new QuabStream((char*)data->pdata, data->sz);
+//    free(data->pdata);
+//    data->pdata = NULL;
     free(data);
+    data = NULL;
+//    free(buffer);
+//    buffer = NULL;
 	return qs;
 }
 void QuabResource::save() const	{

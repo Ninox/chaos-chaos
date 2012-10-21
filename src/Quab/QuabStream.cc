@@ -28,12 +28,11 @@ QuabStream::~QuabStream()
 bool QuabStream::write(const char *path) const	{
 	FILE *f = fopen(path, "wb");
 	if(f != NULL)	{
-		const char *buff = this->_buffer;
-		if(buff == NULL)	{
+		if(this->_buffer == NULL)	{
 			fclose(f);
 			return false;
 		}
-		fwrite(buff, this->_sz, 1, f);
+		fwrite(this->_buffer, this->_sz, 1, f);
 		fclose(f);
 		return true;
 	} else {
@@ -87,18 +86,16 @@ bool QuabStream::read(const char *path)	{
 }
 
 bool QuabStream::read(const char *buffer, unsigned len)	{
-	if(buffer == NULL)	{
+	if(buffer == NULL || len == 0)	{
 		if(this->_buffer != NULL)
 			free(this->_buffer);
 		this->_buffer = NULL;
 		this->_sz = 0;
 		return false;
 	}
-	char *inputBuffer = (char *)malloc(len);
-	memcpy(inputBuffer, buffer, len);
 	if(this->_buffer != NULL)
 		free(this->_buffer);
-	this->_buffer = inputBuffer;
+    this->_buffer = const_cast<char*>(buffer);
 	this->_sz = len;
 	return true;
 }
