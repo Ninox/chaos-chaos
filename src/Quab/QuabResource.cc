@@ -122,19 +122,11 @@ int QuabResource::pack(int resid, const char *packName, const char *filename)	{
 QuabStream* QuabResource::unpack(int resid, const char *name)	{
 	QuabStream *qs = NULL;
 	qbase_pdata *data = qbase_packer_get(this->_pck, resid, name, NULL);
-//    char *buffer = NULL;
 	if(data == NULL)
         return NULL;
-//    buffer = (char*)malloc(data->sz);
-//    memcpy(buffer,(char*)data->pdata, data->sz);
-//	qs = new QuabStream(buffer, data->sz);
     qs = new QuabStream((char*)data->pdata, data->sz);
-//    free(data->pdata);
-//    data->pdata = NULL;
     free(data);
     data = NULL;
-//    free(buffer);
-//    buffer = NULL;
 	return qs;
 }
 void QuabResource::save() const	{
