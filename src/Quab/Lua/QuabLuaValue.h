@@ -29,11 +29,12 @@ namespace Quab
 		QuabLuaTable *_table;
 						
 	public:
-		QuabLuaValue(int v) { this->LuaValueType = VALUE_INT; _value.integer = v; }
-		QuabLuaValue(double v) { this->LuaValueType = VALUE_DOUBLE; _value.doublef = v; }
-		QuabLuaValue(const char *v) { this->LuaValueType = VALUE_STRING; _value.str = v; }
-		QuabLuaValue(bool v) { this->LuaValueType = VALUE_BOOLEAN; _value.boolean = v; }
-		QuabLuaValue(QuabLuaTable *v) { this->LuaValueType = VALUE_TABLE; this->_table = v; }
+            QuabLuaValue() { this->_table = NULL;}
+		QuabLuaValue(int v):_table(NULL) { this->LuaValueType = VALUE_INT; _value.integer = v; }
+		QuabLuaValue(double v):_table(NULL) { this->LuaValueType = VALUE_DOUBLE; _value.doublef = v; }
+		QuabLuaValue(const char *v):_table(NULL) { this->LuaValueType = VALUE_STRING; _value.str = v; }
+		QuabLuaValue(bool v):_table(NULL) { this->LuaValueType = VALUE_BOOLEAN; _value.boolean = v; }
+		QuabLuaValue(QuabLuaTable *v):_table(NULL) { this->LuaValueType = VALUE_TABLE; this->_table = v; }
 	
 		int LuaValueType;
 		
