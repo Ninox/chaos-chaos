@@ -36,10 +36,8 @@ namespace Quab
 		
 		QuabLuaValue get(const char *name);	
 	
-		bool load(const QuabStream *buffer);
-		bool load(const char *path);		
-		void exec(const QuabStream *buffer);
-		void exec(const char *file);
+		bool exec(const QuabStream *buffer, bool isString = true);
+		bool exec(const char *file);
 		
 		bool registerTo(QuabLuaCallback f, const char *name);
 		
