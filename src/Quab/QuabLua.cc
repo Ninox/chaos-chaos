@@ -64,6 +64,8 @@ QuabLuaValue QuabLua::get(const char *name)     {
                   lua_pop(this->L, 1);
                   return lv;
             case LUA_TSTRING:
+                  lv = QuabLuaValue(lua_tostring(this->L, -1));
+                  lua_pop(this->L, 1);
                   break;
             case LUA_TBOOLEAN:
                   lv = QuabLuaValue(lua_toboolean(this->L, -1) == 1);
@@ -88,8 +90,9 @@ bool QuabLua::exec(const QuabStream *buffer, bool isString)    {
             success = success && lua_pcall(this->L, 0, LUA_MULTRET, 0) == 0;            
       }
       stackCnt = lua_gettop(this->L);
-      if(stackCnt > 0)
+      if(stackCnt > 0)  {
             lua_pop(this->L, stackCnt);
+      }
       return success;
 }
 
@@ -105,6 +108,6 @@ bool QuabLua::registerTo(QuabLuaCallback f, const char *name)    {
       lua_register(this->L, name, f);
 }
 
-void QuabLua::call(const char *fname, const std::vector<QuabLuaValue> &param)    {
+std::vector<QuabLuaValue> QuabLua::call(const char *fname, const std::vector<QuabLuaValue> &param)    {
       
 }

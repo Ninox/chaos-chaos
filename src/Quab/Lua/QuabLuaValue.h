@@ -1,13 +1,13 @@
 #ifndef QUAB_LUAVALUE_H
 #define QUAB_LUAVALUE_H
 
+#include <string>
 #include <stddef.h>
 
 namespace Quab
 {
 	class QuabLuaTable;
 	typedef QuabLuaTable* QuabLuaTablePtr;
-	typedef const char* LuaString;
 	
 	enum LuaValueType	{
 	        VALUE_UNKNOW  = -2,
@@ -23,18 +23,18 @@ namespace Quab
 	private:
 		union	{
 			double number;
-			LuaString str;
 			bool boolean;
 		} _value;
 		
+        std::string _str;
 		QuabLuaTable *_table;
 						
 	public:
         QuabLuaValue() { this->_table = NULL;}
         QuabLuaValue(double v):_table(NULL) { this->LuaValueType = VALUE_NUMBER; _value.number = v; }
-        QuabLuaValue(const char *v):_table(NULL) { this->LuaValueType = VALUE_STRING; _value.str = v; }
+        QuabLuaValue(const char *v):_table(NULL), _str("") { this->LuaValueType = VALUE_STRING; _str.append(v); }
         QuabLuaValue(bool v):_table(NULL) { this->LuaValueType = VALUE_BOOLEAN; _value.boolean = v; }
-        QuabLuaValue(QuabLuaTable *v):_table(NULL) { this->LuaValueType = VALUE_TABLE; this->_table = v; }
+        QuabLuaValue(QuabLuaTable *v) { this->LuaValueType = VALUE_TABLE; this->_table = v; }
 	
 		int LuaValueType;
 		
@@ -50,8 +50,8 @@ namespace Quab
         return this->_value.number; 
     }
 	template<> 
-    LuaString QuabLuaValue::get() {
-        return this->_value.str; 
+    std::string QuabLuaValue::get() {
+        return this->_str; 
     }
 	template<> 
    bool QuabLuaValue::get() {
