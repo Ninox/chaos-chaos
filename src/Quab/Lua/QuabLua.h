@@ -41,7 +41,7 @@ namespace Quab
 		
 		bool registerTo(QuabLuaCallback f, const char *name);
 		
-		void call(const char *fname, const std::vector<QuabLuaValue> &param);
+            std::vector<QuabLuaValue> call(const char *fname, const std::vector<QuabLuaValue> &param);
 				
 	};
 }

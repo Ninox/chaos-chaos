@@ -53,7 +53,7 @@ bool QuabLua::exists(const char *name, int *type)      {
 QuabLuaValue QuabLua::get(const char *name)     {
       lua_getglobal(this->L, name);
       QuabLuaValue lv;
-      lv.LuaValueType = Quab::VALUE_UNKNOW;
+      lv.LuaValueType = Quab::VALUE_UNKNOWN;
       switch(lua_type(this->L, -1)) {
             case LUA_TNIL:
                   lv.LuaValueType = Quab::VALUE_NIL;
