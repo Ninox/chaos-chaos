@@ -6,16 +6,14 @@ using namespace Quab;
 
 /*    helper methods    */
 static bool
-luahelper_checkexist(lua_State *L, const char *name, int *type)    {
+luahelper_checkexist(lua_State *L, const char *name)    {
       lua_getglobal(L, name);
-      bool flag = false;
-      if(type == NULL)  {
-          flag = lua_type(L, -1) != LUA_TNIL;
-      } else    {
-          flag = lua_type(L, -1) != *type;
-      }
+      bool success;
+      if(lua_type(L, -1) == LUA_TNIL)
+          success = false;
+      else success = true;
       lua_pop(L, 1);
-      return flag;
+      return success;
 }
 
 inline static bool
@@ -23,14 +21,6 @@ luahelper_checkgetter(lua_State *L, const char *name, int type) {
     lua_getglobal(L, name);
     return type == lua_type(L, -1);
 }
-
-#define AUTO_POP  \
-      this->_autoCounter++; \
-      if(this->_autoCounter >= QUAB_LUA_AUTOPOP)      { \
-            unsigned popCounter = lua_gettop(this->L); \
-            lua_pop(this->L, popCounter); \
-            this->_autoCounter = 0; \
-      }
 
 /*    the impletement of the QuabLuaTable    */
 QuabLuaTable::QuabLuaTable()    {
@@ -120,36 +110,34 @@ void QuabLua::set(const char *name, const QuabLuaTable &value)  {
 
 }
 
-bool QuabLua::exists(const char *name, int *type)      {
-     return luahelper_checkexist(this->L, name, type);
+bool QuabLua::exists(const char *name)      {
+     return luahelper_checkexist(this->L, name);
 }
 
-void QuabLua::get(const char *name, double *value)  {
+double QuabLua::getNumber(const char *name)  {
     lua_getglobal(this->L, name);
-    *value = lua_tonumber(this->L, -1);
-    AUTO_POP
+    double value = lua_tonumber(this->L, -1);
+    lua_pop(this->L, 1);
+    return value;
 }
 
-void QuabLua::get(const char *name, QuabLuaString *str)    {
+const char* QuabLua::getString(const char *name)    {
     lua_getglobal(this->L, name);
     const char *s = lua_tostring(this->L, -1);
-    if(s != NULL) {
-        (*str).setstr(s);
-    } else  {
-        (*str) = NULL;
-    }
-    AUTO_POP
+    lua_pop(this->L, 1);
+    return s;
 }
 
-void QuabLua::get(const char *name, bool *value)    {
+bool QuabLua::getBoolean(const char *name)    {
     lua_getglobal(this->L, name);
     int boolean = lua_toboolean(this->L, -1);
-    *value = (boolean == 1);
-    AUTO_POP
+    bool value = (boolean == 1);
+    lua_pop(this->L, 1);
+    return value;
 }
 
-void QuabLua::get(const char *name, QuabLuaTable *table)    {
-    
+QuabLuaTable* QuabLua::getTable(const char *name)    {
+    return NULL;
 }
 
 bool QuabLua::exec(const QuabStream *buffer, bool isString)    {
@@ -161,13 +149,17 @@ bool QuabLua::exec(const QuabStream *buffer, bool isString)    {
             success = luaL_loadbuffer(this->L, buffer->getStream(), buffer->getSize(), "buffer_chunck") == 0;
             success = success && lua_pcall(this->L, 0, LUA_MULTRET, 0) == 0;            
       }
-      AUTO_POP
+      unsigned popcnt = lua_gettop(this->L);
+      if(popcnt > 0)
+        lua_pop(this->L, popcnt);
       return success;
 }
 
 bool QuabLua::exec(const char *file)      {
     bool success = luaL_dofile(this->L, file) == 0;
-    AUTO_POP
+    unsigned popcnt = lua_gettop(this->L);
+    if(popcnt > 0)
+        lua_pop(this->L, popcnt);
     return success;
 }
 

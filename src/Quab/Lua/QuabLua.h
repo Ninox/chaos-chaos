@@ -5,7 +5,7 @@
 #include <map>
 #include <stdlib.h>
 #include <stddef.h>
-#include <string.h>
+#include <string>
 #include "../QuabDef.h"
 
 #define QUAB_LUA_AUTOPOP 23
@@ -25,38 +25,11 @@ namespace Quab
         union   {
             double number;
             bool boolean;
-            QuabLuaString *str;
+            std::string *str;
             QuabLuaTable *table;
         } _value;
 
         int type;
-    };
-
-    class QuabLuaString
-    {
-    private:
-        char *buffer;
-        unsigned _sz;
-        QuabLuaString(const QuabLuaString &qls){}
-    public:
-        QuabLuaString() { this->buffer = NULL; this->_sz = 0; }
-        QuabLuaString(const char *str) { this->buffer = NULL; this->setstr(str); }
-        ~QuabLuaString() { 
-            if(this->buffer != NULL)
-                free(this->buffer);
-            this->buffer = NULL;
-            this->_sz = 0;
-        }
-        void setstr(const char *s) {
-            unsigned len = strlen(s);
-            if(this->buffer != NULL)
-                free(this->buffer);
-            this->buffer = (char*)malloc(len + 1);
-            strcpy(this->buffer, s);
-            this->_sz = len;
-        }
-        unsigned getLength() { return this->_sz; }
-        const char *str() { return this->buffer; }
     };
 
 	class QUAB_API QuabLuaTable
@@ -93,12 +66,12 @@ namespace Quab
 		void set(const char *name, bool value);
 		void set(const char *name, const QuabLuaTable &tb);
 		
-		bool exists(const char *name, int *type);
+		bool exists(const char *name);
             		
-        void get(const char *name, double *value);
-        void get(const char *name, QuabLuaString *str);
-        void get(const char *name, bool *value);
-        void get(const char *name, QuabLuaTable *table);
+        double getNumber(const char *name);
+        const char* getString(const char *name);
+        bool getBoolean(const char *name);
+        QuabLuaTable* getTable(const char *name);
 	
 		bool exec(const QuabStream *buffer, bool isString = true);
 		bool exec(const char *file);
