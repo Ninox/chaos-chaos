@@ -1,29 +1,62 @@
 #ifndef QUAB_LUA_H
 #define QUAB_LUA_H
 
-#include <string>
 #include <vector>
 #include <map>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
+#include "../QuabDef.h"
+
+#define QUAB_LUA_AUTOPOP 23
 
 struct lua_State;
 
 namespace Quab
 {
-	class QuabStream;
+    class QuabStream;
     class QuabLuaTable;
+    class QuabLuaString;
     typedef int (*QuabLuaCallback)(lua_State *L);
-    typedef const char* QuabLuaKeyString;
+    typedef const char* QuabLuaKeyString; 
 	
     struct QuabLuaObject 
     {
         union   {
             double number;
             bool boolean;
-            std::string *str;
+            QuabLuaString *str;
             QuabLuaTable *table;
         } _value;
 
         int type;
+    };
+
+    class QuabLuaString
+    {
+    private:
+        char *buffer;
+        unsigned _sz;
+        QuabLuaString(const QuabLuaString &qls){}
+    public:
+        QuabLuaString() { this->buffer = NULL; this->_sz = 0; }
+        QuabLuaString(const char *str) { this->buffer = NULL; this->setstr(str); }
+        ~QuabLuaString() { 
+            if(this->buffer != NULL)
+                free(this->buffer);
+            this->buffer = NULL;
+            this->_sz = 0;
+        }
+        void setstr(const char *s) {
+            unsigned len = strlen(s);
+            if(this->buffer != NULL)
+                free(this->buffer);
+            this->buffer = (char*)malloc(len + 1);
+            strcpy(this->buffer, s);
+            this->_sz = len;
+        }
+        unsigned getLength() { return this->_sz; }
+        const char *str() { return this->buffer; }
     };
 
 	class QUAB_API QuabLuaTable
@@ -47,12 +80,13 @@ namespace Quab
 	private:
 		lua_State *L;
         QuabLua(const QuabLua &lua){}
-        QuabLua(){}
+        QuabLua(){ this->_autoCounter = 0; }
+		unsigned _autoCounter;
 	public:
-        static QuabLua* create(const char *vmName);
+		static QuabLua* create(const char *vmName);
         static void release(const char *vmName);
         ~QuabLua();
-
+            
 		void set(const char *name, int value);
 		void set(const char *name, double value);
 		void set(const char *name, const char *str);
@@ -60,18 +94,18 @@ namespace Quab
 		void set(const char *name, const QuabLuaTable &tb);
 		
 		bool exists(const char *name, int *type);
-		
-        bool get(const char *name, double *value);
-        bool get(const char *name, std::string *str);
-        bool get(const char *name, bool *value);
-        bool get(const char *name, QuabLuaTable *table);
+            		
+        void get(const char *name, double *value);
+        void get(const char *name, QuabLuaString *str);
+        void get(const char *name, bool *value);
+        void get(const char *name, QuabLuaTable *table);
 	
 		bool exec(const QuabStream *buffer, bool isString = true);
 		bool exec(const char *file);
 		
 		bool registerTo(QuabLuaCallback f, const char *name);
 		
-		void call(const char *fname, const QuabLuaTable &params);
+		void call(const char *fname, const QuabLuaTable &para);
 				
 	};
 }
