@@ -16,16 +16,24 @@ namespace Quab
 {
     class QuabStream;
     class QuabLuaTable;
-    class QuabLuaString;
     typedef int (*QuabLuaCallback)(lua_State *L);
     typedef const char* QuabLuaKeyString; 
 	
+    enum QuabLuaType
+    {
+        QUAB_LUATYPE_NIL         = 0,
+        QUAB_LUATYPE_BOOLEAN	 = 1,
+        QUAB_LUATYPE_NUMBER		 = 3,
+        QUAB_LUATYPE_STRING		 = 4,
+        QUAB_LUATYPE_TABLE		 = 5
+    };
+
     struct QuabLuaObject 
     {
         union   {
             double number;
             bool boolean;
-            std::string *str;
+            const char* str;
             QuabLuaTable *table;
         } _value;
 
@@ -42,10 +50,18 @@ namespace Quab
 	public:
         QuabLuaTable();
         ~QuabLuaTable();
+
+        const std::map<const char*, QuabLuaObject>* getMapper() const { return &this->_luamap; }
+        const std::vector<QuabLuaObject>* getArray() const { return &this->_luaArray; }
+
         QuabLuaObject& operator[](unsigned idx);
         QuabLuaObject& operator[](const char *name);
+        void add(const QuabLuaObject &v);
+        void add(const char *key, const QuabLuaObject &v);
+
         unsigned getLength();
         QuabLuaKeyString* getKeys(unsigned *cnt);
+
 	};	
 	
 	class QUAB_API QuabLua

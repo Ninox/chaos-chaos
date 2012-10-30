@@ -5,6 +5,9 @@
 using namespace Quab;
 
 /*    helper methods    */
+static void luahelper_pushdata(lua_State *L, const QuabLuaObject &obj);  // predeclare the function
+static void luahelper_getdata(lua_State *L, QuabLuaTable *table);
+
 static bool
 luahelper_checkexist(lua_State *L, const char *name)    {
       lua_getglobal(L, name);
@@ -20,6 +23,67 @@ inline static bool
 luahelper_checkgetter(lua_State *L, const char *name, int type) {
     lua_getglobal(L, name);
     return type == lua_type(L, -1);
+}
+
+static void
+luahelper_pushtable(lua_State *L, const QuabLuaTable *table)    {
+    // create a new table
+    lua_newtable(L);
+    // get array data
+    int i = 1;
+    const std::vector<QuabLuaObject> *_array = table->getArray();
+    std::vector<QuabLuaObject>::const_iterator citer;
+    for(citer = _array->begin(); citer != _array->end(); citer++) {
+        luahelper_pushdata(L, (*citer));
+        lua_rawseti(L, -2, i++);
+    }
+    // get key-value data
+    const char *key = NULL;
+    const QuabLuaObject *obj = NULL;
+    const std::map<const char*, QuabLuaObject> *objMap = table->getMapper();
+    std::map<const char*, QuabLuaObject>::const_iterator mapIter;
+    for(mapIter = objMap->begin(); mapIter != objMap->end(); mapIter++)   {
+        // push key
+        lua_pushstring(L, (*mapIter).first);
+        // push data
+        luahelper_pushdata(L, (*mapIter).second);
+        // set table
+        lua_settable(L, -3);
+    }
+}
+
+static void
+luahelper_pushdata(lua_State *L, const QuabLuaObject &obj)  {
+    switch(obj.type)
+    {
+    case Quab::QUAB_LUATYPE_NIL:
+        lua_pushnil(L);
+        break;
+    case Quab::QUAB_LUATYPE_NUMBER:
+        lua_pushnumber(L, obj._value.number);
+        break;
+    case Quab::QUAB_LUATYPE_STRING:
+        lua_pushstring(L, obj._value.str);
+        break;
+    case Quab::QUAB_LUATYPE_BOOLEAN:
+        lua_pushboolean(L, obj._value.boolean);
+        break;
+    case Quab::QUAB_LUATYPE_TABLE:
+        luahelper_pushtable(L, obj._value.table);
+        break;
+    default:
+        break;
+    }
+}
+
+static void
+luahelper_gettable(lua_State *L, QuabLuaTable *table)   {
+
+}
+
+static void
+luahelper_getdata(lua_State *L, QuabLuaTable *table)    {
+
 }
 
 /*    the impletement of the QuabLuaTable    */
@@ -41,6 +105,14 @@ QuabLuaObject& QuabLuaTable::operator[](unsigned idx)   {
 
 QuabLuaObject& QuabLuaTable::operator[](const char *name)   {
     return this->_luamap[name];
+}
+
+void QuabLuaTable::add(const QuabLuaObject &v) {
+    this->_luaArray.push_back(v);
+}
+
+void QuabLuaTable::add(const char *key, const QuabLuaObject &v) {
+    this->_luamap.insert(std::map<const char*, QuabLuaObject>::value_type(key, v));
 }
 
 unsigned QuabLuaTable::getLength()  {
@@ -107,7 +179,8 @@ void QuabLua::set(const char *name, bool value)  {
 }
 
 void QuabLua::set(const char *name, const QuabLuaTable &value)  {
-
+    luahelper_pushtable(this->L, &value);
+    lua_setglobal(this->L, name);
 }
 
 bool QuabLua::exists(const char *name)      {
@@ -137,7 +210,9 @@ bool QuabLua::getBoolean(const char *name)    {
 }
 
 QuabLuaTable* QuabLua::getTable(const char *name)    {
-    return NULL;
+    QuabLuaTable *table = new QuabLuaTable();
+
+    return table;
 }
 
 bool QuabLua::exec(const QuabStream *buffer, bool isString)    {
