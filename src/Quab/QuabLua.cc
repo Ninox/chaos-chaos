@@ -60,16 +60,16 @@ luahelper_pushdata(lua_State *L, const QuabLuaObject &obj)  {
         lua_pushnil(L);
         break;
     case Quab::QUAB_LUATYPE_NUMBER:
-        lua_pushnumber(L, obj._value.number);
+        lua_pushnumber(L, obj.value.number);
         break;
     case Quab::QUAB_LUATYPE_STRING:
-        lua_pushstring(L, obj._value.str);
+        lua_pushstring(L, obj.value.str);
         break;
     case Quab::QUAB_LUATYPE_BOOLEAN:
-        lua_pushboolean(L, obj._value.boolean);
+        lua_pushboolean(L, obj.value.boolean);
         break;
     case Quab::QUAB_LUATYPE_TABLE:
-        luahelper_pushtable(L, obj._value.table);
+        luahelper_pushtable(L, obj.value.table);
         break;
     default:
         break;

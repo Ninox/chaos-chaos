@@ -35,7 +35,7 @@ namespace Quab
             bool boolean;
             const char* str;
             QuabLuaTable *table;
-        } _value;
+        } value;
 
         int type;
     };
