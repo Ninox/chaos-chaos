@@ -97,6 +97,7 @@ QuabLuaTable::~QuabLuaTable()   {
 }
 
 QuabLuaObject& QuabLuaTable::operator[](unsigned idx)   {
+	idx--;
     if(idx >= this->_luaArray.size())
         throw "over the max index of Lua array";
     else 
