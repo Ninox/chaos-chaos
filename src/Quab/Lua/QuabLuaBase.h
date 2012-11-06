@@ -5,6 +5,14 @@
 
 #define QUAB_MAX_LUAPOOL 64
 
+#define _LKEY(key) luaTKey(key)
+
+#define VAR_NIL 0
+#define VAR_BOOLEAN 1
+#define VAR_NUMBER 3
+#define VAR_STRING 4
+#define VAR_TABLE 5
+
 struct lua_State;
 namespace Quab
 {
@@ -20,7 +28,11 @@ namespace Quab
         char vartype;
     };
     
+	struct luaTKey {
+		const char *key;
+		luaTKey(const char *k) { key = k; };
+	};
+	
     typedef int (*quabLuaCallback)(lua_State *L);
-
 }
 #endif // QuabLuaBase

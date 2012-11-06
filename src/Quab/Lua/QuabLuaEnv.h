@@ -7,18 +7,20 @@
 namespace Quab  
 {
     class QuabLuaTable;
+	class QuabStream;
 
     class QUAB_API QuabLuaEnv
     {
     private:
         lua_State *L;
-        QuabLuaEnv();
+        
     public:
-        static QuabLuaEnv* createEnv(const char *name);
-        static void releaseEnv(const char *name);
-
-        void set(const char *name, const luaVariant &v);
+		QuabLuaEnv();
+		~QuabLuaEnv();
+		
+        void set(const char *name, luaVariant v);
         luaVariant get(const char *name);
+		bool exists(const char *name);
 
         void load(const char *file);
         void load(const QuabStream *s);

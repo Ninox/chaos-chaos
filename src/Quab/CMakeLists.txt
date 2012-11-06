@@ -63,7 +63,8 @@ SET(QUAB_SRC
 #	BUILD Script
 SET(QUAB_SRC
 		${QUAB_SRC}
-		${QUAB_ROOT}/QuabLua.cc
+		${QUAB_ROOT}/QuabLuaEnv.cc
+		${QUAB_ROOT}/QuabLuaTable.cc
 )
 #	BUILD Sound
 SET(QUAB_SRC
