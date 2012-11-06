@@ -1,5 +1,7 @@
 #include "lua/QuabLuaEnv.h"
+#include "resource/QuabResource.h"
 #include <map>
+#include <string.h>
 #include <lua.hpp>
 using namespace Quab;
 using namespace std;
@@ -7,15 +9,25 @@ using namespace std;
 /*   helper methods   */
 #define AUTOPOP_COUNTER 32
 
-inline void luahelper_autopop(lua_State *L)    {
+/*      helper functions        */
+static void 
+luahelper_autopop(lua_State *L)    {
     static int counter = 0;
     if(counter >= AUTOPOP_COUNTER)  {
-        int cnt = lua_gettop(L);
-        lua_pop(L, cnt);
+        lua_pop(L, lua_gettop(L));
         counter = 0;
     } else  {
         counter++;
     }
+}
+
+static void
+luahelper_tostack(lua_State *L, const QuabLuaTable &tb)    {
+
+}
+
+static QuabLuaTable *
+luahelper_fromstack(lua_State *L, int idx)    {
 }
 
 /*      public class implements     */
@@ -28,7 +40,7 @@ QuabLuaEnv::~QuabLuaEnv()    {
     this->L = NULL;
 }
 
-void QuabLuaEnv::set(const char *name, luaVariant v) {
+void QuabLuaEnv::set(const char *name, const luaVariant &v) {
     bool isContinue = true;
     switch(v.vartype)
     {
@@ -70,7 +82,7 @@ luaVariant QuabLuaEnv::get(const char *name)    {
         break;
     case LUA_TTABLE:
         lvar.vartype = LUA_TTABLE;
-//        lvar.table = lua_toboolean(this->L, -1) == 1;
+        lvar.value.table = luahelper_fromstack(this->L, -1);
         break;
     case LUA_TNIL:
     default:
@@ -92,22 +104,42 @@ bool QuabLuaEnv::exists(const char *name)   {
     return false;
 }
 
-void QuabLuaEnv::load(const char *file) {
-
+bool QuabLuaEnv::exec(const char *file) {
+    if(file == NULL)
+        return false;
+    int ret = luaL_dofile(this->L, file);
+    luahelper_autopop(this->L);
+    return ret == 0;
 }
-void QuabLuaEnv::load(const QuabStream *s)  {
 
-}
-void QuabLuaEnv::exec(const char *file) {
-
-}
-void QuabLuaEnv::exec(const QuabStream *s)  {
-
+bool QuabLuaEnv::exec(const QuabStream *s)  {
+    if(s == NULL || s->getSize() == 0)
+        return false;;
+    luaL_loadbuffer(this->L, s->getStream(), s->getSize(), "buffer_chunk");
+    int ret = lua_pcall(this->L, 0, LUA_MULTRET, 0);
+    luahelper_autopop(this->L);
+    return ret == 0;
 }
 
 bool QuabLuaEnv::register_to(const char *name , quabLuaCallback f)  {
-    return false;
+    if(name == NULL || f == NULL)   {
+        return false;
+    }   else    {
+        lua_register(this->L, name, f);
+        return true;
+    }
 }
-bool QuabLuaEnv::call(const char *fname, const QuabLuaTable* para)  {
-    return false;
+bool QuabLuaEnv::call(const char *fname, const QuabLuaTable* para, int nargs)  {
+    char retVariant[50];
+    lua_getglobal(this->L, fname);
+    if(lua_type(this->L, -1) != LUA_TFUNCTION)  {
+        lua_pop(this->L, 1);
+        return false;
+    }
+    luahelper_tostack(this->L, (*para));
+    lua_call(this->L, nargs, 1);
+    strcpy(retVariant, fname);
+    strcat(retVariant, "_results");
+    lua_setglobal(this->L, retVariant);
+    return true;
 }

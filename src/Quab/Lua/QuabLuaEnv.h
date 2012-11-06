@@ -6,7 +6,6 @@
 
 namespace Quab  
 {
-    class QuabLuaTable;
 	class QuabStream;
 
     class QUAB_API QuabLuaEnv
@@ -18,17 +17,15 @@ namespace Quab
 		QuabLuaEnv();
 		~QuabLuaEnv();
 		
-        void set(const char *name, luaVariant v);
+        void set(const char *name, const luaVariant &v);
         luaVariant get(const char *name);
 		bool exists(const char *name);
 
-        void load(const char *file);
-        void load(const QuabStream *s);
-        void exec(const char *file);
-        void exec(const QuabStream *s);
+        bool exec(const char *file);
+        bool exec(const QuabStream *s);
 
         bool register_to(const char *name , quabLuaCallback f);
-        bool call(const char *fname, const QuabLuaTable* para);
+        bool call(const char *fname, const QuabLuaTable* para, int nargs = 0);
     };
 }
 

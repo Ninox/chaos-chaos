@@ -7,23 +7,24 @@
 
 #define _LKEY(key) luaTKey(key)
 
-#define VAR_NIL 0
+#define VAR_NIL     0
 #define VAR_BOOLEAN 1
-#define VAR_NUMBER 3
-#define VAR_STRING 4
-#define VAR_TABLE 5
+#define VAR_NUMBER  3
+#define VAR_STRING  4
+#define VAR_TABLE   5
 
 struct lua_State;
 namespace Quab
 {
     struct quabInnerTable;
+    class QuabLuaTable;
 
     struct luaVariant   {
         union   {
             Real number;
             const char *str;
             bool boolean;
-            quabInnerTable *table;
+            QuabLuaTable *table;
         } value;
         char vartype;
     };

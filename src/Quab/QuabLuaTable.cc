@@ -12,7 +12,7 @@ typedef vector<luaVariant> _luaTableArray_;
 static void
 luatable_releasevar(luaVariant &v)  {
     if(v.vartype == VAR_TABLE)  {
-        free(v.value.table);
+        delete v.value.table;
         v.value.table = NULL;
     }
 }
@@ -66,19 +66,19 @@ QuabLuaTable::~QuabLuaTable()   {
             }
         }        
         /*      clear the array and table       */
-        innerArray.clear();
-        innerMapper.clear();
+        this->table->array.clear();
+        this->table->mapper.clear();
 
-        free(this->table);
+        delete this->table;
     }
     this->table = NULL;
 }
 
-void QuabLuaTable::add(luaVariant v) {
+void QuabLuaTable::add(const luaVariant &v) {
     this->table->array.push_back(v);
 }
 
-void QuabLuaTable::add(luaTKey key, luaVariant v)    {
+void QuabLuaTable::add(luaTKey key, const luaVariant &v)    {
     if(this->table->mapper.count(key.key) > 0)  {
         luaVariant &mVar = this->table->mapper[key.key];
         if(mVar.vartype == VAR_TABLE) {

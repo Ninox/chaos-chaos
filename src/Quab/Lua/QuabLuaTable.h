@@ -18,8 +18,8 @@ namespace Quab
         QuabLuaTable(const char *name = NULL);
         ~QuabLuaTable();
 
-		void add(luaVariant v);
-		void add(luaTKey key, luaVariant v);
+		void add(const luaVariant &v);
+		void add(luaTKey key, const luaVariant &v);
 		luaVariant& operator[](unsigned idx);
 		luaVariant& operator[](luaTKey key);
 
