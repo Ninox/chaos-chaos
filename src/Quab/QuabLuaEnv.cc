@@ -1,4 +1,5 @@
 #include "lua/QuabLuaEnv.h"
+#include "lua/QuabLuaTable.h"
 #include "resource/QuabResource.h"
 #include <map>
 #include <string.h>
@@ -23,11 +24,34 @@ luahelper_autopop(lua_State *L)    {
 
 static void
 luahelper_tostack(lua_State *L, const QuabLuaTable &tb)    {
+    // get array data
+    unsigned arrSize = tb.getIndexLength();
+    for(int i = 0; i < arrSize; i++)    {
 
+    }
+    // get table data
+    const char *key = NULL;
+    int key_count = 0;
+    QuabLuaKeyIterator *keyCollection = tb.getKeys(&key_count);
+    for(; keyCollection->isEnd(); (*keyCollection)++)   {
+        key = keyCollection->get();
+        
+    }
 }
 
 static QuabLuaTable *
 luahelper_fromstack(lua_State *L, int idx)    {
+    QuabLuaTable *table = new QuabLuaTable();
+    // get array data
+    unsigned arrSize = lua_rawlen(L, idx);
+    for(int i = 0; i < arrSize; i++)    {
+    }
+    // get from key
+    lua_pushnil(L);
+    while(lua_next(L, -2))  {
+        
+    }
+    return table;
 }
 
 /*      public class implements     */

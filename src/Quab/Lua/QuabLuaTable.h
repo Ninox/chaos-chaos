@@ -3,10 +3,34 @@
 
 #include "QuabLuaBase.h"
 #include <stddef.h>
+#include <map>
+#include <vector>
+
+typedef std::map<const char*, Quab::luaVariant> _luaTableMap_;
+typedef std::vector<Quab::luaVariant> _luaTableArray_;
 
 namespace Quab  
 {
-	class QuabLuaKeyIterator;
+	class QuabLuaKeyIterator    {
+        private:
+            _luaTableMap_::iterator _iter;
+            _luaTableMap_::iterator _end;
+        public:
+            QuabLuaKeyIterator(_luaTableMap_::iterator iter, _luaTableMap_::iterator end)    {
+                this->_iter = iter;
+                this->_end = end;
+            }
+            inline bool isEnd() {
+                return this->_iter == this->_end;
+            }
+            inline const char* get()   {
+                return (*_iter).first;
+            }
+            QuabLuaKeyIterator& operator ++(int)  {
+                this->_iter++;
+                return *this;
+            }
+    };
 	
 	class QUAB_API QuabLuaTable
     {

@@ -1,12 +1,6 @@
 #include "lua/QuabLuaTable.h"
 #include <stdlib.h>
-#include <map>
-#include <vector>
 using namespace Quab;
-using namespace std;
-
-typedef map<const char*, luaVariant> _luaTableMap_;
-typedef vector<luaVariant> _luaTableArray_;
 
 /*      helper functions        */
 static void
@@ -22,21 +16,6 @@ namespace Quab {
     struct quabInnerTable   {
         _luaTableArray_ array;
         _luaTableMap_ mapper;
-    };
-
-    class QuabLuaKeyIterator    {
-        private:
-            _luaTableMap_::iterator _iter;
-        public:
-            QuabLuaKeyIterator(_luaTableMap_::iterator iter)    {
-                this->_iter = iter;
-            }
-            inline const char* get()   {
-                return (*_iter).first;
-            }
-            void operator ++()  {
-                this->_iter++;
-            }
     };
 }
 
@@ -107,5 +86,5 @@ unsigned QuabLuaTable::getKeyCount() const  {
 }
 QuabLuaKeyIterator* QuabLuaTable::getKeys(int *cnt) const {
     *cnt = this->table->mapper.size();
-    return new QuabLuaKeyIterator(this->table->mapper.begin());
+    return new QuabLuaKeyIterator(this->table->mapper.begin(), this->table->mapper.end());
 }
