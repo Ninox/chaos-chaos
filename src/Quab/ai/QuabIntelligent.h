@@ -1,6 +1,0 @@
-#ifndef QUAB_INTELLIGENT_H
-#define QUAB_INTELLIGENT_H
-
-
-
-#endif
