@@ -1,4 +1,0 @@
-OGL_Render = 'librender.dll'
-math_a = 'libmatha.dll'
-math_b = 'libmathb.dll'
-strhelper = 'libstr.dll'
